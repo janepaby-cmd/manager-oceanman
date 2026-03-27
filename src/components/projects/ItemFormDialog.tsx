@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   open: boolean;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function ItemFormDialog({ open, onOpenChange, phaseId, item, nextPosition, onSaved }: Props) {
+  const { t } = useTranslation(["projects", "common"]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [itemTypeId, setItemTypeId] = useState("");
@@ -43,8 +45,8 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
   }, [item, open, itemTypes]);
 
   const handleSave = async () => {
-    if (!title.trim()) { toast.error("El título es requerido"); return; }
-    if (!itemTypeId) { toast.error("Selecciona un tipo"); return; }
+    if (!title.trim()) { toast.error(t("titleRequired")); return; }
+    if (!itemTypeId) { toast.error(t("selectTypeRequired")); return; }
     setSaving(true);
 
     const data: any = {
@@ -63,8 +65,8 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
     }
 
     setSaving(false);
-    if (error) { toast.error("Error: " + error.message); return; }
-    toast.success(item ? "Item actualizado" : "Item creado");
+    if (error) { toast.error(t("common:error") + ": " + error.message); return; }
+    toast.success(item ? t("itemUpdated") : t("itemCreated"));
     onOpenChange(false);
     onSaved();
   };
@@ -73,32 +75,32 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{item ? "Editar Item" : "Nuevo Item"}</DialogTitle>
+          <DialogTitle>{item ? t("editItem") : t("newItem")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Título *</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título del item" />
+            <Label>{t("itemTitle")} *</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("itemTitle")} />
           </div>
           <div>
-            <Label>Tipo *</Label>
+            <Label>{t("itemType")} *</Label>
             <Select value={itemTypeId} onValueChange={setItemTypeId}>
-              <SelectTrigger><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("selectType")} /></SelectTrigger>
               <SelectContent>
-                {itemTypes.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                {itemTypes.map((t_) => (
+                  <SelectItem key={t_.id} value={t_.id}>{t_.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label>Descripción</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descripción" />
+            <Label>{t("common:description")}</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("common:description")} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:cancel")}</Button>
+          <Button onClick={handleSave} disabled={saving}>{saving ? t("common:saving") : t("common:save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

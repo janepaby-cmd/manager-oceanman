@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Upload, FileText, PenTool, Check } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -21,6 +22,7 @@ interface Props {
 
 export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Props) {
   const { user } = useAuth();
+  const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -43,7 +45,7 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
     setUploading(true);
     const path = `${item.phase_id}/${item.id}/${file.name}`;
     const { error: upErr } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
-    if (upErr) { toast.error("Error al subir archivo"); setUploading(false); return; }
+    if (upErr) { toast.error(t("fileUploadError")); setUploading(false); return; }
     const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
     await supabase.from("phase_items").update({
       file_url: urlData.publicUrl,
@@ -51,7 +53,7 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       completed_by: user!.id,
       completed_at: new Date().toISOString(),
     }).eq("id", item.id);
-    toast.success("Archivo subido");
+    toast.success(t("fileUploaded"));
     setUploading(false);
     onUpdated();
   };
@@ -66,14 +68,14 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       completed_by: user!.id,
       completed_at: new Date().toISOString(),
     }).eq("id", item.id);
-    toast.success("Firma guardada");
+    toast.success(t("signatureSaved"));
     setShowSignature(false);
     onUpdated();
   };
 
   const handleDelete = async () => {
     await supabase.from("phase_items").delete().eq("id", item.id);
-    toast.success("Item eliminado");
+    toast.success(t("itemDeleted"));
     setShowDelete(false);
     onUpdated();
   };
@@ -85,18 +87,10 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
           <Checkbox checked={item.is_completed} onCheckedChange={toggleCheckbox} />
         )}
         {typeCode === "file" && (
-          item.is_completed ? (
-            <Check className="h-4 w-4 text-green-500" />
-          ) : (
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          )
+          item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <FileText className="h-4 w-4 text-muted-foreground" />
         )}
         {typeCode === "signature" && (
-          item.is_completed ? (
-            <Check className="h-4 w-4 text-green-500" />
-          ) : (
-            <PenTool className="h-4 w-4 text-muted-foreground" />
-          )
+          item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <PenTool className="h-4 w-4 text-muted-foreground" />
         )}
 
         <div className="flex-1 min-w-0">
@@ -112,7 +106,7 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
           <>
             <input ref={fileRef} type="file" className="hidden" onChange={handleFileUpload} />
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-              <Upload className="h-3.5 w-3.5 mr-1" /> {uploading ? "Subiendo..." : "Adjuntar"}
+              <Upload className="h-3.5 w-3.5 mr-1" /> {uploading ? t("uploading") : t("attach")}
             </Button>
           </>
         )}
@@ -126,7 +120,7 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
 
         {typeCode === "signature" && !item.is_completed && (
           <Button variant="outline" size="sm" onClick={() => setShowSignature(true)}>
-            <PenTool className="h-3.5 w-3.5 mr-1" /> Firmar
+            <PenTool className="h-3.5 w-3.5 mr-1" /> {t("sign")}
           </Button>
         )}
 
@@ -147,12 +141,12 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar item?</AlertDialogTitle>
-            <AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription>
+            <AlertDialogTitle>{t("deleteItem")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("deleteItemConfirm")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
+            <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>{t("common:delete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
