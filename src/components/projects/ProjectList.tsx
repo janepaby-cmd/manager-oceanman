@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Eye, Pencil, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Plus, Eye, Pencil, Trash2, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -48,7 +49,9 @@ export default function ProjectList({ onSelectProject }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterYear, setFilterYear] = useState<string>("all");
   const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
@@ -100,6 +103,15 @@ export default function ProjectList({ onSelectProject }: Props) {
     setDeleteId(null);
   };
 
+  const years = [...new Set(projects.map((p) => p.fiscal_year))].sort((a, b) => b - a);
+
+  const filtered = projects.filter((p) => {
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filterStatus !== "all" && p.status_id !== filterStatus) return false;
+    if (filterYear !== "all" && p.fiscal_year !== Number(filterYear)) return false;
+    return true;
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -111,11 +123,45 @@ export default function ProjectList({ onSelectProject }: Props) {
         )}
       </div>
 
+      <div className="flex flex-wrap gap-3">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={t("searchByName", "Buscar por nombre...")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder={t("common:status")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("allStatuses", "Todos los estados")}</SelectItem>
+            {statuses.map((s) => (
+              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterYear} onValueChange={setFilterYear}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder={t("fiscalYear")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("allYears", "Todos los años")}</SelectItem>
+            {years.map((y) => (
+              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {loading ? (
         <p className="text-muted-foreground text-center py-8">{t("common:loading")}</p>
-      ) : projects.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="glass-card p-12 text-center">
-          <p className="text-muted-foreground">{t("noProjects")}</p>
+          <p className="text-muted-foreground">{projects.length === 0 ? t("noProjects") : t("noResults", "No se encontraron resultados")}</p>
         </div>
       ) : (
         <div className="border rounded-lg">
@@ -132,7 +178,7 @@ export default function ProjectList({ onSelectProject }: Props) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projects.map((p) => (
+              {filtered.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell>{p.fiscal_year}</TableCell>
