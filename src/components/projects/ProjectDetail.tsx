@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Plus, Users, CheckCircle2, Circle } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import PhaseCard from "./PhaseCard";
 import PhaseFormDialog from "./PhaseFormDialog";
 import ProjectUsersDialog from "./ProjectUsersDialog";
@@ -19,6 +19,7 @@ interface Props {
 
 export default function ProjectDetail({ projectId, onBack }: Props) {
   const { hasRole } = useAuth();
+  const { t, i18n } = useTranslation(["projects", "common"]);
   const [project, setProject] = useState<any>(null);
   const [phases, setPhases] = useState<any[]>([]);
   const [status, setStatus] = useState<any>(null);
@@ -27,6 +28,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [showUsers, setShowUsers] = useState(false);
 
   const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
+  const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProject = useCallback(async () => {
     const { data } = await supabase.from("projects").select("*").eq("id", projectId).single();
@@ -53,7 +55,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
     fetchPhases();
   }, [fetchProject, fetchPhases]);
 
-  if (!project) return <p className="text-center py-8 text-muted-foreground">Cargando...</p>;
+  if (!project) return <p className="text-center py-8 text-muted-foreground">{t("common:loading")}</p>;
 
   return (
     <div className="space-y-6">
@@ -70,28 +72,28 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         )}
         {canManage && (
           <Button variant="outline" size="sm" onClick={() => setShowUsers(true)}>
-            <Users className="h-4 w-4 mr-2" /> Usuarios
+            <Users className="h-4 w-4 mr-2" /> {t("users")}
           </Button>
         )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Ejercicio</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("fiscalYear")}</CardTitle></CardHeader>
           <CardContent className="text-lg font-semibold">{project.fiscal_year}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Inicio</CardTitle></CardHeader>
-          <CardContent className="text-lg font-semibold">{format(new Date(project.start_date), "dd/MM/yyyy", { locale: es })}</CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("start")}</CardTitle></CardHeader>
+          <CardContent className="text-lg font-semibold">{format(new Date(project.start_date), "dd/MM/yyyy", { locale: dateLocale })}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Fin Estimado</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("estimatedEnd")}</CardTitle></CardHeader>
           <CardContent className="text-lg font-semibold">
-            {project.estimated_end_date ? format(new Date(project.estimated_end_date), "dd/MM/yyyy", { locale: es }) : "—"}
+            {project.estimated_end_date ? format(new Date(project.estimated_end_date), "dd/MM/yyyy", { locale: dateLocale }) : "—"}
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Fases</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("phases")}</CardTitle></CardHeader>
           <CardContent className="flex items-center gap-2">
             <span className="text-lg font-semibold">{phases.filter(p => p.is_completed).length}/{phases.length}</span>
             {phases.length > 0 && phases.every(p => p.is_completed) ? (
@@ -105,17 +107,17 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Fases del Proyecto</h3>
+          <h3 className="text-lg font-semibold">{t("phases")}</h3>
           {canManage && (
             <Button size="sm" onClick={() => { setEditPhase(null); setShowPhaseForm(true); }}>
-              <Plus className="h-4 w-4 mr-2" /> Nueva Fase
+              <Plus className="h-4 w-4 mr-2" /> {t("newPhase")}
             </Button>
           )}
         </div>
 
         {phases.length === 0 ? (
           <div className="border rounded-lg p-8 text-center text-muted-foreground">
-            No hay fases definidas. Añade la primera fase del proyecto.
+            {t("noPhases")}
           </div>
         ) : (
           <div className="space-y-3">

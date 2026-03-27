@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   open: boolean;
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function PhaseFormDialog({ open, onOpenChange, projectId, phase, nextPosition, onSaved }: Props) {
+  const { t } = useTranslation(["projects", "common"]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
@@ -32,7 +34,7 @@ export default function PhaseFormDialog({ open, onOpenChange, projectId, phase, 
   }, [phase, open]);
 
   const handleSave = async () => {
-    if (!name.trim()) { toast.error("El nombre es requerido"); return; }
+    if (!name.trim()) { toast.error(t("nameRequired")); return; }
     setSaving(true);
 
     const data: any = { name: name.trim(), description: description.trim() || null };
@@ -47,8 +49,8 @@ export default function PhaseFormDialog({ open, onOpenChange, projectId, phase, 
     }
 
     setSaving(false);
-    if (error) { toast.error("Error: " + error.message); return; }
-    toast.success(phase ? "Fase actualizada" : "Fase creada");
+    if (error) { toast.error(t("common:error") + ": " + error.message); return; }
+    toast.success(phase ? t("phaseUpdated") : t("phaseCreated"));
     onOpenChange(false);
     onSaved();
   };
@@ -57,21 +59,21 @@ export default function PhaseFormDialog({ open, onOpenChange, projectId, phase, 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{phase ? "Editar Fase" : "Nueva Fase"}</DialogTitle>
+          <DialogTitle>{phase ? t("editPhase") : t("newPhase")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Nombre *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre de la fase" />
+            <Label>{t("common:name")} *</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("phaseName")} />
           </div>
           <div>
-            <Label>Descripción</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descripción de la fase" />
+            <Label>{t("common:description")}</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("phaseDesc")} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:cancel")}</Button>
+          <Button onClick={handleSave} disabled={saving}>{saving ? t("common:saving") : t("common:save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

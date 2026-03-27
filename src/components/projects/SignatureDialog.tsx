@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   open: boolean;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function SignatureDialog({ open, onOpenChange, onSave }: Props) {
+  const { t } = useTranslation("projects");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drawing, setDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
@@ -59,7 +61,7 @@ export default function SignatureDialog({ open, onOpenChange, onSave }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Firma Digital</DialogTitle>
+          <DialogTitle>{t("signatureTitle")}</DialogTitle>
         </DialogHeader>
         <div className="border rounded-lg overflow-hidden">
           <canvas
@@ -77,8 +79,8 @@ export default function SignatureDialog({ open, onOpenChange, onSave }: Props) {
           />
         </div>
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={clear}>Limpiar</Button>
-          <Button onClick={save} disabled={!hasDrawn}>Confirmar y Firmar</Button>
+          <Button variant="outline" onClick={clear}>{t("signatureClear")}</Button>
+          <Button onClick={save} disabled={!hasDrawn}>{t("signatureConfirm")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

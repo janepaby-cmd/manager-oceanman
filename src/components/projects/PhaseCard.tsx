@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight, Pencil, Trash2, Plus, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import PhaseItemRow from "./PhaseItemRow";
 import ItemFormDialog from "./ItemFormDialog";
 import {
@@ -28,6 +28,7 @@ export default function PhaseCard({ phase, canManage, onEdit, onDeleted, onUpdat
   const [showItemForm, setShowItemForm] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
   const [showDelete, setShowDelete] = useState(false);
+  const { t } = useTranslation(["projects", "common"]);
 
   const fetchItems = async () => {
     const { data } = await supabase
@@ -37,7 +38,6 @@ export default function PhaseCard({ phase, canManage, onEdit, onDeleted, onUpdat
       .order("position");
     if (data) {
       setItems(data);
-      // Auto-complete phase if all items completed
       const allCompleted = data.length > 0 && data.every((i: any) => i.is_completed);
       if (allCompleted !== phase.is_completed) {
         await supabase.from("project_phases").update({ is_completed: allCompleted }).eq("id", phase.id);
@@ -52,8 +52,8 @@ export default function PhaseCard({ phase, canManage, onEdit, onDeleted, onUpdat
 
   const handleDelete = async () => {
     const { error } = await supabase.from("project_phases").delete().eq("id", phase.id);
-    if (error) toast.error("Error al eliminar fase");
-    else { toast.success("Fase eliminada"); onDeleted(); }
+    if (error) toast.error(t("common:error"));
+    else { toast.success(t("phaseDeleted")); onDeleted(); }
     setShowDelete(false);
   };
 
@@ -107,7 +107,7 @@ export default function PhaseCard({ phase, canManage, onEdit, onDeleted, onUpdat
               ))}
               {canManage && (
                 <Button variant="outline" size="sm" className="w-full" onClick={() => { setEditItem(null); setShowItemForm(true); }}>
-                  <Plus className="h-3.5 w-3.5 mr-2" /> Añadir Item
+                  <Plus className="h-3.5 w-3.5 mr-2" /> {t("addItem")}
                 </Button>
               )}
             </CardContent>
@@ -127,12 +127,12 @@ export default function PhaseCard({ phase, canManage, onEdit, onDeleted, onUpdat
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar fase?</AlertDialogTitle>
-            <AlertDialogDescription>Se eliminarán también todos los items asociados.</AlertDialogDescription>
+            <AlertDialogTitle>{t("deletePhase")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("deletePhaseConfirm")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
+            <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>{t("common:delete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

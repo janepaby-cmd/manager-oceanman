@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   open: boolean;
@@ -25,6 +26,7 @@ interface Props {
 
 export default function ProjectFormDialog({ open, onOpenChange, project, statuses, onSaved }: Props) {
   const { user } = useAuth();
+  const { t, i18n } = useTranslation(["projects", "common"]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [fiscalYear, setFiscalYear] = useState(new Date().getFullYear());
@@ -32,6 +34,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
+
+  const dateLocale = i18n.language === "es" ? es : undefined;
 
   useEffect(() => {
     if (project) {
@@ -52,7 +56,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   }, [project, open, statuses]);
 
   const handleSave = async () => {
-    if (!name.trim()) { toast.error("El nombre es requerido"); return; }
+    if (!name.trim()) { toast.error(t("nameRequired")); return; }
     setSaving(true);
 
     const data: any = {
@@ -73,8 +77,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     }
 
     setSaving(false);
-    if (error) { toast.error("Error al guardar: " + error.message); return; }
-    toast.success(project ? "Proyecto actualizado" : "Proyecto creado");
+    if (error) { toast.error(t("errorSaving") + ": " + error.message); return; }
+    toast.success(project ? t("projectUpdated") : t("projectCreated"));
     onOpenChange(false);
     onSaved();
   };
@@ -86,20 +90,20 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{project ? "Editar Proyecto" : "Nuevo Proyecto"}</DialogTitle>
+          <DialogTitle>{project ? t("editProject") : t("newProject")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Nombre del Proyecto *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre del proyecto" />
+            <Label>{t("projectName")} *</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("projectNamePlaceholder")} />
           </div>
           <div>
-            <Label>Descripción</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descripción del proyecto" />
+            <Label>{t("common:description")}</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("descriptionPlaceholder")} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Ejercicio (Año)</Label>
+              <Label>{t("fiscalYear")}</Label>
               <Select value={String(fiscalYear)} onValueChange={(v) => setFiscalYear(Number(v))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -108,9 +112,9 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
               </Select>
             </div>
             <div>
-              <Label>Estado</Label>
+              <Label>{t("common:status")}</Label>
               <Select value={statusId} onValueChange={setStatusId}>
-                <SelectTrigger><SelectValue placeholder="Seleccionar estado" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("selectStatus")} /></SelectTrigger>
                 <SelectContent>
                   {statuses.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                 </SelectContent>
@@ -119,12 +123,12 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Fecha de inicio</Label>
+              <Label>{t("startDate")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className={cn("w-full justify-start text-left font-normal")}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(startDate, "dd/MM/yyyy", { locale: es })}
+                    {format(startDate, "dd/MM/yyyy", { locale: dateLocale })}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -133,12 +137,12 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
               </Popover>
             </div>
             <div>
-              <Label>Fecha fin estimada</Label>
+              <Label>{t("estimatedEndDate")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "dd/MM/yyyy", { locale: es }) : "Seleccionar"}
+                    {endDate ? format(endDate, "dd/MM/yyyy", { locale: dateLocale }) : t("selectDate")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -149,8 +153,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:cancel")}</Button>
+          <Button onClick={handleSave} disabled={saving}>{saving ? t("common:saving") : t("common:save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

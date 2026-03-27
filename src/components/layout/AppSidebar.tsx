@@ -8,6 +8,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   Sidebar,
   SidebarContent,
@@ -21,17 +22,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const mainItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Proyectos", url: "/dashboard/projects", icon: FolderKanban },
-];
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { hasRole, signOut } = useAuth();
   const navigate = useNavigate();
   const isSuperadmin = hasRole("superadmin");
+  const { t } = useTranslation("common");
+
+  const mainItems = [
+    { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
+    { title: t("nav.projects"), url: "/dashboard/projects", icon: FolderKanban },
+  ];
 
   const handleLogout = async () => {
     await signOut();
@@ -40,7 +42,7 @@ export function AppSidebar() {
 
   const renderItems = (items: typeof mainItems) =>
     items.map((item) => (
-      <SidebarMenuItem key={item.title}>
+      <SidebarMenuItem key={item.url}>
         <SidebarMenuButton asChild>
           <NavLink
             to={item.url}
@@ -64,14 +66,14 @@ export function AppSidebar() {
               <Anchor className="h-4 w-4 text-sidebar-primary" />
             </div>
             <span className="font-semibold text-sm text-sidebar-foreground tracking-tight">
-              OceanMan
+              {t("appName")}
             </span>
           </div>
         )}
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-widest">
-            General
+            {t("nav.general")}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderItems(mainItems)}</SidebarMenu>
@@ -81,11 +83,11 @@ export function AppSidebar() {
         {isSuperadmin && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-widest">
-              Sistema
+              {t("nav.system")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {renderItems([{ title: "Configuración", url: "/dashboard/settings", icon: Settings }])}
+                {renderItems([{ title: t("nav.settings"), url: "/dashboard/settings", icon: Settings }])}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -99,11 +101,11 @@ export function AppSidebar() {
             className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
           >
             <LogOut className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Cerrar sesión</span>}
+            {!collapsed && <span>{t("nav.logout")}</span>}
           </button>
           {!collapsed && (
             <p className="px-2 text-[10px] text-sidebar-muted">
-              Project Manager v1.0
+              {t("projectManager")} {t("version")}
             </p>
           )}
         </div>

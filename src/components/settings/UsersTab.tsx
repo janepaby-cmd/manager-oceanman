@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Pencil, Trash2, ShieldPlus, ShieldMinus, Ban, CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -34,7 +35,6 @@ export function UsersTab() {
   const [deleteUser, setDeleteUser] = useState<UserWithRoles | null>(null);
   const [roleDialog, setRoleDialog] = useState<{ user: UserWithRoles; action: "assign" | "remove" } | null>(null);
 
-  // Form states
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
@@ -45,6 +45,7 @@ export function UsersTab() {
 
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation(["settings", "common"]);
 
   const fetchUsers = useCallback(async () => {
     const [{ data: profiles }, { data: allRoles }, { data: rolesTable }] = await Promise.all([
@@ -88,12 +89,12 @@ export function UsersTab() {
         full_name: newName.trim() || newEmail.trim(),
         role: newRole,
       });
-      toast({ title: "Usuario creado correctamente" });
+      toast({ title: t("users.userCreated") });
       setCreateOpen(false);
       setNewEmail(""); setNewPassword(""); setNewName(""); setNewRole("user");
       await fetchUsers();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common:error"), description: e.message, variant: "destructive" });
     }
     setActionLoading(false);
   };
@@ -108,11 +109,11 @@ export function UsersTab() {
         full_name: editName.trim(),
         email: editEmail.trim(),
       });
-      toast({ title: "Usuario actualizado" });
+      toast({ title: t("users.userUpdated") });
       setEditUser(null);
       await fetchUsers();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common:error"), description: e.message, variant: "destructive" });
     }
     setActionLoading(false);
   };
@@ -122,11 +123,11 @@ export function UsersTab() {
     setActionLoading(true);
     try {
       await callManageUsers({ action: "delete_user", user_id: deleteUser.user_id });
-      toast({ title: "Usuario eliminado" });
+      toast({ title: t("users.userDeleted") });
       setDeleteUser(null);
       await fetchUsers();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common:error"), description: e.message, variant: "destructive" });
     }
     setActionLoading(false);
   };
@@ -140,11 +141,11 @@ export function UsersTab() {
         user_id: roleDialog.user.user_id,
         role: selectedRole,
       });
-      toast({ title: roleDialog.action === "assign" ? "Rol asignado" : "Rol removido" });
+      toast({ title: roleDialog.action === "assign" ? t("users.roleAssigned") : t("users.roleRemoved") });
       setRoleDialog(null);
       await fetchUsers();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common:error"), description: e.message, variant: "destructive" });
     }
     setActionLoading(false);
   };
@@ -153,10 +154,10 @@ export function UsersTab() {
     setActionLoading(true);
     try {
       await callManageUsers({ action: "toggle_user_status", user_id: u.user_id, is_active: !u.is_active });
-      toast({ title: u.is_active ? "Usuario suspendido" : "Usuario activado" });
+      toast({ title: u.is_active ? t("users.userSuspended") : t("users.userActivated") });
       await fetchUsers();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common:error"), description: e.message, variant: "destructive" });
     }
     setActionLoading(false);
   };
@@ -179,7 +180,7 @@ export function UsersTab() {
     <div className="space-y-4">
       <div className="flex justify-end">
         <Button onClick={() => setCreateOpen(true)} size="sm">
-          <Plus className="mr-2 h-4 w-4" /> Nuevo usuario
+          <Plus className="mr-2 h-4 w-4" /> {t("users.newUser")}
         </Button>
       </div>
 
@@ -187,19 +188,19 @@ export function UsersTab() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Roles</TableHead>
-              <TableHead>Registrado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead>{t("common:name")}</TableHead>
+              <TableHead>{t("common:email")}</TableHead>
+              <TableHead>{t("common:status")}</TableHead>
+              <TableHead>{t("settings:tabs.roles")}</TableHead>
+              <TableHead>{t("users.registered")}</TableHead>
+              <TableHead className="text-right">{t("common:actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  No hay usuarios registrados
+                  {t("users.noUsers")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -209,29 +210,29 @@ export function UsersTab() {
                   <TableCell>{u.email}</TableCell>
                   <TableCell>
                     <Badge variant={u.is_active ? "secondary" : "destructive"} className="text-xs">
-                      {u.is_active ? "Activo" : "Suspendido"}
+                      {u.is_active ? t("users.active") : t("users.suspended")}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 flex-wrap">
                       {u.roles.length > 0 ? u.roles.map((r) => (
                         <Badge key={r} variant="secondary" className="capitalize text-xs">{r}</Badge>
-                      )) : <span className="text-muted-foreground text-xs">Sin rol</span>}
+                      )) : <span className="text-muted-foreground text-xs">{t("common:noRole")}</span>}
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {new Date(u.created_at).toLocaleDateString("es-ES")}
+                    {new Date(u.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(u)} title="Editar">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(u)} title={t("common:edit")}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole("user"); setRoleDialog({ user: u, action: "assign" }); }} title="Asignar rol">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole("user"); setRoleDialog({ user: u, action: "assign" }); }} title={t("users.assignRole")}>
                         <ShieldPlus className="h-3.5 w-3.5" />
                       </Button>
                       {u.roles.length > 0 && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole(u.roles[0]); setRoleDialog({ user: u, action: "remove" }); }} title="Quitar rol">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole(u.roles[0]); setRoleDialog({ user: u, action: "remove" }); }} title={t("users.removeRole")}>
                           <ShieldMinus className="h-3.5 w-3.5" />
                         </Button>
                       )}
@@ -241,7 +242,7 @@ export function UsersTab() {
                           <Button variant="ghost" size="icon" className="h-8 w-8"
                             onClick={() => !isSuperadmin && handleToggleStatus(u)}
                             disabled={isSuperadmin}
-                            title={isSuperadmin ? "No se puede suspender a un superadmin" : u.is_active ? "Suspender usuario" : "Activar usuario"}>
+                            title={isSuperadmin ? t("users.cannotSuspendSuperadmin") : u.is_active ? t("users.userSuspended") : t("users.userActivated")}>
                             {u.is_active
                               ? <Ban className="h-3.5 w-3.5 text-warning" />
                               : <CheckCircle2 className="h-3.5 w-3.5 text-success" />}
@@ -249,7 +250,7 @@ export function UsersTab() {
                         );
                       })()}
                       {u.user_id !== user?.id && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteUser(u)} title="Eliminar">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteUser(u)} title={t("common:delete")}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       )}
@@ -266,26 +267,26 @@ export function UsersTab() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Crear usuario</DialogTitle>
-            <DialogDescription>Ingresa los datos del nuevo usuario.</DialogDescription>
+            <DialogTitle>{t("users.createUser")}</DialogTitle>
+            <DialogDescription>{t("users.createUserDesc")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Nombre completo</Label>
-              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Juan Pérez" />
+              <Label>{t("users.fullName")}</Label>
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t("users.fullNamePlaceholder")} />
             </div>
             <div className="space-y-2">
-              <Label>Email *</Label>
-              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="email@ejemplo.com" required />
+              <Label>{t("common:email")} *</Label>
+              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder={t("users.emailPlaceholder")} required />
             </div>
             <div className="space-y-2">
-              <Label>Contraseña *</Label>
-              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" required />
+              <Label>{t("users.password")} *</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder={t("users.passwordPlaceholder")} required />
             </div>
             <div className="space-y-2">
-              <Label>Rol inicial</Label>
+              <Label>{t("users.initialRole")}</Label>
               <Select value={newRole} onValueChange={setNewRole}>
-                <SelectTrigger><SelectValue placeholder="Seleccionar rol" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("users.selectRole")} /></SelectTrigger>
                 <SelectContent>
                   {availableRoles.map((r) => (
                     <SelectItem key={r.id} value={r.name} className="capitalize">{r.name}</SelectItem>
@@ -295,10 +296,10 @@ export function UsersTab() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>{t("common:cancel")}</Button>
             <Button onClick={handleCreate} disabled={actionLoading}>
               {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Crear
+              {t("common:create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -308,24 +309,24 @@ export function UsersTab() {
       <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar usuario</DialogTitle>
-            <DialogDescription>Modifica los datos del usuario.</DialogDescription>
+            <DialogTitle>{t("users.editUser")}</DialogTitle>
+            <DialogDescription>{t("users.editUserDesc")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Nombre completo</Label>
+              <Label>{t("users.fullName")}</Label>
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Email</Label>
+              <Label>{t("common:email")}</Label>
               <Input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditUser(null)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setEditUser(null)}>{t("common:cancel")}</Button>
             <Button onClick={handleUpdate} disabled={actionLoading}>
               {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Guardar
+              {t("common:save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -335,11 +336,11 @@ export function UsersTab() {
       <Dialog open={!!roleDialog} onOpenChange={(o) => !o && setRoleDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{roleDialog?.action === "assign" ? "Asignar rol" : "Quitar rol"}</DialogTitle>
+            <DialogTitle>{roleDialog?.action === "assign" ? t("users.assignRole") : t("users.removeRole")}</DialogTitle>
             <DialogDescription>
               {roleDialog?.action === "assign"
-                ? `Selecciona el rol para ${roleDialog?.user.full_name || roleDialog?.user.email}`
-                : `Selecciona el rol a quitar de ${roleDialog?.user.full_name || roleDialog?.user.email}`}
+                ? t("users.assignRoleDesc", { name: roleDialog?.user.full_name || roleDialog?.user.email })
+                : t("users.removeRoleDesc", { name: roleDialog?.user.full_name || roleDialog?.user.email })}
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">
@@ -359,10 +360,10 @@ export function UsersTab() {
             </Select>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRoleDialog(null)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setRoleDialog(null)}>{t("common:cancel")}</Button>
             <Button onClick={handleRoleAction} disabled={actionLoading} variant={roleDialog?.action === "remove" ? "destructive" : "default"}>
               {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {roleDialog?.action === "assign" ? "Asignar" : "Quitar"}
+              {roleDialog?.action === "assign" ? t("users.assign") : t("users.remove")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -372,16 +373,16 @@ export function UsersTab() {
       <AlertDialog open={!!deleteUser} onOpenChange={(o) => !o && setDeleteUser(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
+            <AlertDialogTitle>{t("users.deleteUser")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará permanentemente a <strong>{deleteUser?.full_name || deleteUser?.email}</strong> y todos sus datos asociados.
+              {t("users.deleteUserDesc", { name: deleteUser?.full_name || deleteUser?.email })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Eliminar
+              {t("common:delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
