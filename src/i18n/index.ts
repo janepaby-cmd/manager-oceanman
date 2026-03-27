@@ -7,12 +7,14 @@ import authES from "./locales/es/auth.json";
 import dashboardES from "./locales/es/dashboard.json";
 import projectsES from "./locales/es/projects.json";
 import settingsES from "./locales/es/settings.json";
+import expensesES from "./locales/es/expenses.json";
 
 import commonEN from "./locales/en/common.json";
 import authEN from "./locales/en/auth.json";
 import dashboardEN from "./locales/en/dashboard.json";
 import projectsEN from "./locales/en/projects.json";
 import settingsEN from "./locales/en/settings.json";
+import expensesEN from "./locales/en/expenses.json";
 
 const resources = {
   es: {
@@ -21,6 +23,7 @@ const resources = {
     dashboard: dashboardES,
     projects: projectsES,
     settings: settingsES,
+    expenses: expensesES,
   },
   en: {
     common: commonEN,
@@ -28,6 +31,7 @@ const resources = {
     dashboard: dashboardEN,
     projects: projectsEN,
     settings: settingsEN,
+    expenses: expensesEN,
   },
 };
 
@@ -38,7 +42,7 @@ i18n
     resources,
     fallbackLng: "es",
     defaultNS: "common",
-    ns: ["common", "auth", "dashboard", "projects", "settings"],
+    ns: ["common", "auth", "dashboard", "projects", "settings", "expenses"],
     interpolation: {
       escapeValue: false,
     },

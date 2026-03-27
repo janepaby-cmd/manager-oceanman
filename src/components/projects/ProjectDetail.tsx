@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import PhaseCard from "./PhaseCard";
 import PhaseFormDialog from "./PhaseFormDialog";
 import ProjectUsersDialog from "./ProjectUsersDialog";
+import ExpenseList from "./ExpenseList";
 
 interface Props {
   projectId: string;
@@ -134,6 +135,8 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
           </div>
         )}
       </div>
+
+      <ExpenseList projectId={projectId} canManage={canManage} />
 
       <PhaseFormDialog
         open={showPhaseForm}

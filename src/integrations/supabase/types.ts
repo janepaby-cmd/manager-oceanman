@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      expense_types: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       phase_item_types: {
         Row: {
           code: string
@@ -142,6 +166,60 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      project_expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          description: string | null
+          expense_date: string
+          expense_type_id: string
+          id: string
+          project_id: string
+          ticket_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by: string
+          description?: string | null
+          expense_date: string
+          expense_type_id: string
+          id?: string
+          project_id: string
+          ticket_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          expense_date?: string
+          expense_type_id?: string
+          id?: string
+          project_id?: string
+          ticket_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_expenses_expense_type_id_fkey"
+            columns: ["expense_type_id"]
+            isOneToOne: false
+            referencedRelation: "expense_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_phases: {
         Row: {
