@@ -65,5 +65,7 @@
   "start": "Start",
   "estimatedEnd": "Estimated End",
   "items_one": "{{count}} item",
-  "items_other": "{{count}} items"
+  "items_other": "{{count}} items",
+  "progress": "Progress",
+  "phases": "phases"
 }
