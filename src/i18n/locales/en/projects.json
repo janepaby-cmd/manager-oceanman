@@ -67,5 +67,9 @@
   "items_one": "{{count}} item",
   "items_other": "{{count}} items",
   "progress": "Progress",
-  "phases": "phases"
+  "phases": "phases",
+  "searchByName": "Search by name...",
+  "allStatuses": "All statuses",
+  "allYears": "All years",
+  "noResults": "No results found"
 }
