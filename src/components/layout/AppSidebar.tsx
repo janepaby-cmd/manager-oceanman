@@ -3,8 +3,10 @@ import {
   FolderKanban,
   Settings,
   Anchor,
+  LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
