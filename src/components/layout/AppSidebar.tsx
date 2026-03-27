@@ -3,8 +3,10 @@ import {
   FolderKanban,
   Settings,
   Anchor,
+  LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
@@ -27,8 +29,14 @@ const mainItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { hasRole } = useAuth();
+  const { hasRole, signOut } = useAuth();
+  const navigate = useNavigate();
   const isSuperadmin = hasRole("superadmin");
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   const renderItems = (items: typeof mainItems) =>
     items.map((item) => (
@@ -85,11 +93,20 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        {!collapsed && (
-          <p className="px-4 pb-4 text-[10px] text-sidebar-muted">
-            Project Manager v1.0
-          </p>
-        )}
+        <div className="px-2 pb-3 space-y-2">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Cerrar sesión</span>}
+          </button>
+          {!collapsed && (
+            <p className="px-2 text-[10px] text-sidebar-muted">
+              Project Manager v1.0
+            </p>
+          )}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
