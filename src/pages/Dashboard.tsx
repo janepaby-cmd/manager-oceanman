@@ -138,7 +138,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {projects.map((project) => {
+              {filtered.map((project) => {
                 const phases = (project as any).project_phases || [];
                 const totalPhases = phases.length;
                 const completedPhases = phases.filter((p: any) => p.is_completed).length;
