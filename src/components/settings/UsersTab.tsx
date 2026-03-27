@@ -26,6 +26,7 @@ interface UserWithRoles {
 
 export function UsersTab() {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -37,17 +38,21 @@ export function UsersTab() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
-  const [newRole, setNewRole] = useState<AppRole>("user");
+  const [newRole, setNewRole] = useState("");
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
-  const [selectedRole, setSelectedRole] = useState<AppRole>("user");
+  const [selectedRole, setSelectedRole] = useState("");
 
   const { user } = useAuth();
   const { toast } = useToast();
 
   const fetchUsers = useCallback(async () => {
-    const { data: profiles } = await supabase.from("profiles").select("*");
-    const { data: allRoles } = await supabase.from("user_roles").select("*");
+    const [{ data: profiles }, { data: allRoles }, { data: rolesTable }] = await Promise.all([
+      supabase.from("profiles").select("*"),
+      supabase.from("user_roles").select("*"),
+      supabase.from("roles").select("id, name").order("name"),
+    ]);
+    if (rolesTable) setAvailableRoles(rolesTable);
     if (profiles) {
       setUsers(
         profiles.map((p) => ({
