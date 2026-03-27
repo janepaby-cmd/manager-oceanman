@@ -14,6 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
+      phase_item_types: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      phase_items: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          is_completed: boolean
+          item_type_id: string
+          phase_id: string
+          position: number | null
+          signature_confirmed: boolean
+          signature_confirmed_at: string | null
+          signature_confirmed_by: string | null
+          signature_data: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          is_completed?: boolean
+          item_type_id: string
+          phase_id: string
+          position?: number | null
+          signature_confirmed?: boolean
+          signature_confirmed_at?: string | null
+          signature_confirmed_by?: string | null
+          signature_data?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          is_completed?: boolean
+          item_type_id?: string
+          phase_id?: string
+          position?: number | null
+          signature_confirmed?: boolean
+          signature_confirmed_at?: string | null
+          signature_confirmed_by?: string | null
+          signature_data?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phase_items_item_type_id_fkey"
+            columns: ["item_type_id"]
+            isOneToOne: false
+            referencedRelation: "phase_item_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phase_items_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "project_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -46,6 +142,150 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      project_phases: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_completed: boolean
+          name: string
+          position: number | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          name: string
+          position?: number | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          name?: string
+          position?: number | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_phases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_statuses: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          position: number | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          position?: number | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_users: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_users_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          estimated_end_date: string | null
+          fiscal_year: number
+          id: string
+          name: string
+          start_date: string
+          status_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          estimated_end_date?: string | null
+          fiscal_year?: number
+          id?: string
+          name: string
+          start_date?: string
+          status_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          estimated_end_date?: string | null
+          fiscal_year?: number
+          id?: string
+          name?: string
+          start_date?: string
+          status_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "project_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       roles: {
         Row: {
