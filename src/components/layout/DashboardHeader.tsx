@@ -11,9 +11,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User, Anchor } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 export function DashboardHeader() {
   const { profile, roles, signOut } = useAuth();
+  const { t } = useTranslation("common");
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -25,11 +28,12 @@ export function DashboardHeader() {
         <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
         <div className="flex items-center gap-2">
           <Anchor className="h-5 w-5 text-primary" />
-          <span className="font-semibold text-sm text-foreground tracking-tight">OceanMan</span>
+          <span className="font-semibold text-sm text-foreground tracking-tight">{t("appName")}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
+        <LanguageSelector />
         {roles.length > 0 && (
           <Badge variant="secondary" className="text-xs capitalize">
             {roles[0]}
@@ -45,18 +49,18 @@ export function DashboardHeader() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="font-normal">
-              <p className="text-sm font-medium">{profile?.full_name || "Usuario"}</p>
+              <p className="text-sm font-medium">{profile?.full_name || t("user")}</p>
               <p className="text-xs text-muted-foreground">{profile?.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer">
               <User className="mr-2 h-4 w-4" />
-              Mi perfil
+              {t("nav.myProfile")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
-              Cerrar sesión
+              {t("nav.logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
