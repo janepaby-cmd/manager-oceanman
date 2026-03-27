@@ -1,59 +1,60 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, FolderKanban, Shield, Activity } from "lucide-react";
-
-const stats = [
-  { label: "Proyectos activos", value: "0", icon: FolderKanban, color: "text-primary" },
-  { label: "Usuarios", value: "—", icon: Users, color: "text-emerald-500" },
-  { label: "Roles asignados", value: "—", icon: Shield, color: "text-amber-500" },
-  { label: "Actividad hoy", value: "0", icon: Activity, color: "text-violet-500" },
-];
+import { FolderKanban, User, Mail, Shield, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function Dashboard() {
   const { profile, roles } = useAuth();
 
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
+
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Welcome */}
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Bienvenido, {profile?.full_name || "Usuario"}
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Panel de control — OceanMan Project Manager
-          </p>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((s) => (
-            <div key={s.label} className="stat-card">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">{s.label}</p>
-                <s.icon className={`h-5 w-5 ${s.color}`} />
-              </div>
-              <p className="text-3xl font-bold mt-2">{s.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Info */}
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* User profile card */}
         <div className="glass-card p-6">
-          <h2 className="font-semibold mb-3">Tu perfil</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <p className="text-muted-foreground">Email</p>
-              <p className="font-medium">{profile?.email || "—"}</p>
+          <div className="flex items-start gap-5">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 space-y-1">
+              <h1 className="text-2xl font-bold tracking-tight">
+                {profile?.full_name || "Usuario"}
+              </h1>
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
+                <span className="flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5" /> {profile?.email || "—"}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Shield className="h-3.5 w-3.5" />
+                  {roles.length > 0 ? (
+                    <span className="flex gap-1">
+                      {roles.map((r) => (
+                        <Badge key={r} variant="secondary" className="capitalize text-xs">{r}</Badge>
+                      ))}
+                    </span>
+                  ) : "Sin rol"}
+                </span>
+              </div>
             </div>
-            <div>
-              <p className="text-muted-foreground">Nombre</p>
-              <p className="font-medium">{profile?.full_name || "—"}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Roles</p>
-              <p className="font-medium capitalize">{roles.join(", ") || "Sin rol"}</p>
-            </div>
+          </div>
+        </div>
+
+        {/* Assigned projects section */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <FolderKanban className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">Mis proyectos</h2>
+          </div>
+          <div className="glass-card p-10 text-center">
+            <FolderKanban className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground">No tienes proyectos asignados aún.</p>
+            <p className="text-xs text-muted-foreground mt-1">Los proyectos que te asignen aparecerán aquí.</p>
           </div>
         </div>
       </div>

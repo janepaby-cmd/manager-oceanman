@@ -1,13 +1,17 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings } from "lucide-react";
 import { UsersTab } from "@/components/settings/UsersTab";
 import { RolesTab } from "@/components/settings/RolesTab";
 
 export default function SettingsPage() {
-  const { hasRole } = useAuth();
-  const isAdmin = hasRole("superadmin") || hasRole("admin");
+  const { hasRole, loading } = useAuth();
+
+  if (!loading && !hasRole("superadmin")) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <DashboardLayout>
@@ -17,11 +21,11 @@ export default function SettingsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Configuración</h1>
         </div>
 
-        <Tabs defaultValue={isAdmin ? "users" : "general"} className="space-y-4">
+        <Tabs defaultValue="users" className="space-y-4">
           <TabsList>
             <TabsTrigger value="general">General</TabsTrigger>
-            {isAdmin && <TabsTrigger value="users">Usuarios</TabsTrigger>}
-            {isAdmin && <TabsTrigger value="roles">Roles</TabsTrigger>}
+            <TabsTrigger value="users">Usuarios</TabsTrigger>
+            <TabsTrigger value="roles">Roles</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general">
@@ -30,17 +34,13 @@ export default function SettingsPage() {
             </div>
           </TabsContent>
 
-          {isAdmin && (
-            <TabsContent value="users">
-              <UsersTab />
-            </TabsContent>
-          )}
+          <TabsContent value="users">
+            <UsersTab />
+          </TabsContent>
 
-          {isAdmin && (
-            <TabsContent value="roles">
-              <RolesTab />
-            </TabsContent>
-          )}
+          <TabsContent value="roles">
+            <RolesTab />
+          </TabsContent>
         </Tabs>
       </div>
     </DashboardLayout>
