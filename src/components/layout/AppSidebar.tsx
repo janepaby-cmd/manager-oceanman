@@ -5,7 +5,7 @@ import {
   Anchor,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -24,13 +24,11 @@ const mainItems = [
   { title: "Proyectos", url: "/dashboard/projects", icon: FolderKanban },
 ];
 
-const systemItems = [
-  { title: "Configuración", url: "/dashboard/settings", icon: Settings },
-];
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { hasRole } = useAuth();
+  const isSuperadmin = hasRole("superadmin");
 
   const renderItems = (items: typeof mainItems) =>
     items.map((item) => (
@@ -72,14 +70,18 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-widest">
-            Sistema
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>{renderItems(systemItems)}</SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {isSuperadmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-widest">
+              Sistema
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {renderItems([{ title: "Configuración", url: "/dashboard/settings", icon: Settings }])}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>
