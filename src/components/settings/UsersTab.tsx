@@ -284,13 +284,12 @@ export function UsersTab() {
             </div>
             <div className="space-y-2">
               <Label>Rol inicial</Label>
-              <Select value={newRole} onValueChange={(v) => setNewRole(v as AppRole)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select value={newRole} onValueChange={setNewRole}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar rol" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="superadmin">Superadmin</SelectItem>
+                  {availableRoles.map((r) => (
+                    <SelectItem key={r.id} value={r.name} className="capitalize">{r.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -352,12 +351,9 @@ export function UsersTab() {
                     <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
                   ))
                 ) : (
-                  <>
-                    <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="superadmin">Superadmin</SelectItem>
-                  </>
+                  availableRoles.map((r) => (
+                    <SelectItem key={r.id} value={r.name} className="capitalize">{r.name}</SelectItem>
+                  ))
                 )}
               </SelectContent>
             </Select>
