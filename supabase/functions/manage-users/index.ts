@@ -109,6 +109,38 @@ serve(async (req) => {
       });
     }
 
+    // TOGGLE USER ACTIVE STATUS
+    if (action === "toggle_user_status") {
+      const { user_id, is_active } = body;
+      if (!user_id || typeof is_active !== "boolean") {
+        return new Response(JSON.stringify({ error: "user_id y is_active son requeridos" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Check if target user is superadmin
+      const { data: targetRoles } = await supabaseAdmin
+        .from("user_roles").select("role").eq("user_id", user_id);
+      const isSuperadmin = targetRoles?.some((r) => r.role === "superadmin");
+      if (isSuperadmin) {
+        return new Response(JSON.stringify({ error: "No se puede suspender a un superadmin" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Update profile
+      await supabaseAdmin.from("profiles").update({ is_active }).eq("user_id", user_id);
+
+      // Ban/unban in auth
+      await supabaseAdmin.auth.admin.updateUserById(user_id, {
+        ban_duration: is_active ? "none" : "876600h",
+      });
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // DELETE USER
     if (action === "delete_user") {
       const { user_id } = body;
