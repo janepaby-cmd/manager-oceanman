@@ -29,8 +29,8 @@ export function LanguageSelector({ variant = "default" }: Props) {
           size="sm"
           className={variant === "minimal" ? "text-white/70 hover:text-white hover:bg-white/10" : ""}
         >
-          <Languages className="h-4 w-4 mr-1" />
-          <span className="text-xs">{currentLang.flag}</span>
+          <Globe className="h-4 w-4 mr-1" />
+          <span className="text-sm">{currentLang.flag}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
