@@ -1,7 +1,12 @@
+import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { FolderKanban } from "lucide-react";
+import ProjectList from "@/components/projects/ProjectList";
+import ProjectDetail from "@/components/projects/ProjectDetail";
 
 export default function ProjectsPage() {
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto space-y-6">
@@ -9,9 +14,11 @@ export default function ProjectsPage() {
           <FolderKanban className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold tracking-tight">Proyectos</h1>
         </div>
-        <div className="glass-card p-12 text-center">
-          <p className="text-muted-foreground">No hay proyectos aún. ¡Crea tu primer proyecto!</p>
-        </div>
+        {selectedProjectId ? (
+          <ProjectDetail projectId={selectedProjectId} onBack={() => setSelectedProjectId(null)} />
+        ) : (
+          <ProjectList onSelectProject={setSelectedProjectId} />
+        )}
       </div>
     </DashboardLayout>
   );
