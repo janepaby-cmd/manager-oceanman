@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Pencil, Trash2, ShieldPlus, ShieldMinus } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ShieldPlus, ShieldMinus, Ban, CheckCircle2 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -20,6 +20,7 @@ interface UserWithRoles {
   full_name: string | null;
   email: string | null;
   created_at: string;
+  is_active: boolean;
   roles: AppRole[];
 }
 
@@ -54,6 +55,7 @@ export function UsersTab() {
           full_name: p.full_name,
           email: p.email,
           created_at: p.created_at,
+          is_active: p.is_active,
           roles: (allRoles?.filter((r) => r.user_id === p.user_id).map((r) => r.role) || []) as AppRole[],
         }))
       );
@@ -142,6 +144,18 @@ export function UsersTab() {
     setActionLoading(false);
   };
 
+  const handleToggleStatus = async (u: UserWithRoles) => {
+    setActionLoading(true);
+    try {
+      await callManageUsers({ action: "toggle_user_status", user_id: u.user_id, is_active: !u.is_active });
+      toast({ title: u.is_active ? "Usuario suspendido" : "Usuario activado" });
+      await fetchUsers();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+    setActionLoading(false);
+  };
+
   const openEdit = (u: UserWithRoles) => {
     setEditName(u.full_name || "");
     setEditEmail(u.email || "");
@@ -170,6 +184,7 @@ export function UsersTab() {
             <TableRow>
               <TableHead>Nombre</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Estado</TableHead>
               <TableHead>Roles</TableHead>
               <TableHead>Registrado</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
@@ -178,7 +193,7 @@ export function UsersTab() {
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   No hay usuarios registrados
                 </TableCell>
               </TableRow>
@@ -187,6 +202,11 @@ export function UsersTab() {
                 <TableRow key={u.user_id}>
                   <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
                   <TableCell>{u.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={u.is_active ? "secondary" : "destructive"} className="text-xs">
+                      {u.is_active ? "Activo" : "Suspendido"}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1 flex-wrap">
                       {u.roles.length > 0 ? u.roles.map((r) => (
@@ -208,6 +228,14 @@ export function UsersTab() {
                       {u.roles.length > 0 && (
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole(u.roles[0]); setRoleDialog({ user: u, action: "remove" }); }} title="Quitar rol">
                           <ShieldMinus className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      {!u.roles.includes("superadmin" as AppRole) && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggleStatus(u)}
+                          title={u.is_active ? "Suspender" : "Activar"}>
+                          {u.is_active
+                            ? <Ban className="h-3.5 w-3.5 text-amber-500" />
+                            : <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
                         </Button>
                       )}
                       {u.user_id !== user?.id && (
