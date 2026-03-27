@@ -94,6 +94,8 @@ export default function Dashboard() {
             <div className="grid gap-4 md:grid-cols-2">
               {projects.map((project) => {
                 const phases = (project as any).project_phases || [];
+                const totalPhases = phases.length;
+                const completedPhases = phases.filter((p: any) => p.is_completed).length;
                 const totalItems = phases.reduce((acc: number, p: any) => acc + (p.phase_items?.length || 0), 0);
                 const completedItems = phases.reduce((acc: number, p: any) => acc + (p.phase_items?.filter((i: any) => i.is_completed)?.length || 0), 0);
                 const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
@@ -126,10 +128,17 @@ export default function Dashboard() {
                       </span>
                       <span className="flex items-center gap-1">
                         <CheckCircle2 className="h-3 w-3" />
+                        {completedPhases}/{totalPhases} {t("dashboard:phases", "fases")}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" />
                         {completedItems}/{totalItems} items
                       </span>
                     </div>
-                    <Progress value={progress} className="h-1.5" />
+                    <div className="flex items-center gap-2">
+                      <Progress value={progress} className="h-1.5 flex-1" />
+                      <span className="text-xs font-semibold text-muted-foreground">{progress}%</span>
+                    </div>
                   </div>
                 );
               })}
