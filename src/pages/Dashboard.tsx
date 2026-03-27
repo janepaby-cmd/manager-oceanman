@@ -1,7 +1,10 @@
+import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { FolderKanban, Mail, Shield, Calendar, CheckCircle2 } from "lucide-react";
+import { FolderKanban, Mail, Shield, Calendar, CheckCircle2, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -13,9 +16,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const { profile, roles, user } = useAuth();
-  const { t, i18n } = useTranslation(["dashboard", "common"]);
+  const { t, i18n } = useTranslation(["dashboard", "common", "projects"]);
   const navigate = useNavigate();
   const dateLocale = i18n.language === "es" ? es : enUS;
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
