@@ -144,6 +144,18 @@ export function UsersTab() {
     setActionLoading(false);
   };
 
+  const handleToggleStatus = async (u: UserWithRoles) => {
+    setActionLoading(true);
+    try {
+      await callManageUsers({ action: "toggle_user_status", user_id: u.user_id, is_active: !u.is_active });
+      toast({ title: u.is_active ? "Usuario suspendido" : "Usuario activado" });
+      await fetchUsers();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+    setActionLoading(false);
+  };
+
   const openEdit = (u: UserWithRoles) => {
     setEditName(u.full_name || "");
     setEditEmail(u.email || "");
@@ -172,6 +184,7 @@ export function UsersTab() {
             <TableRow>
               <TableHead>Nombre</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Estado</TableHead>
               <TableHead>Roles</TableHead>
               <TableHead>Registrado</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
@@ -180,7 +193,7 @@ export function UsersTab() {
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   No hay usuarios registrados
                 </TableCell>
               </TableRow>
@@ -189,6 +202,11 @@ export function UsersTab() {
                 <TableRow key={u.user_id}>
                   <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
                   <TableCell>{u.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={u.is_active ? "secondary" : "destructive"} className="text-xs">
+                      {u.is_active ? "Activo" : "Suspendido"}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1 flex-wrap">
                       {u.roles.length > 0 ? u.roles.map((r) => (
