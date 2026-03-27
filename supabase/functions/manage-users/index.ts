@@ -199,6 +199,83 @@ serve(async (req) => {
       });
     }
 
+    // CREATE ROLE
+    if (action === "create_role") {
+      const { name, description } = body;
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return new Response(JSON.stringify({ error: "Nombre del rol es requerido" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data, error: insertError } = await supabaseAdmin
+        .from("roles")
+        .insert({ name: name.trim().toLowerCase(), description: description || null })
+        .select()
+        .single();
+      if (insertError) {
+        return new Response(JSON.stringify({ error: insertError.message }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, role: data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // UPDATE ROLE
+    if (action === "update_role") {
+      const { role_id, name, description } = body;
+      if (!role_id) {
+        return new Response(JSON.stringify({ error: "role_id requerido" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const updates: Record<string, unknown> = {};
+      if (name !== undefined) updates.name = name.trim().toLowerCase();
+      if (description !== undefined) updates.description = description;
+      const { error: updateError } = await supabaseAdmin
+        .from("roles")
+        .update(updates)
+        .eq("id", role_id);
+      if (updateError) {
+        return new Response(JSON.stringify({ error: updateError.message }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // DELETE ROLE
+    if (action === "delete_role") {
+      const { role_id, role_name } = body;
+      if (!role_id) {
+        return new Response(JSON.stringify({ error: "role_id requerido" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Prevent deleting superadmin role
+      if (role_name === "superadmin") {
+        return new Response(JSON.stringify({ error: "No se puede eliminar el rol superadmin" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Remove all user_roles assignments with this role name first
+      if (role_name) {
+        await supabaseAdmin.from("user_roles").delete().eq("role", role_name);
+      }
+      const { error: deleteError } = await supabaseAdmin.from("roles").delete().eq("id", role_id);
+      if (deleteError) {
+        return new Response(JSON.stringify({ error: deleteError.message }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response(JSON.stringify({ error: "Acción no válida" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
