@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Pencil, Trash2, ShieldPlus, ShieldMinus } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ShieldPlus, ShieldMinus, Ban, CheckCircle2 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -20,6 +20,7 @@ interface UserWithRoles {
   full_name: string | null;
   email: string | null;
   created_at: string;
+  is_active: boolean;
   roles: AppRole[];
 }
 
@@ -54,6 +55,7 @@ export function UsersTab() {
           full_name: p.full_name,
           email: p.email,
           created_at: p.created_at,
+          is_active: p.is_active,
           roles: (allRoles?.filter((r) => r.user_id === p.user_id).map((r) => r.role) || []) as AppRole[],
         }))
       );
