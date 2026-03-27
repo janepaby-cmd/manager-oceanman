@@ -65,5 +65,7 @@
   "start": "Inicio",
   "estimatedEnd": "Fin Estimado",
   "items_one": "{{count}} item",
-  "items_other": "{{count}} items"
+  "items_other": "{{count}} items",
+  "progress": "Progreso",
+  "phases": "fases"
 }
