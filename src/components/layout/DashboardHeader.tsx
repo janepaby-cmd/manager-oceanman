@@ -1,0 +1,66 @@
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, User, Anchor } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+export function DashboardHeader() {
+  const { profile, roles, signOut } = useAuth();
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
+
+  return (
+    <header className="h-14 flex items-center justify-between border-b border-border bg-card px-4 shrink-0">
+      <div className="flex items-center gap-3">
+        <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+        <div className="flex items-center gap-2">
+          <Anchor className="h-5 w-5 text-primary" />
+          <span className="font-semibold text-sm text-foreground tracking-tight">OceanMan</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        {roles.length > 0 && (
+          <Badge variant="secondary" className="text-xs capitalize">
+            {roles[0]}
+          </Badge>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="outline-none">
+            <Avatar className="h-8 w-8 border border-border">
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="font-normal">
+              <p className="text-sm font-medium">{profile?.full_name || "Usuario"}</p>
+              <p className="text-xs text-muted-foreground">{profile?.email}</p>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              Mi perfil
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              Cerrar sesión
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
