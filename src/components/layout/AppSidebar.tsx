@@ -1,14 +1,11 @@
 import {
   LayoutDashboard,
-  Users,
-  Shield,
   FolderKanban,
   Settings,
   Anchor,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -27,21 +24,13 @@ const mainItems = [
   { title: "Proyectos", url: "/dashboard/projects", icon: FolderKanban },
 ];
 
-const adminItems = [
-  { title: "Usuarios", url: "/dashboard/users", icon: Users },
-  { title: "Roles", url: "/dashboard/roles", icon: Shield },
-];
-
-const settingsItems = [
+const systemItems = [
   { title: "Configuración", url: "/dashboard/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const location = useLocation();
-  const { hasRole } = useAuth();
-  const isAdmin = hasRole("superadmin") || hasRole("admin");
 
   const renderItems = (items: typeof mainItems) =>
     items.map((item) => (
@@ -63,7 +52,6 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="sidebar-gradient border-r-0">
       <SidebarContent>
-        {/* Brand */}
         {!collapsed && (
           <div className="flex items-center gap-2.5 px-4 py-5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary/20">
@@ -84,23 +72,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-widest">
-              Administración
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{renderItems(adminItems)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-widest">
             Sistema
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{renderItems(settingsItems)}</SidebarMenu>
+            <SidebarMenu>{renderItems(systemItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
