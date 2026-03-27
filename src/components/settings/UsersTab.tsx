@@ -230,6 +230,14 @@ export function UsersTab() {
                           <ShieldMinus className="h-3.5 w-3.5" />
                         </Button>
                       )}
+                      {!u.roles.includes("superadmin" as AppRole) && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggleStatus(u)}
+                          title={u.is_active ? "Suspender" : "Activar"}>
+                          {u.is_active
+                            ? <Ban className="h-3.5 w-3.5 text-amber-500" />
+                            : <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+                        </Button>
+                      )}
                       {u.user_id !== user?.id && (
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteUser(u)} title="Eliminar">
                           <Trash2 className="h-3.5 w-3.5" />
