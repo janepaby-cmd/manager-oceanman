@@ -46,6 +46,22 @@ export default function Dashboard() {
     enabled: !!user?.id,
   });
 
+  const { data: statuses = [] } = useQuery({
+    queryKey: ["project-statuses"],
+    queryFn: async () => {
+      const { data } = await supabase.from("project_statuses").select("*").order("position");
+      return data || [];
+    },
+  });
+
+  const filtered = useMemo(() => {
+    return projects.filter((p: any) => {
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (filterStatus !== "all" && p.status_id !== filterStatus) return false;
+      return true;
+    });
+  }, [projects, search, filterStatus]);
+
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto space-y-8">
@@ -85,15 +101,40 @@ export default function Dashboard() {
             <h2 className="text-lg font-semibold">{t("dashboard:myProjects")}</h2>
           </div>
 
+          <div className="flex flex-wrap gap-3 mb-4">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t("projects:searchByName", "Buscar por nombre...")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t("common:status")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("projects:allStatuses", "Todos los estados")}</SelectItem>
+                {statuses.map((s: any) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {isLoading ? (
             <div className="glass-card p-10 text-center">
               <p className="text-muted-foreground">{t("common:loading")}</p>
             </div>
-          ) : projects.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <div className="glass-card p-10 text-center">
               <FolderKanban className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">{t("dashboard:noProjectsAssigned")}</p>
-              <p className="text-xs text-muted-foreground mt-1">{t("dashboard:projectsWillAppear")}</p>
+              <p className="text-muted-foreground">
+                {projects.length === 0 ? t("dashboard:noProjectsAssigned") : t("projects:noResults", "No se encontraron resultados")}
+              </p>
+              {projects.length === 0 && <p className="text-xs text-muted-foreground mt-1">{t("dashboard:projectsWillAppear")}</p>}
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
