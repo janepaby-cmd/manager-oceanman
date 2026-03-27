@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Eye, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -54,7 +55,13 @@ export default function ProjectList({ onSelectProject }: Props) {
   const fetchProjects = async () => {
     setLoading(true);
     const [projRes, statusRes] = await Promise.all([
-      supabase.from("projects").select("*").order("created_at", { ascending: false }),
+      supabase.from("projects").select(`
+        *,
+        project_phases (
+          id, is_completed,
+          phase_items ( id, is_completed )
+        )
+      `).order("created_at", { ascending: false }),
       supabase.from("project_statuses").select("*").order("position"),
     ]);
 
@@ -65,7 +72,18 @@ export default function ProjectList({ onSelectProject }: Props) {
       setProjects(
         projRes.data.map((p: any) => {
           const st = statusMap.get(p.status_id);
-          return { ...p, status_name: st?.name ?? t("noStatus"), status_color: st?.color ?? "#6b7280" };
+          const phases = p.project_phases || [];
+          const totalPhases = phases.length;
+          const completedPhases = phases.filter((ph: any) => ph.is_completed).length;
+          const totalItems = phases.reduce((acc: number, ph: any) => acc + (ph.phase_items?.length || 0), 0);
+          const completedItems = phases.reduce((acc: number, ph: any) => acc + (ph.phase_items?.filter((i: any) => i.is_completed)?.length || 0), 0);
+          const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+          return {
+            ...p,
+            status_name: st?.name ?? t("noStatus"),
+            status_color: st?.color ?? "#6b7280",
+            totalPhases, completedPhases, totalItems, completedItems, progress,
+          };
         })
       );
     }
@@ -107,6 +125,7 @@ export default function ProjectList({ onSelectProject }: Props) {
                 <TableHead>{t("common:name")}</TableHead>
                 <TableHead>{t("fiscalYear")}</TableHead>
                 <TableHead>{t("common:status")}</TableHead>
+                <TableHead>{t("progress", "Progreso")}</TableHead>
                 <TableHead>{t("startDate")}</TableHead>
                 <TableHead>{t("estimatedEndDate")}</TableHead>
                 <TableHead className="text-right">{t("common:actions")}</TableHead>
@@ -121,6 +140,17 @@ export default function ProjectList({ onSelectProject }: Props) {
                     <Badge style={{ backgroundColor: p.status_color, color: "#fff" }}>
                       {p.status_name}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2 min-w-[120px]">
+                      <Progress value={(p as any).progress ?? 0} className="h-2 flex-1" />
+                      <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                        {(p as any).progress ?? 0}%
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">
+                      {(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items
+                    </span>
                   </TableCell>
                   <TableCell>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
                   <TableCell>
