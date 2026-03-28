@@ -42,11 +42,9 @@ export default function Login() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center gap-3">
           {settings.logo_url ? (
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 border border-white/20 overflow-hidden p-2">
-              <img src={settings.logo_url} alt="Logo" className="h-full w-full object-contain brightness-0 invert" />
-            </div>
+            <img src={settings.logo_url} alt="Logo" className="h-16 object-contain brightness-0 invert" />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/20 border border-primary/30">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 border border-primary/30">
               <span className="text-3xl font-bold text-primary">{settings.app_name.charAt(0)}</span>
             </div>
           )}
