@@ -72,5 +72,8 @@
   "searchByName": "Buscar por nombre...",
   "allStatuses": "Todos los estados",
   "allYears": "Todos los años",
-  "noResults": "No se encontraron resultados"
+  "noResults": "No se encontraron resultados",
+  "useTemplate": "Usar checklist maestro",
+  "selectTemplate": "Seleccionar plantilla",
+  "templateApplied": "Checklist maestro aplicado al proyecto"
 }
