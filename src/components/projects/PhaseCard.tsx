@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight, Pencil, Trash2, Plus, CheckCircle2, Circle } from "lucide-react";
+import { ChevronDown, ChevronRight, Pencil, Trash2, Plus, CheckCircle2, Circle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import PhaseItemRow from "./PhaseItemRow";
@@ -17,12 +17,13 @@ import {
 interface Props {
   phase: any;
   canManage: boolean;
+  isLocked?: boolean;
   onEdit: () => void;
   onDeleted: () => void;
   onUpdated: () => void;
 }
 
-export default function PhaseCard({ phase, canManage, onEdit, onDeleted, onUpdated }: Props) {
+export default function PhaseCard({ phase, canManage, isLocked = false, onEdit, onDeleted, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
@@ -61,8 +62,11 @@ export default function PhaseCard({ phase, canManage, onEdit, onDeleted, onUpdat
 
   return (
     <>
-      <Card className={phase.is_completed ? "border-green-500/50 bg-green-50/30" : ""}>
-        <Collapsible open={open} onOpenChange={setOpen}>
+      <Card className={cn(
+        phase.is_completed ? "border-green-500/50 bg-green-50/30" : "",
+        isLocked ? "opacity-60" : ""
+      )}>
+        <Collapsible open={open} onOpenChange={(v) => { if (!isLocked) setOpen(v); }}>
           <CardHeader className="py-3">
             <div className="flex items-center gap-2">
               <CollapsibleTrigger asChild>

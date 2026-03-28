@@ -134,6 +134,11 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
         <Badge variant="outline" className="text-xs shrink-0">
           {item.phase_item_types?.name}
         </Badge>
+        {item.requires_file && (
+          <Badge variant="secondary" className="text-xs shrink-0">
+            <Paperclip className="h-3 w-3 mr-1" /> {t("requiresFile")}
+          </Badge>
+        )}
 
         {/* Checkbox file attachment - show when requires_file OR when completed */}
         {typeCode === "checkbox" && item.requires_file && !item.file_url && (
