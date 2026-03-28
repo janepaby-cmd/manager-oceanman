@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Pencil, Trash2, ShieldPlus, ShieldMinus, Ban, CheckCircle2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Database } from "@/integrations/supabase/types";
+import { getRoleLabel, APP_ROLES } from "@/lib/roleLabels";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
