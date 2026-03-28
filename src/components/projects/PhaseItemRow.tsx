@@ -35,11 +35,36 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
 
   const toggleCheckbox = async () => {
     const completed = !item.is_completed;
-    await supabase.from("phase_items").update({
+    // If unchecking, also remove the attached file
+    const updateData: any = {
       is_completed: completed,
       completed_by: completed ? user!.id : null,
       completed_at: completed ? new Date().toISOString() : null,
-    }).eq("id", item.id);
+    };
+    if (!completed) {
+      updateData.file_url = null;
+    }
+    await supabase.from("phase_items").update(updateData).eq("id", item.id);
+    onUpdated();
+  };
+
+  const handleCheckboxFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCheckboxUploading(true);
+    const path = `${item.phase_id}/${item.id}/${file.name}`;
+    const { error: upErr } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
+    if (upErr) { toast.error(t("fileUploadError")); setCheckboxUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
+    await supabase.from("phase_items").update({ file_url: urlData.publicUrl }).eq("id", item.id);
+    toast.success(t("fileUploaded"));
+    setCheckboxUploading(false);
+    onUpdated();
+  };
+
+  const handleRemoveCheckboxFile = async () => {
+    await supabase.from("phase_items").update({ file_url: null }).eq("id", item.id);
+    toast.success(t("fileRemoved"));
     onUpdated();
   };
 
