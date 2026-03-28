@@ -2,13 +2,13 @@ import {
   LayoutDashboard,
   FolderKanban,
   Settings,
-  Anchor,
   LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +29,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const isSuperadmin = hasRole("superadmin");
   const { t } = useTranslation("common");
+  const { settings } = useAppSettings();
 
   const mainItems = [
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
@@ -61,12 +62,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="sidebar-gradient border-r-0">
       <SidebarContent>
         {!collapsed && (
-          <div className="flex items-center gap-2.5 px-4 py-5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary/20">
-              <Anchor className="h-4 w-4 text-sidebar-primary" />
-            </div>
-            <span className="font-semibold text-sm text-sidebar-foreground tracking-tight">
-              {t("appName")}
+          <div className="flex flex-col items-center gap-1.5 px-4 py-5">
+            {settings.logo_url ? (
+              <img src={settings.logo_url} alt="Logo" className="h-10 w-10 rounded-lg object-contain" />
+            ) : null}
+            <span className="font-semibold text-sm text-sidebar-foreground tracking-tight uppercase">
+              {settings.app_name}
             </span>
           </div>
         )}

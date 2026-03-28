@@ -9,15 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Anchor } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { getRoleLabel } from "@/lib/roleLabels";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 export function DashboardHeader() {
   const { profile, roles, signOut } = useAuth();
   const { t, i18n } = useTranslation("common");
+  const { settings } = useAppSettings();
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -28,8 +30,10 @@ export function DashboardHeader() {
       <div className="flex items-center gap-3">
         <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
         <div className="flex items-center gap-2">
-          <Anchor className="h-5 w-5 text-primary" />
-          <span className="font-semibold text-sm text-foreground tracking-tight">{t("appName")}</span>
+          {settings.logo_url ? (
+            <img src={settings.logo_url} alt="Logo" className="h-6 w-6 rounded object-contain" />
+          ) : null}
+          <span className="font-semibold text-sm text-foreground tracking-tight uppercase">{settings.app_name}</span>
         </div>
       </div>
 

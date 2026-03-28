@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Anchor } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation(["auth", "common"]);
+  const { settings } = useAppSettings();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,10 +41,16 @@ export default function Login() {
       </div>
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 border border-primary/30">
-            <Anchor className="h-7 w-7 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">{t("common:appName")}</h1>
+          {settings.logo_url ? (
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 border border-white/20 overflow-hidden">
+              <img src={settings.logo_url} alt="Logo" className="h-10 w-10 object-contain" />
+            </div>
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 border border-primary/30">
+              <span className="text-xl font-bold text-primary">{settings.app_name.charAt(0)}</span>
+            </div>
+          )}
+          <h1 className="text-2xl font-bold tracking-tight text-white uppercase">{settings.app_name}</h1>
           <p className="text-sm text-slate-400">{t("auth:subtitle")}</p>
         </div>
 
