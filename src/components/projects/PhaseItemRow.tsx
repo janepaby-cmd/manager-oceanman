@@ -35,7 +35,11 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
 
   const toggleCheckbox = async () => {
     const completed = !item.is_completed;
-    // If unchecking, also remove the attached file
+    // If trying to complete and requires file but no file attached, block
+    if (completed && item.requires_file && !item.file_url) {
+      toast.error(t("fileRequiredToComplete"));
+      return;
+    }
     const updateData: any = {
       is_completed: completed,
       completed_by: completed ? user!.id : null,
@@ -131,8 +135,16 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
           {item.phase_item_types?.name}
         </Badge>
 
-        {/* Checkbox file attachment */}
-        {typeCode === "checkbox" && item.is_completed && !item.file_url && (
+        {/* Checkbox file attachment - show when requires_file OR when completed */}
+        {typeCode === "checkbox" && item.requires_file && !item.file_url && (
+          <>
+            <input ref={checkboxFileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleCheckboxFileUpload} />
+            <Button variant="outline" size="sm" onClick={() => checkboxFileRef.current?.click()} disabled={checkboxUploading}>
+              <Paperclip className="h-3.5 w-3.5 mr-1" /> {checkboxUploading ? t("uploading") : t("attachFile")}
+            </Button>
+          </>
+        )}
+        {typeCode === "checkbox" && !item.requires_file && item.is_completed && !item.file_url && (
           <>
             <input ref={checkboxFileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleCheckboxFileUpload} />
             <Button variant="outline" size="sm" onClick={() => checkboxFileRef.current?.click()} disabled={checkboxUploading}>
