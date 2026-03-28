@@ -50,7 +50,6 @@ export default function ProjectList({ onSelectProject }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const deleteProject = deleteId ? filtered.find(p => p.id === deleteId) || projects.find(p => p.id === deleteId) : null;
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>("all");
