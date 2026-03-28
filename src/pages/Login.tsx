@@ -43,7 +43,7 @@ export default function Login() {
         <div className="flex flex-col items-center gap-3">
           {settings.logo_url ? (
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 border border-white/20 overflow-hidden">
-              <img src={settings.logo_url} alt="Logo" className="h-10 w-10 object-contain" />
+              <img src={settings.logo_url} alt="Logo" className="h-10 w-10 object-contain brightness-0 invert" />
             </div>
           ) : (
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 border border-primary/30">
