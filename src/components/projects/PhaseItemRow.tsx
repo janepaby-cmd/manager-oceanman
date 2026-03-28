@@ -131,9 +131,31 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
           {item.phase_item_types?.name}
         </Badge>
 
+        {/* Checkbox file attachment */}
+        {typeCode === "checkbox" && item.is_completed && !item.file_url && (
+          <>
+            <input ref={checkboxFileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleCheckboxFileUpload} />
+            <Button variant="outline" size="sm" onClick={() => checkboxFileRef.current?.click()} disabled={checkboxUploading}>
+              <Paperclip className="h-3.5 w-3.5 mr-1" /> {checkboxUploading ? t("uploading") : t("attachFile")}
+            </Button>
+          </>
+        )}
+        {typeCode === "checkbox" && item.file_url && (
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" asChild>
+              <a href={item.file_url} target="_blank" rel="noopener noreferrer">
+                <FileText className="h-3.5 w-3.5" />
+              </a>
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleRemoveCheckboxFile}>
+              <X className="h-3 w-3 text-destructive" />
+            </Button>
+          </div>
+        )}
+
         {typeCode === "file" && !item.is_completed && (
           <>
-            <input ref={fileRef} type="file" className="hidden" onChange={handleFileUpload} />
+            <input ref={fileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleFileUpload} />
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
               <Upload className="h-3.5 w-3.5 mr-1" /> {uploading ? t("uploading") : t("attach")}
             </Button>
