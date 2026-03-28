@@ -14,6 +14,9 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation(["auth", "common"]);
@@ -34,6 +37,23 @@ export default function Login() {
     setLoading(false);
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail.trim()) return;
+    setResetLoading(true);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      toast({ title: t("auth:loginError"), description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: t("auth:resetEmailSent"), description: t("auth:resetEmailSentDesc") });
+    }
+    setResetLoading(false);
+  };
+
   return (
     <div className="login-gradient flex min-h-screen items-center justify-center px-4">
       <div className="absolute top-4 right-4">
@@ -49,39 +69,76 @@ export default function Login() {
             </div>
           )}
           <h1 className="text-2xl font-bold tracking-tight text-white uppercase">{settings.app_name}</h1>
-          
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-8">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-slate-300 text-sm">{t("auth:emailLabel")}</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder={t("auth:emailPlaceholder")}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-white/10 border-white/15 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-slate-300 text-sm">{t("auth:passwordLabel")}</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder={t("auth:passwordPlaceholder")}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="bg-white/10 border-white/15 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {t("auth:loginButton")}
-          </Button>
-        </form>
+        {forgotMode ? (
+          <form onSubmit={handleForgotPassword} className="space-y-5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-8">
+            <p className="text-sm text-slate-400 text-center">{t("auth:forgotPasswordDesc")}</p>
+            <div className="space-y-2">
+              <Label htmlFor="resetEmail" className="text-slate-300 text-sm">{t("auth:emailLabel")}</Label>
+              <Input
+                id="resetEmail"
+                type="email"
+                placeholder={t("auth:emailPlaceholder")}
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+                className="bg-white/10 border-white/15 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={resetLoading}>
+              {resetLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {t("auth:sendResetLink")}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setForgotMode(false)}
+              className="w-full text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              {t("auth:backToLogin")}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleLogin} className="space-y-5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-8">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-slate-300 text-sm">{t("auth:emailLabel")}</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder={t("auth:emailPlaceholder")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="bg-white/10 border-white/15 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-slate-300 text-sm">{t("auth:passwordLabel")}</Label>
+                <button
+                  type="button"
+                  onClick={() => setForgotMode(true)}
+                  className="text-xs text-primary hover:text-primary/80 transition-colors"
+                >
+                  {t("auth:forgotPassword")}
+                </button>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder={t("auth:passwordPlaceholder")}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="bg-white/10 border-white/15 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary"
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {t("auth:loginButton")}
+            </Button>
+          </form>
+        )}
 
         <p className="text-center text-xs text-slate-500">
           © {new Date().getFullYear()} {settings.app_name}
