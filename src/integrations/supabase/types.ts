@@ -174,6 +174,7 @@ export type Database = {
           item_type_id: string
           phase_id: string
           position: number | null
+          requires_file: boolean
           signature_confirmed: boolean
           signature_confirmed_at: string | null
           signature_confirmed_by: string | null
@@ -192,6 +193,7 @@ export type Database = {
           item_type_id: string
           phase_id: string
           position?: number | null
+          requires_file?: boolean
           signature_confirmed?: boolean
           signature_confirmed_at?: string | null
           signature_confirmed_by?: string | null
@@ -210,6 +212,7 @@ export type Database = {
           item_type_id?: string
           phase_id?: string
           position?: number | null
+          requires_file?: boolean
           signature_confirmed?: boolean
           signature_confirmed_at?: string | null
           signature_confirmed_by?: string | null
@@ -426,6 +429,7 @@ export type Database = {
           estimated_end_date: string | null
           fiscal_year: number
           id: string
+          is_restrictive: boolean
           name: string
           start_date: string
           status_id: string | null
@@ -438,6 +442,7 @@ export type Database = {
           estimated_end_date?: string | null
           fiscal_year?: number
           id?: string
+          is_restrictive?: boolean
           name: string
           start_date?: string
           status_id?: string | null
@@ -450,6 +455,7 @@ export type Database = {
           estimated_end_date?: string | null
           fiscal_year?: number
           id?: string
+          is_restrictive?: boolean
           name?: string
           start_date?: string
           status_id?: string | null
