@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight, Pencil, Trash2, Plus, CheckCircle2, Circle, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import PhaseItemRow from "./PhaseItemRow";
 import ItemFormDialog from "./ItemFormDialog";
