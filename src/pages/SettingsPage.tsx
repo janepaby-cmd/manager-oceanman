@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings } from "lucide-react";
 import { UsersTab } from "@/components/settings/UsersTab";
 import { RolesTab } from "@/components/settings/RolesTab";
+import { GeneralTab } from "@/components/settings/GeneralTab";
 import { useTranslation } from "react-i18next";
 
 export default function SettingsPage() {
@@ -23,7 +24,7 @@ export default function SettingsPage() {
           <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-4">
+        <Tabs defaultValue="general" className="space-y-4">
           <TabsList>
             <TabsTrigger value="general">{t("tabs.general")}</TabsTrigger>
             <TabsTrigger value="users">{t("tabs.users")}</TabsTrigger>
@@ -31,9 +32,7 @@ export default function SettingsPage() {
           </TabsList>
 
           <TabsContent value="general">
-            <div className="glass-card p-12 text-center">
-              <p className="text-muted-foreground">{t("generalComingSoon")}</p>
-            </div>
+            <GeneralTab />
           </TabsContent>
 
           <TabsContent value="users">
