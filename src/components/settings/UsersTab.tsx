@@ -46,7 +46,7 @@ export function UsersTab() {
 
   const { user } = useAuth();
   const { toast } = useToast();
-  const { t } = useTranslation(["settings", "common"]);
+  const { t, i18n } = useTranslation(["settings", "common"]);
 
   const fetchUsers = useCallback(async () => {
     const [{ data: profiles }, { data: allRoles }, { data: rolesTable }] = await Promise.all([
