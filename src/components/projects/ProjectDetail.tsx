@@ -12,6 +12,7 @@ import PhaseCard from "./PhaseCard";
 import PhaseFormDialog from "./PhaseFormDialog";
 import ProjectUsersDialog from "./ProjectUsersDialog";
 import ExpenseList from "./ExpenseList";
+import ProjectDocuments from "./ProjectDocuments";
 
 interface Props {
   projectId: string;
@@ -135,6 +136,8 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
           </div>
         )}
       </div>
+
+      <ProjectDocuments projectId={projectId} />
 
       <ExpenseList projectId={projectId} canManage={canManage} />
 
