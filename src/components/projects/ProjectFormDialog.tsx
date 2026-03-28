@@ -166,6 +166,11 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       return;
     }
 
+    // Auto-assign creator to project
+    if (!project && newProjectId && user) {
+      await supabase.from("project_users").insert({ project_id: newProjectId, user_id: user.id });
+    }
+
     // Apply template if selected
     if (!project && useTemplate && selectedTemplateId && newProjectId) {
       try {
