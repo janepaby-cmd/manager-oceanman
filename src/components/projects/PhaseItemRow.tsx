@@ -131,9 +131,6 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
           {item.description && <p className="text-xs text-muted-foreground truncate">{item.description}</p>}
         </div>
 
-        <Badge variant="outline" className="text-xs shrink-0">
-          {item.phase_item_types?.name}
-        </Badge>
         {item.requires_file && (
           <Badge variant="secondary" className="text-xs shrink-0">
             <Paperclip className="h-3 w-3 mr-1" /> {t("requiresFile")}
