@@ -113,6 +113,8 @@ export default function ProjectList({ onSelectProject }: Props) {
     return true;
   });
 
+  const deleteProject = deleteId ? projects.find(p => p.id === deleteId) : null;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
