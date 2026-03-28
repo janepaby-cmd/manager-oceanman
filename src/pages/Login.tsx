@@ -49,7 +49,7 @@ export default function Login() {
             </div>
           )}
           <h1 className="text-2xl font-bold tracking-tight text-white uppercase">{settings.app_name}</h1>
-          <p className="text-sm text-slate-400">{t("auth:subtitle")}</p>
+          
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-8">
