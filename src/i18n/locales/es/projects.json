@@ -75,5 +75,9 @@
   "noResults": "No se encontraron resultados",
   "useTemplate": "Usar checklist maestro",
   "selectTemplate": "Seleccionar plantilla",
-  "templateApplied": "Checklist maestro aplicado al proyecto"
+  "templateApplied": "Checklist maestro aplicado al proyecto",
+  "attachFile": "Adjuntar",
+  "fileRemoved": "Archivo eliminado",
+  "documents": "Documentos del Proyecto",
+  "noDocuments": "No hay documentos adjuntos aún."
 }
