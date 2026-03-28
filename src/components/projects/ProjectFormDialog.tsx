@@ -35,7 +35,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
-
+  const [isRestrictive, setIsRestrictive] = useState(false);
   // Template state
   const [templates, setTemplates] = useState<any[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
@@ -64,6 +64,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStatusId(project.status_id || "");
       setStartDate(new Date(project.start_date));
       setEndDate(project.estimated_end_date ? new Date(project.estimated_end_date) : undefined);
+      setIsRestrictive(project.is_restrictive || false);
       setUseTemplate(false);
       setSelectedTemplateId("");
     } else {
@@ -73,6 +74,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStatusId(statuses[0]?.id || "");
       setStartDate(new Date());
       setEndDate(undefined);
+      setIsRestrictive(false);
       setUseTemplate(false);
       setSelectedTemplateId("");
     }
@@ -143,6 +145,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       status_id: statusId || null,
       start_date: startDate.toISOString(),
       estimated_end_date: endDate?.toISOString() || null,
+      is_restrictive: isRestrictive,
     };
 
     let error;
@@ -245,6 +248,19 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
                   <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className="p-3 pointer-events-auto" />
                 </PopoverContent>
               </Popover>
+            </div>
+          </div>
+
+          {/* Restrictive execution */}
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="is-restrictive"
+              checked={isRestrictive}
+              onCheckedChange={(c) => setIsRestrictive(!!c)}
+            />
+            <div>
+              <label htmlFor="is-restrictive" className="text-sm font-medium cursor-pointer">{t("isRestrictive")}</label>
+              <p className="text-xs text-muted-foreground">{t("isRestrictiveHint")}</p>
             </div>
           </div>
 
