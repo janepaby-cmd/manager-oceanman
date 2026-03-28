@@ -113,16 +113,7 @@ export default function Login() {
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-slate-300 text-sm">{t("auth:passwordLabel")}</Label>
-                <button
-                  type="button"
-                  onClick={() => setForgotMode(true)}
-                  className="text-xs text-primary hover:text-primary/80 transition-colors"
-                >
-                  {t("auth:forgotPassword")}
-                </button>
-              </div>
+              <Label htmlFor="password" className="text-slate-300 text-sm">{t("auth:passwordLabel")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -137,6 +128,13 @@ export default function Login() {
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {t("auth:loginButton")}
             </Button>
+            <button
+              type="button"
+              onClick={() => setForgotMode(true)}
+              className="w-full text-xs text-slate-400 hover:text-white transition-colors"
+            >
+              {t("auth:forgotPassword")}
+            </button>
           </form>
         )}
 
