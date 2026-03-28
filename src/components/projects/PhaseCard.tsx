@@ -75,7 +75,9 @@ export default function PhaseCard({ phase, canManage, isLocked = false, onEdit, 
                   {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
               </CollapsibleTrigger>
-              {phase.is_completed ? (
+              {isLocked ? (
+                <Lock className="h-5 w-5 text-muted-foreground" />
+              ) : phase.is_completed ? (
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               ) : (
                 <Circle className="h-5 w-5 text-muted-foreground" />
@@ -97,6 +99,9 @@ export default function PhaseCard({ phase, canManage, isLocked = false, onEdit, 
                 </div>
               )}
             </div>
+            {isLocked && (
+              <p className="text-xs text-muted-foreground ml-8 italic">{t("phaseLocked")}</p>
+            )}
             {phase.description && <p className="text-xs text-muted-foreground ml-8">{phase.description}</p>}
           </CardHeader>
           <CollapsibleContent>
