@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Upload, FileText, PenTool, Check } from "lucide-react";
+import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
@@ -12,6 +12,8 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+const ACCEPTED_FILE_TYPES = ".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx,.zip,.gpx,.kml,.kmz";
 
 interface Props {
   item: any;
@@ -27,6 +29,8 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
   const [showSignature, setShowSignature] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const checkboxFileRef = useRef<HTMLInputElement>(null);
+  const [checkboxUploading, setCheckboxUploading] = useState(false);
   const typeCode = item.phase_item_types?.code;
 
   const toggleCheckbox = async () => {
