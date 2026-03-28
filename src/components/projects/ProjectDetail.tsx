@@ -123,16 +123,20 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
           </div>
         ) : (
           <div className="space-y-3">
-            {phases.map((phase) => (
-              <PhaseCard
-                key={phase.id}
-                phase={phase}
-                canManage={canManage}
-                onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
-                onDeleted={fetchPhases}
-                onUpdated={fetchPhases}
-              />
-            ))}
+            {phases.map((phase, index) => {
+              const isLocked = project.is_restrictive && index > 0 && !phases[index - 1].is_completed;
+              return (
+                <PhaseCard
+                  key={phase.id}
+                  phase={phase}
+                  canManage={canManage}
+                  isLocked={isLocked}
+                  onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
+                  onDeleted={fetchPhases}
+                  onUpdated={fetchPhases}
+                />
+              );
+            })}
           </div>
         )}
       </div>
