@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Pencil, Trash2, ShieldPlus, ShieldMinus, Ban, CheckCircle2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Database } from "@/integrations/supabase/types";
+import { getRoleLabel, APP_ROLES } from "@/lib/roleLabels";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -38,14 +39,14 @@ export function UsersTab() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
-  const [newRole, setNewRole] = useState("");
+  const [newRole, setNewRole] = useState<string>("user");
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
 
   const { user } = useAuth();
   const { toast } = useToast();
-  const { t } = useTranslation(["settings", "common"]);
+  const { t, i18n } = useTranslation(["settings", "common"]);
 
   const fetchUsers = useCallback(async () => {
     const [{ data: profiles }, { data: allRoles }, { data: rolesTable }] = await Promise.all([
@@ -216,7 +217,7 @@ export function UsersTab() {
                   <TableCell>
                     <div className="flex gap-1 flex-wrap">
                       {u.roles.length > 0 ? u.roles.map((r) => (
-                        <Badge key={r} variant="secondary" className="capitalize text-xs">{r}</Badge>
+                        <Badge key={r} variant="secondary" className="text-xs">{getRoleLabel(r, i18n.language)}</Badge>
                       )) : <span className="text-muted-foreground text-xs">{t("common:noRole")}</span>}
                     </div>
                   </TableCell>
@@ -288,8 +289,8 @@ export function UsersTab() {
               <Select value={newRole} onValueChange={setNewRole}>
                 <SelectTrigger><SelectValue placeholder={t("users.selectRole")} /></SelectTrigger>
                 <SelectContent>
-                  {availableRoles.map((r) => (
-                    <SelectItem key={r.id} value={r.name} className="capitalize">{r.name}</SelectItem>
+                  {APP_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{getRoleLabel(r, i18n.language)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -349,11 +350,11 @@ export function UsersTab() {
               <SelectContent>
                 {roleDialog?.action === "remove" ? (
                   roleDialog.user.roles.map((r) => (
-                    <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
+                    <SelectItem key={r} value={r}>{getRoleLabel(r, i18n.language)}</SelectItem>
                   ))
                 ) : (
-                  availableRoles.map((r) => (
-                    <SelectItem key={r.id} value={r.name} className="capitalize">{r.name}</SelectItem>
+                  APP_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{getRoleLabel(r, i18n.language)}</SelectItem>
                   ))
                 )}
               </SelectContent>

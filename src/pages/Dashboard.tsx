@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
+import { getRoleLabel } from "@/lib/roleLabels";
 
 export default function Dashboard() {
   const { profile, roles, user } = useAuth();
@@ -85,7 +86,7 @@ export default function Dashboard() {
                   {roles.length > 0 ? (
                     <span className="flex gap-1">
                       {roles.map((r) => (
-                        <Badge key={r} variant="secondary" className="capitalize text-xs">{r}</Badge>
+                        <Badge key={r} variant="secondary" className="text-xs">{getRoleLabel(r, i18n.language)}</Badge>
                       ))}
                     </span>
                   ) : t("common:noRole")}

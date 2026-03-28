@@ -13,10 +13,11 @@ import { LogOut, User, Anchor } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { getRoleLabel } from "@/lib/roleLabels";
 
 export function DashboardHeader() {
   const { profile, roles, signOut } = useAuth();
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -35,8 +36,8 @@ export function DashboardHeader() {
       <div className="flex items-center gap-3">
         <LanguageSelector />
         {roles.length > 0 && (
-          <Badge variant="secondary" className="text-xs capitalize">
-            {roles[0]}
+          <Badge variant="secondary" className="text-xs">
+            {getRoleLabel(roles[0], i18n.language)}
           </Badge>
         )}
         <DropdownMenu>
