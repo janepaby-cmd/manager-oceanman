@@ -39,7 +39,7 @@ export function UsersTab() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
-  const [newRole, setNewRole] = useState("");
+  const [newRole, setNewRole] = useState<string>("user");
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -217,7 +217,7 @@ export function UsersTab() {
                   <TableCell>
                     <div className="flex gap-1 flex-wrap">
                       {u.roles.length > 0 ? u.roles.map((r) => (
-                        <Badge key={r} variant="secondary" className="capitalize text-xs">{r}</Badge>
+                        <Badge key={r} variant="secondary" className="text-xs">{getRoleLabel(r, i18n.language)}</Badge>
                       )) : <span className="text-muted-foreground text-xs">{t("common:noRole")}</span>}
                     </div>
                   </TableCell>
