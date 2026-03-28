@@ -72,5 +72,8 @@
   "searchByName": "Search by name...",
   "allStatuses": "All statuses",
   "allYears": "All years",
-  "noResults": "No results found"
+  "noResults": "No results found",
+  "useTemplate": "Use master checklist",
+  "selectTemplate": "Select template",
+  "templateApplied": "Master checklist applied to project"
 }

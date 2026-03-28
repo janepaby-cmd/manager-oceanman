@@ -9,12 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ListChecks } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Props {
   open: boolean;
@@ -35,7 +36,25 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
 
+  // Template state
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [useTemplate, setUseTemplate] = useState(false);
+
   const dateLocale = i18n.language === "es" ? es : undefined;
+
+  useEffect(() => {
+    if (open && !project) {
+      supabase
+        .from("checklist_templates")
+        .select("id, name, description")
+        .eq("is_active", true)
+        .order("name")
+        .then(({ data }) => {
+          if (data) setTemplates(data);
+        });
+    }
+  }, [open, project]);
 
   useEffect(() => {
     if (project) {
@@ -45,6 +64,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStatusId(project.status_id || "");
       setStartDate(new Date(project.start_date));
       setEndDate(project.estimated_end_date ? new Date(project.estimated_end_date) : undefined);
+      setUseTemplate(false);
+      setSelectedTemplateId("");
     } else {
       setName("");
       setDescription("");
@@ -52,8 +73,64 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStatusId(statuses[0]?.id || "");
       setStartDate(new Date());
       setEndDate(undefined);
+      setUseTemplate(false);
+      setSelectedTemplateId("");
     }
   }, [project, open, statuses]);
+
+  const applyTemplate = async (projectId: string, templateId: string) => {
+    // Fetch template phases with items
+    const { data: tPhases } = await supabase
+      .from("checklist_template_phases")
+      .select("id, name, description, position")
+      .eq("template_id", templateId)
+      .order("position");
+
+    if (!tPhases || tPhases.length === 0) return;
+
+    // Get the default checkbox item type
+    const { data: itemTypes } = await supabase
+      .from("phase_item_types")
+      .select("id, code");
+
+    const typeMap = new Map((itemTypes || []).map((t: any) => [t.code, t.id]));
+    const defaultTypeId = typeMap.get("checkbox");
+
+    for (const tPhase of tPhases) {
+      // Create project phase
+      const { data: newPhase } = await supabase
+        .from("project_phases")
+        .insert({
+          project_id: projectId,
+          name: tPhase.name,
+          description: tPhase.description,
+          position: tPhase.position,
+        })
+        .select("id")
+        .single();
+
+      if (!newPhase) continue;
+
+      // Fetch template items for this phase
+      const { data: tItems } = await supabase
+        .from("checklist_template_items")
+        .select("title, description, item_type_code, position")
+        .eq("phase_id", tPhase.id)
+        .order("position");
+
+      if (tItems && tItems.length > 0) {
+        const itemsToInsert = tItems.map((item: any) => ({
+          phase_id: newPhase.id,
+          title: item.title,
+          description: item.description,
+          item_type_id: typeMap.get(item.item_type_code) || defaultTypeId,
+          position: item.position,
+        }));
+
+        await supabase.from("phase_items").insert(itemsToInsert);
+      }
+    }
+  };
 
   const handleSave = async () => {
     if (!name.trim()) { toast.error(t("nameRequired")); return; }
@@ -69,15 +146,34 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     };
 
     let error;
+    let newProjectId: string | null = null;
+
     if (project) {
       ({ error } = await supabase.from("projects").update(data).eq("id", project.id));
     } else {
       data.created_by = user!.id;
-      ({ error } = await supabase.from("projects").insert(data));
+      const res = await supabase.from("projects").insert(data).select("id").single();
+      error = res.error;
+      newProjectId = res.data?.id || null;
+    }
+
+    if (error) {
+      setSaving(false);
+      toast.error(t("errorSaving") + ": " + error.message);
+      return;
+    }
+
+    // Apply template if selected
+    if (!project && useTemplate && selectedTemplateId && newProjectId) {
+      try {
+        await applyTemplate(newProjectId, selectedTemplateId);
+        toast.success(t("templateApplied"));
+      } catch (e) {
+        console.error("Error applying template:", e);
+      }
     }
 
     setSaving(false);
-    if (error) { toast.error(t("errorSaving") + ": " + error.message); return; }
     toast.success(project ? t("projectUpdated") : t("projectCreated"));
     onOpenChange(false);
     onSaved();
@@ -151,6 +247,45 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
               </Popover>
             </div>
           </div>
+
+          {/* Template selection - only for new projects */}
+          {!project && templates.length > 0 && (
+            <div className="rounded-lg border border-dashed p-4 space-y-3 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="use-template"
+                  checked={useTemplate}
+                  onCheckedChange={(c) => {
+                    setUseTemplate(!!c);
+                    if (!c) setSelectedTemplateId("");
+                  }}
+                />
+                <label htmlFor="use-template" className="text-sm font-medium flex items-center gap-2 cursor-pointer">
+                  <ListChecks className="h-4 w-4 text-primary" />
+                  {t("useTemplate")}
+                </label>
+              </div>
+              {useTemplate && (
+                <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("selectTemplate")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((tmpl) => (
+                      <SelectItem key={tmpl.id} value={tmpl.id}>
+                        {tmpl.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {useTemplate && selectedTemplateId && (
+                <p className="text-xs text-muted-foreground">
+                  {templates.find((t) => t.id === selectedTemplateId)?.description}
+                </p>
+              )}
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:cancel")}</Button>
