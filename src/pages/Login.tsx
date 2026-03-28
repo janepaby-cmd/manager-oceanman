@@ -86,7 +86,7 @@ export default function Login() {
         </form>
 
         <p className="text-center text-xs text-slate-500">
-          {t("common:copyright")}
+          © {new Date().getFullYear()} {settings.app_name}
         </p>
       </div>
     </div>
