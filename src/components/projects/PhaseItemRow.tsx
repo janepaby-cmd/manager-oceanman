@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Upload, FileText, PenTool, Check } from "lucide-react";
+import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
@@ -12,6 +12,8 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+const ACCEPTED_FILE_TYPES = ".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx,.zip,.gpx,.kml,.kmz";
 
 interface Props {
   item: any;
@@ -27,15 +29,42 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
   const [showSignature, setShowSignature] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const checkboxFileRef = useRef<HTMLInputElement>(null);
+  const [checkboxUploading, setCheckboxUploading] = useState(false);
   const typeCode = item.phase_item_types?.code;
 
   const toggleCheckbox = async () => {
     const completed = !item.is_completed;
-    await supabase.from("phase_items").update({
+    // If unchecking, also remove the attached file
+    const updateData: any = {
       is_completed: completed,
       completed_by: completed ? user!.id : null,
       completed_at: completed ? new Date().toISOString() : null,
-    }).eq("id", item.id);
+    };
+    if (!completed) {
+      updateData.file_url = null;
+    }
+    await supabase.from("phase_items").update(updateData).eq("id", item.id);
+    onUpdated();
+  };
+
+  const handleCheckboxFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCheckboxUploading(true);
+    const path = `${item.phase_id}/${item.id}/${file.name}`;
+    const { error: upErr } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
+    if (upErr) { toast.error(t("fileUploadError")); setCheckboxUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
+    await supabase.from("phase_items").update({ file_url: urlData.publicUrl }).eq("id", item.id);
+    toast.success(t("fileUploaded"));
+    setCheckboxUploading(false);
+    onUpdated();
+  };
+
+  const handleRemoveCheckboxFile = async () => {
+    await supabase.from("phase_items").update({ file_url: null }).eq("id", item.id);
+    toast.success(t("fileRemoved"));
     onUpdated();
   };
 
@@ -102,9 +131,31 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
           {item.phase_item_types?.name}
         </Badge>
 
+        {/* Checkbox file attachment */}
+        {typeCode === "checkbox" && item.is_completed && !item.file_url && (
+          <>
+            <input ref={checkboxFileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleCheckboxFileUpload} />
+            <Button variant="outline" size="sm" onClick={() => checkboxFileRef.current?.click()} disabled={checkboxUploading}>
+              <Paperclip className="h-3.5 w-3.5 mr-1" /> {checkboxUploading ? t("uploading") : t("attachFile")}
+            </Button>
+          </>
+        )}
+        {typeCode === "checkbox" && item.file_url && (
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" asChild>
+              <a href={item.file_url} target="_blank" rel="noopener noreferrer">
+                <FileText className="h-3.5 w-3.5" />
+              </a>
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleRemoveCheckboxFile}>
+              <X className="h-3 w-3 text-destructive" />
+            </Button>
+          </div>
+        )}
+
         {typeCode === "file" && !item.is_completed && (
           <>
-            <input ref={fileRef} type="file" className="hidden" onChange={handleFileUpload} />
+            <input ref={fileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleFileUpload} />
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
               <Upload className="h-3.5 w-3.5 mr-1" /> {uploading ? t("uploading") : t("attach")}
             </Button>

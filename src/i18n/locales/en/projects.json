@@ -75,5 +75,9 @@
   "noResults": "No results found",
   "useTemplate": "Use master checklist",
   "selectTemplate": "Select template",
-  "templateApplied": "Master checklist applied to project"
+  "templateApplied": "Master checklist applied to project",
+  "attachFile": "Attach",
+  "fileRemoved": "File removed",
+  "documents": "Project Documents",
+  "noDocuments": "No documents attached yet."
 }
