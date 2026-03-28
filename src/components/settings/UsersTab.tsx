@@ -289,8 +289,8 @@ export function UsersTab() {
               <Select value={newRole} onValueChange={setNewRole}>
                 <SelectTrigger><SelectValue placeholder={t("users.selectRole")} /></SelectTrigger>
                 <SelectContent>
-                  {availableRoles.map((r) => (
-                    <SelectItem key={r.id} value={r.name} className="capitalize">{r.name}</SelectItem>
+                  {APP_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{getRoleLabel(r, i18n.language)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -350,11 +350,11 @@ export function UsersTab() {
               <SelectContent>
                 {roleDialog?.action === "remove" ? (
                   roleDialog.user.roles.map((r) => (
-                    <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
+                    <SelectItem key={r} value={r}>{getRoleLabel(r, i18n.language)}</SelectItem>
                   ))
                 ) : (
-                  availableRoles.map((r) => (
-                    <SelectItem key={r.id} value={r.name} className="capitalize">{r.name}</SelectItem>
+                  APP_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{getRoleLabel(r, i18n.language)}</SelectItem>
                   ))
                 )}
               </SelectContent>
