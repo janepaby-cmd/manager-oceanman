@@ -13,6 +13,7 @@ import { LogOut, User, Anchor } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { getRoleLabel } from "@/lib/roleLabels";
 
 export function DashboardHeader() {
   const { profile, roles, signOut } = useAuth();
