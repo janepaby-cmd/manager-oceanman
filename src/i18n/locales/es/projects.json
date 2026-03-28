@@ -5,6 +5,7 @@
   "editProject": "Editar Proyecto",
   "deleteProject": "¿Eliminar proyecto?",
   "deleteProjectConfirm": "Esta acción no se puede deshacer.",
+  "deleteProjectCascadeWarning": "Este proyecto tiene {{phases}} fase(s) y {{items}} item(s) asociados que también serán eliminados.",
   "noProjects": "No hay proyectos aún. ¡Crea tu primer proyecto!",
   "projectName": "Nombre del Proyecto",
   "projectNamePlaceholder": "Nombre del proyecto",

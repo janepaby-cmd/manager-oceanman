@@ -50,6 +50,7 @@ export default function ProjectList({ onSelectProject }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const deleteProject = deleteId ? filtered.find(p => p.id === deleteId) || projects.find(p => p.id === deleteId) : null;
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>("all");
@@ -239,7 +240,18 @@ export default function ProjectList({ onSelectProject }: Props) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("deleteProject")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("deleteProjectConfirm")}</AlertDialogDescription>
+            <AlertDialogDescription>
+              {deleteProject && ((deleteProject as any).totalPhases > 0 || (deleteProject as any).totalItems > 0) ? (
+                <span>
+                  {t("deleteProjectCascadeWarning", {
+                    phases: (deleteProject as any).totalPhases || 0,
+                    items: (deleteProject as any).totalItems || 0,
+                  })}
+                  <br /><br />
+                </span>
+              ) : null}
+              {t("deleteProjectConfirm")}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
