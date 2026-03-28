@@ -64,7 +64,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="flex flex-col items-center gap-1.5 px-4 py-5">
             {settings.logo_url ? (
-              <img src={settings.logo_url} alt="Logo" className="h-10 w-10 rounded-lg object-contain brightness-0 invert" />
+              <img src={settings.logo_url} alt="Logo" className="h-8 w-8 rounded object-contain brightness-0 invert" />
             ) : null}
             <span className="font-semibold text-sm text-sidebar-foreground tracking-tight uppercase">
               {settings.app_name}
