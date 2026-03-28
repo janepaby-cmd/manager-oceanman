@@ -5,6 +5,7 @@
   "editProject": "Edit Project",
   "deleteProject": "Delete project?",
   "deleteProjectConfirm": "This action cannot be undone.",
+  "deleteProjectCascadeWarning": "This project has {{phases}} phase(s) and {{items}} item(s) that will also be deleted.",
   "noProjects": "No projects yet. Create your first project!",
   "projectName": "Project Name",
   "projectNamePlaceholder": "Project name",

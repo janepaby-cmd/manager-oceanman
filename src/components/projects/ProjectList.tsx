@@ -113,6 +113,8 @@ export default function ProjectList({ onSelectProject }: Props) {
     return true;
   });
 
+  const deleteProject = deleteId ? projects.find(p => p.id === deleteId) : null;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -239,7 +241,18 @@ export default function ProjectList({ onSelectProject }: Props) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("deleteProject")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("deleteProjectConfirm")}</AlertDialogDescription>
+            <AlertDialogDescription>
+              {deleteProject && ((deleteProject as any).totalPhases > 0 || (deleteProject as any).totalItems > 0) ? (
+                <span>
+                  {t("deleteProjectCascadeWarning", {
+                    phases: (deleteProject as any).totalPhases || 0,
+                    items: (deleteProject as any).totalItems || 0,
+                  })}
+                  <br /><br />
+                </span>
+              ) : null}
+              {t("deleteProjectConfirm")}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
