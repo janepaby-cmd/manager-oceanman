@@ -79,5 +79,11 @@
   "attachFile": "Adjuntar",
   "fileRemoved": "Archivo eliminado",
   "documents": "Documentos del Proyecto",
-  "noDocuments": "No hay documentos adjuntos aún."
+  "noDocuments": "No hay documentos adjuntos aún.",
+  "requiresFile": "Requiere archivo adjunto",
+  "requiresFileHint": "El item no se puede completar sin adjuntar un archivo",
+  "isRestrictive": "Ejecución restrictiva de fases",
+  "isRestrictiveHint": "Las fases deben completarse en orden secuencial",
+  "fileRequiredToComplete": "Debes adjuntar un archivo antes de completar este item",
+  "phaseLocked": "Completa la fase anterior para desbloquear esta fase"
 }

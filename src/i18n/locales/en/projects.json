@@ -79,5 +79,11 @@
   "attachFile": "Attach",
   "fileRemoved": "File removed",
   "documents": "Project Documents",
-  "noDocuments": "No documents attached yet."
+  "noDocuments": "No documents attached yet.",
+  "requiresFile": "Requires file attachment",
+  "requiresFileHint": "Item cannot be completed without attaching a file",
+  "isRestrictive": "Restrictive phase execution",
+  "isRestrictiveHint": "Phases must be completed in sequential order",
+  "fileRequiredToComplete": "You must attach a file before completing this item",
+  "phaseLocked": "Complete the previous phase to unlock this phase"
 }

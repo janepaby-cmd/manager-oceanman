@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +24,7 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [itemTypeId, setItemTypeId] = useState("");
+  const [requiresFile, setRequiresFile] = useState(false);
   const [itemTypes, setItemTypes] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -37,10 +39,12 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
       setTitle(item.title);
       setDescription(item.description || "");
       setItemTypeId(item.item_type_id);
+      setRequiresFile(item.requires_file || false);
     } else {
       setTitle("");
       setDescription("");
       setItemTypeId(itemTypes[0]?.id || "");
+      setRequiresFile(false);
     }
   }, [item, open, itemTypes]);
 
@@ -53,6 +57,7 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
       title: title.trim(),
       description: description.trim() || null,
       item_type_id: itemTypeId,
+      requires_file: requiresFile,
     };
 
     let error;
@@ -96,6 +101,13 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
           <div>
             <Label>{t("common:description")}</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("common:description")} />
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="requires-file" checked={requiresFile} onCheckedChange={(c) => setRequiresFile(!!c)} />
+            <div>
+              <label htmlFor="requires-file" className="text-sm font-medium cursor-pointer">{t("requiresFile")}</label>
+              <p className="text-xs text-muted-foreground">{t("requiresFileHint")}</p>
+            </div>
           </div>
         </div>
         <DialogFooter>
