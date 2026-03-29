@@ -14,6 +14,7 @@ import { es, enUS } from "date-fns/locale";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
 import { getRoleLabel } from "@/lib/roleLabels";
+import MessageWidget from "@/components/messages/MessageWidget";
 
 export default function Dashboard() {
   const { profile, roles, user } = useAuth();
@@ -95,6 +96,8 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        <MessageWidget />
 
         <div>
           <div className="flex items-center gap-2 mb-4">
