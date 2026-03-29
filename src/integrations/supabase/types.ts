@@ -243,6 +243,246 @@ export type Database = {
         }
         Relationships: []
       }
+      message_attachments: {
+        Row: {
+          created_at: string
+          extension: string
+          file_size: number
+          id: string
+          message_id: string
+          mime_type: string
+          original_name: string
+          storage_key: string
+          stored_name: string
+          uploaded_by_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          extension?: string
+          file_size?: number
+          id?: string
+          message_id: string
+          mime_type: string
+          original_name: string
+          storage_key: string
+          stored_name: string
+          uploaded_by_user_id: string
+        }
+        Update: {
+          created_at?: string
+          extension?: string
+          file_size?: number
+          id?: string
+          message_id?: string
+          mime_type?: string
+          original_name?: string
+          storage_key?: string
+          stored_name?: string
+          uploaded_by_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          message_id: string | null
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_audit_logs_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_projects: {
+        Row: {
+          id: string
+          message_id: string
+          project_id: string
+        }
+        Insert: {
+          id?: string
+          message_id: string
+          project_id: string
+        }
+        Update: {
+          id?: string
+          message_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_projects_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_recipients: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          delivery_type: string
+          email_error: string | null
+          email_sent_at: string | null
+          email_status: string
+          id: string
+          is_visible: boolean
+          message_id: string
+          read_at: string | null
+          recipient_project_id: string | null
+          recipient_role: string | null
+          recipient_user_id: string
+          responded_at: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          delivery_type?: string
+          email_error?: string | null
+          email_sent_at?: string | null
+          email_status?: string
+          id?: string
+          is_visible?: boolean
+          message_id: string
+          read_at?: string | null
+          recipient_project_id?: string | null
+          recipient_role?: string | null
+          recipient_user_id: string
+          responded_at?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          delivery_type?: string
+          email_error?: string | null
+          email_sent_at?: string | null
+          email_status?: string
+          id?: string
+          is_visible?: boolean
+          message_id?: string
+          read_at?: string | null
+          recipient_project_id?: string | null
+          recipient_role?: string | null
+          recipient_user_id?: string
+          responded_at?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_recipients_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_recipients_recipient_project_id_fkey"
+            columns: ["recipient_project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          message_type: string
+          parent_message_id: string | null
+          priority: string
+          requires_read_confirmation: boolean
+          scope_type: string
+          sender_user_id: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          message_type?: string
+          parent_message_id?: string | null
+          priority?: string
+          requires_read_confirmation?: boolean
+          scope_type?: string
+          sender_user_id: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          message_type?: string
+          parent_message_id?: string | null
+          priority?: string
+          requires_read_confirmation?: boolean
+          scope_type?: string
+          sender_user_id?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_parent_message_id_fkey"
+            columns: ["parent_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phase_item_types: {
         Row: {
           code: string
@@ -663,6 +903,18 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_message_participant: {
+        Args: { _message_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_message_recipient: {
+        Args: { _message_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_message_sender: {
+        Args: { _message_id: string; _user_id: string }
         Returns: boolean
       }
       move_to_dlq: {

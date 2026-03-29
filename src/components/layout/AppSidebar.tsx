@@ -3,6 +3,7 @@ import {
   FolderKanban,
   Settings,
   LogOut,
+  MessageSquare,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ export function AppSidebar() {
   const mainItems = [
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.projects"), url: "/dashboard/projects", icon: FolderKanban },
+    { title: t("nav.messages", "Mensajes"), url: "/dashboard/messages", icon: MessageSquare },
   ];
 
   const handleLogout = async () => {
