@@ -184,7 +184,7 @@ export default function RecipientSelector({
       .from("user_roles")
       .select("user_id")
       .in("role", selectedRoles);
-    const uids = [...new Set((roleUsers || []).map((r: any) => r.user_id))];
+    const uids: string[] = [...new Set((roleUsers || []).map((r: any) => r.user_id))] as string[];
     if (!uids.length) { setAvailableUsers([]); return; }
     const { data: profiles } = await supabase
       .from("profiles")
@@ -192,7 +192,7 @@ export default function RecipientSelector({
       .in("user_id", uids)
       .eq("is_active", true);
     setAvailableUsers(profiles || []);
-    onUsersChange(uids.filter((id) => id !== user!.id));
+    onUsersChange(uids.filter((id: string) => id !== user!.id));
   };
 
   const loadAllUsers = async () => {
