@@ -8,6 +8,7 @@ import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X } from "
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
+import { notifyItemCompleted } from "@/lib/notifyItemCompleted";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
