@@ -22,17 +22,14 @@
     "logoRemoved": "Logo eliminado",
     "uploadError": "Error al subir el logo",
     "loading": "Cargando configuración...",
-    "emailTitle": "Email (Brevo)",
-    "emailDesc": "Configura el remitente de emails para el envío desde la app mediante Brevo.",
-    "senderEmail": "Email del remitente",
-    "senderName": "Nombre del remitente",
-    "saveEmailConfig": "Guardar configuración de email",
+    "emailTitle": "Correo Electrónico",
+    "emailDesc": "Envía un correo de prueba para verificar que el sistema de emails funciona correctamente.",
     "testEmailTitle": "Enviar email de prueba",
     "testEmailPlaceholder": "destinatario@ejemplo.com",
     "sendTest": "Enviar prueba",
     "testSent": "Email de prueba enviado correctamente",
     "testError": "Error al enviar email de prueba",
-    "testEmailHint": "Envía un email de prueba para verificar que la configuración de Brevo funciona."
+    "testEmailHint": "Se enviará un correo de prueba desde el dominio configurado."
   },
   "users": {
     "newUser": "Nuevo usuario",
