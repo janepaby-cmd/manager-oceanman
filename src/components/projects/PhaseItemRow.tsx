@@ -24,7 +24,7 @@ interface Props {
 }
 
 export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Props) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
@@ -50,6 +50,14 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       updateData.file_url = null;
     }
     await supabase.from("phase_items").update(updateData).eq("id", item.id);
+    if (completed) {
+      notifyItemCompleted({
+        itemId: item.id,
+        itemTitle: item.title,
+        phaseId: item.phase_id,
+        completedByName: profile?.full_name || user!.email || "—",
+      });
+    }
     onUpdated();
   };
 
