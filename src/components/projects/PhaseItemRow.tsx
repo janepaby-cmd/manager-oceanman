@@ -96,6 +96,12 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       completed_at: new Date().toISOString(),
     }).eq("id", item.id);
     toast.success(t("fileUploaded"));
+    notifyItemCompleted({
+      itemId: item.id,
+      itemTitle: item.title,
+      phaseId: item.phase_id,
+      completedByName: profile?.full_name || user!.email || "—",
+    });
     setUploading(false);
     onUpdated();
   };
@@ -111,6 +117,12 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       completed_at: new Date().toISOString(),
     }).eq("id", item.id);
     toast.success(t("signatureSaved"));
+    notifyItemCompleted({
+      itemId: item.id,
+      itemTitle: item.title,
+      phaseId: item.phase_id,
+      completedByName: profile?.full_name || user!.email || "—",
+    });
     setShowSignature(false);
     onUpdated();
   };
