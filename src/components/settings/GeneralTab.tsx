@@ -12,16 +12,13 @@ import { Loader2, Upload, Trash2, Send, Image } from "lucide-react";
 export function GeneralTab() {
   const { settings, isLoading, updateSetting } = useAppSettings();
   const { toast } = useToast();
-  const { t } = useTranslation("settings");
+  const { t, i18n } = useTranslation("settings");
 
   const [appName, setAppName] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [savingName, setSavingName] = useState(false);
 
-  const [senderEmail, setSenderEmail] = useState("");
-  const [senderName, setSenderName] = useState("");
-  const [savingEmail, setSavingEmail] = useState(false);
   const [testEmail, setTestEmail] = useState("");
   const [sendingTest, setSendingTest] = useState(false);
 
@@ -29,8 +26,6 @@ export function GeneralTab() {
     if (!isLoading) {
       setAppName(settings.app_name || "");
       setLogoUrl(settings.logo_url);
-      setSenderEmail(settings.brevo_sender_email || "");
-      setSenderName(settings.brevo_sender_name || "");
     }
   }, [isLoading, settings]);
 
@@ -82,29 +77,20 @@ export function GeneralTab() {
     }
   };
 
-  const handleSaveEmail = async () => {
-    setSavingEmail(true);
-    try {
-      await updateSetting.mutateAsync({ key: "brevo_sender_email", value: senderEmail.trim() || null });
-      await updateSetting.mutateAsync({ key: "brevo_sender_name", value: senderName.trim() || null });
-      toast({ title: t("general.saved") });
-    } catch {
-      toast({ title: t("general.saveError"), variant: "destructive" });
-    }
-    setSavingEmail(false);
-  };
-
   const handleTestEmail = async () => {
     if (!testEmail.trim()) return;
     setSendingTest(true);
     try {
-      const { data, error } = await supabase.functions.invoke("send-brevo-email", {
+      const lang = i18n.language?.startsWith("es") ? "es" : "en";
+      const { data, error } = await supabase.functions.invoke("send-transactional-email", {
         body: {
-          to: testEmail.trim(),
-          subject: `Test email from ${settings.app_name}`,
-          htmlContent: `<html><body><h1>Test Email</h1><p>This is a test email from <strong>${settings.app_name}</strong>.</p><p>If you received this, your Brevo email configuration is working correctly.</p></body></html>`,
-          senderEmail: senderEmail.trim(),
-          senderName: senderName.trim() || settings.app_name,
+          templateName: "test-email",
+          recipientEmail: testEmail.trim(),
+          idempotencyKey: `test-email-${Date.now()}`,
+          templateData: {
+            appName: settings.app_name || "App",
+            lang,
+          },
         },
       });
       if (error) throw error;
@@ -180,7 +166,7 @@ export function GeneralTab() {
         </CardContent>
       </Card>
 
-      {/* Email Section */}
+      {/* Email Test Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -189,34 +175,8 @@ export function GeneralTab() {
           </CardTitle>
           <CardDescription>{t("general.emailDesc")}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 max-w-md">
-            <div className="space-y-2">
-              <Label htmlFor="senderEmail">{t("general.senderEmail")}</Label>
-              <Input
-                id="senderEmail"
-                type="email"
-                value={senderEmail}
-                onChange={(e) => setSenderEmail(e.target.value)}
-                placeholder="noreply@yourdomain.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="senderName">{t("general.senderName")}</Label>
-              <Input
-                id="senderName"
-                value={senderName}
-                onChange={(e) => setSenderName(e.target.value)}
-                placeholder={settings.app_name}
-              />
-            </div>
-            <Button onClick={handleSaveEmail} disabled={savingEmail}>
-              {savingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {t("general.saveEmailConfig")}
-            </Button>
-          </div>
-
-          <div className="border-t pt-4 space-y-3">
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
             <Label>{t("general.testEmailTitle")}</Label>
             <div className="flex gap-2 max-w-md">
               <Input
@@ -225,7 +185,7 @@ export function GeneralTab() {
                 onChange={(e) => setTestEmail(e.target.value)}
                 placeholder={t("general.testEmailPlaceholder")}
               />
-              <Button onClick={handleTestEmail} disabled={sendingTest || !testEmail.trim() || !senderEmail.trim()} variant="outline">
+              <Button onClick={handleTestEmail} disabled={sendingTest || !testEmail.trim()} variant="outline">
                 {sendingTest ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                 {t("general.sendTest")}
               </Button>

@@ -22,17 +22,14 @@
     "logoRemoved": "Logo removed",
     "uploadError": "Error uploading logo",
     "loading": "Loading settings...",
-    "emailTitle": "Email (Brevo)",
-    "emailDesc": "Configure the email sender for sending emails from the app via Brevo.",
-    "senderEmail": "Sender email",
-    "senderName": "Sender name",
-    "saveEmailConfig": "Save email config",
+    "emailTitle": "Email",
+    "emailDesc": "Send a test email to verify the email system is working correctly.",
     "testEmailTitle": "Send test email",
     "testEmailPlaceholder": "recipient@example.com",
     "sendTest": "Send test",
     "testSent": "Test email sent successfully",
     "testError": "Error sending test email",
-    "testEmailHint": "Send a test email to verify your Brevo configuration works."
+    "testEmailHint": "A test email will be sent from the configured domain."
   },
   "users": {
     "newUser": "New user",
