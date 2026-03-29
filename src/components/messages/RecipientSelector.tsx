@@ -228,7 +228,7 @@ export default function RecipientSelector({
         .from("project_users")
         .select("user_id")
         .in("project_id", newPids);
-      const uids = [...new Set((pUsers || []).map((u) => u.user_id))].filter((id) => id !== user!.id);
+      const uids = ([...new Set((pUsers || []).map((u) => u.user_id))] as string[]).filter((id) => id !== user!.id);
       onUsersChange(uids);
     } else {
       onUsersChange([]);
@@ -275,7 +275,7 @@ export default function RecipientSelector({
                   checked={selectedRoles.includes(r)}
                   onCheckedChange={() => toggleRole(r)}
                 />
-                <span className="text-sm">{getRoleLabel(r, i18n.language)}</span>
+                <span className="text-sm">{getRoleLabel(r as any, i18n.language)}</span>
               </label>
             ))}
           </div>

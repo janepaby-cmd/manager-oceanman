@@ -51,16 +51,19 @@ export function useInboxMessages() {
       const recMap = new Map(recs.map((r: any) => [r.message_id, r]));
 
       const enriched = await enrichWithProfiles(msgs);
-      return enriched.map((m) => ({
-        ...m,
-        has_attachments: attSet.has(m.id),
-        recipient_status: {
-          read_at: recMap.get(m.id)?.read_at,
-          viewed_at: recMap.get(m.id)?.viewed_at,
-          archived_at: recMap.get(m.id)?.archived_at,
-          recipient_id: recMap.get(m.id)?.id,
-        },
-      }));
+      return enriched.map((m) => {
+        const rec = recMap.get(m.id) as any;
+        return {
+          ...m,
+          has_attachments: attSet.has(m.id),
+          recipient_status: {
+            read_at: rec?.read_at ?? null,
+            viewed_at: rec?.viewed_at ?? null,
+            archived_at: rec?.archived_at ?? null,
+            recipient_id: rec?.id ?? "",
+          },
+        };
+      });
     },
     enabled: !!user?.id,
   });
@@ -135,15 +138,18 @@ export function useBoardMessages() {
 
       const recMap = new Map(recs.map((r: any) => [r.message_id, r]));
       const enriched = await enrichWithProfiles(msgs);
-      return enriched.map((m) => ({
-        ...m,
-        recipient_status: {
-          read_at: recMap.get(m.id)?.read_at,
-          viewed_at: recMap.get(m.id)?.viewed_at,
-          archived_at: recMap.get(m.id)?.archived_at,
-          recipient_id: recMap.get(m.id)?.id,
-        },
-      }));
+      return enriched.map((m) => {
+        const rec = recMap.get(m.id) as any;
+        return {
+          ...m,
+          recipient_status: {
+            read_at: rec?.read_at ?? null,
+            viewed_at: rec?.viewed_at ?? null,
+            archived_at: rec?.archived_at ?? null,
+            recipient_id: rec?.id ?? "",
+          },
+        };
+      });
     },
     enabled: !!user?.id,
   });
