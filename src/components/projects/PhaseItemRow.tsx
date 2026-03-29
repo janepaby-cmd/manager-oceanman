@@ -8,6 +8,7 @@ import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X } from "
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
+import { notifyItemCompleted } from "@/lib/notifyItemCompleted";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Props) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
@@ -49,6 +50,14 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       updateData.file_url = null;
     }
     await supabase.from("phase_items").update(updateData).eq("id", item.id);
+    if (completed) {
+      notifyItemCompleted({
+        itemId: item.id,
+        itemTitle: item.title,
+        phaseId: item.phase_id,
+        completedByName: profile?.full_name || user!.email || "—",
+      });
+    }
     onUpdated();
   };
 
@@ -87,6 +96,12 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       completed_at: new Date().toISOString(),
     }).eq("id", item.id);
     toast.success(t("fileUploaded"));
+    notifyItemCompleted({
+      itemId: item.id,
+      itemTitle: item.title,
+      phaseId: item.phase_id,
+      completedByName: profile?.full_name || user!.email || "—",
+    });
     setUploading(false);
     onUpdated();
   };
@@ -102,6 +117,12 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       completed_at: new Date().toISOString(),
     }).eq("id", item.id);
     toast.success(t("signatureSaved"));
+    notifyItemCompleted({
+      itemId: item.id,
+      itemTitle: item.title,
+      phaseId: item.phase_id,
+      completedByName: profile?.full_name || user!.email || "—",
+    });
     setShowSignature(false);
     onUpdated();
   };
