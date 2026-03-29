@@ -4,15 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 export interface AppSettings {
   app_name: string;
   logo_url: string | null;
-  brevo_sender_email: string | null;
-  brevo_sender_name: string | null;
 }
 
 const DEFAULTS: AppSettings = {
   app_name: "OceanMan",
   logo_url: null,
-  brevo_sender_email: null,
-  brevo_sender_name: null,
 };
 
 export function useAppSettings() {
