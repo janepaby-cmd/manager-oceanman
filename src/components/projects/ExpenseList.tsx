@@ -82,6 +82,7 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                   <TableHead>{t("expenseDate")}</TableHead>
                   <TableHead>{t("expenseType")}</TableHead>
                   <TableHead>{t("description")}</TableHead>
+                  <TableHead>{t("documentNumber")}</TableHead>
                   <TableHead className="text-right">{t("totalAmount")}</TableHead>
                   <TableHead>{t("ticket")}</TableHead>
                   {canManage && <TableHead className="text-right">{t("common:actions")}</TableHead>}
