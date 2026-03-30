@@ -107,9 +107,9 @@ export function AppSidebar() {
             className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
           >
             <LogOut className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>{t("nav.logout")}</span>}
+            {(!collapsed || isMobile) && <span>{t("nav.logout")}</span>}
           </button>
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <p className="px-2 text-[10px] text-sidebar-muted">
               {t("projectManager")} {t("version")}
             </p>
