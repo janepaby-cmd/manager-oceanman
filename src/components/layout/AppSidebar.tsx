@@ -64,7 +64,7 @@ export function AppSidebar() {
     ));
 
   return (
-    <Sidebar collapsible="icon" className="sidebar-gradient border-r-0">
+    <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="sidebar-gradient border-r-0">
       <SidebarContent>
         {!collapsed && (
         <div className="flex flex-col items-center gap-2 px-3 py-5">
