@@ -63,6 +63,13 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     }
   }, [open, project]);
 
+  const defaultExtensions = [
+    'pdf','doc','docx','xls','xlsx','ppt','pptx',
+    'kml','kmz','gpx',
+    'jpg','jpeg','png','gif','webp','bmp','tiff','svg',
+    'zip'
+  ];
+
   useEffect(() => {
     if (project) {
       setName(project.name);
@@ -72,6 +79,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStartDate(new Date(project.start_date));
       setEndDate(project.estimated_end_date ? new Date(project.estimated_end_date) : undefined);
       setIsRestrictive(project.is_restrictive || false);
+      setMaxFilesPerItem(project.max_files_per_item || 5);
+      setAllowedExtensions(project.allowed_file_extensions || defaultExtensions);
       setUseTemplate(false);
       setSelectedTemplateId("");
     } else {
@@ -82,6 +91,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStartDate(new Date());
       setEndDate(undefined);
       setIsRestrictive(false);
+      setMaxFilesPerItem(5);
+      setAllowedExtensions(defaultExtensions);
       setUseTemplate(false);
       setSelectedTemplateId("");
     }
