@@ -66,7 +66,7 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
         <div className="glass-card p-6">
           <div className="flex items-start gap-5">
             <Avatar className="h-16 w-16 border-2 border-primary/20">
