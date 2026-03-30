@@ -126,8 +126,8 @@ export default function ProjectList({ onSelectProject }: Props) {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t("searchByName", "Buscar por nombre...")}
@@ -136,28 +136,30 @@ export default function ProjectList({ onSelectProject }: Props) {
             className="pl-9"
           />
         </div>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={t("common:status")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("allStatuses", "Todos los estados")}</SelectItem>
-            {statuses.map((s) => (
-              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterYear} onValueChange={setFilterYear}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder={t("fiscalYear")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("allYears", "Todos los años")}</SelectItem>
-            {years.map((y) => (
-              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder={t("common:status")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allStatuses", "Todos los estados")}</SelectItem>
+              {statuses.map((s) => (
+                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterYear} onValueChange={setFilterYear}>
+            <SelectTrigger className="w-full sm:w-[140px]">
+              <SelectValue placeholder={t("fiscalYear")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allYears", "Todos los años")}</SelectItem>
+              {years.map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {loading ? (
@@ -167,66 +169,105 @@ export default function ProjectList({ onSelectProject }: Props) {
           <p className="text-muted-foreground">{projects.length === 0 ? t("noProjects") : t("noResults", "No se encontraron resultados")}</p>
         </div>
       ) : (
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("common:name")}</TableHead>
-                <TableHead>{t("fiscalYear")}</TableHead>
-                <TableHead>{t("common:status")}</TableHead>
-                <TableHead>{t("progress", "Progreso")}</TableHead>
-                <TableHead>{t("startDate")}</TableHead>
-                <TableHead>{t("estimatedEndDate")}</TableHead>
-                <TableHead className="text-right">{t("common:actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell>{p.fiscal_year}</TableCell>
-                  <TableCell>
-                    <Badge style={{ backgroundColor: p.status_color, color: "#fff" }}>
-                      {p.status_name}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2 min-w-[120px]">
-                      <Progress value={(p as any).progress ?? 0} className="h-2 flex-1" />
-                      <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-                        {(p as any).progress ?? 0}%
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">
-                      {(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items
-                    </span>
-                  </TableCell>
-                  <TableCell>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
-                  <TableCell>
-                    {p.estimated_end_date
-                      ? format(new Date(p.estimated_end_date), "dd/MM/yyyy", { locale: dateLocale })
-                      : "—"}
-                  </TableCell>
-                  <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="icon" onClick={() => onSelectProject(p.id)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {canManage && (
-                      <>
-                        <Button variant="ghost" size="icon" onClick={() => { setEditProject(p); setShowForm(true); }}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </>
-                    )}
-                  </TableCell>
+        <>
+          {/* Desktop table */}
+          <div className="border rounded-lg hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("common:name")}</TableHead>
+                  <TableHead>{t("fiscalYear")}</TableHead>
+                  <TableHead>{t("common:status")}</TableHead>
+                  <TableHead>{t("progress", "Progreso")}</TableHead>
+                  <TableHead>{t("startDate")}</TableHead>
+                  <TableHead>{t("estimatedEndDate")}</TableHead>
+                  <TableHead className="text-right">{t("common:actions")}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-medium">{p.name}</TableCell>
+                    <TableCell>{p.fiscal_year}</TableCell>
+                    <TableCell>
+                      <Badge style={{ backgroundColor: p.status_color, color: "#fff" }}>
+                        {p.status_name}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 min-w-[120px]">
+                        <Progress value={(p as any).progress ?? 0} className="h-2 flex-1" />
+                        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                          {(p as any).progress ?? 0}%
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">
+                        {(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items
+                      </span>
+                    </TableCell>
+                    <TableCell>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
+                    <TableCell>
+                      {p.estimated_end_date
+                        ? format(new Date(p.estimated_end_date), "dd/MM/yyyy", { locale: dateLocale })
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button variant="ghost" size="icon" onClick={() => onSelectProject(p.id)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      {canManage && (
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => { setEditProject(p); setShowForm(true); }}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((p) => (
+              <div
+                key={p.id}
+                className="glass-card p-4 space-y-3 cursor-pointer active:scale-[0.98] transition-transform"
+                onClick={() => onSelectProject(p.id)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-sm flex-1 min-w-0 truncate">{p.name}</h3>
+                  <Badge style={{ backgroundColor: p.status_color, color: "#fff" }} className="shrink-0 text-xs">
+                    {p.status_name}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={(p as any).progress ?? 0} className="h-1.5 flex-1" />
+                  <span className="text-xs font-semibold text-muted-foreground">{(p as any).progress ?? 0}%</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</span>
+                  <span>{(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items</span>
+                </div>
+                {canManage && (
+                  <div className="flex justify-end gap-1 pt-1 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditProject(p); setShowForm(true); }}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(p.id)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <ProjectFormDialog

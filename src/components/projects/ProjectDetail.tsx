@@ -62,26 +62,31 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   if (!project) return <p className="text-center py-8 text-muted-foreground">{t("common:loading")}</p>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={onBack}>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div className="flex-1">
-          <h2 className="text-xl font-bold">{project.name}</h2>
-          {project.description && <p className="text-sm text-muted-foreground">{project.description}</p>}
+        <div className="flex-1 min-w-0">
+          <h2 className="text-lg sm:text-xl font-bold truncate">{project.name}</h2>
+          {project.description && <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{project.description}</p>}
         </div>
         {status && (
-          <Badge style={{ backgroundColor: status.color, color: "#fff" }}>{status.name}</Badge>
+          <Badge className="shrink-0" style={{ backgroundColor: status.color, color: "#fff" }}>{status.name}</Badge>
         )}
         {canManage && (
-          <Button variant="outline" size="sm" onClick={() => setShowUsers(true)}>
+          <Button variant="outline" size="sm" onClick={() => setShowUsers(true)} className="shrink-0 hidden sm:flex">
             <Users className="h-4 w-4 mr-2" /> {t("users")}
+          </Button>
+        )}
+        {canManage && (
+          <Button variant="outline" size="icon" onClick={() => setShowUsers(true)} className="shrink-0 sm:hidden h-8 w-8">
+            <Users className="h-4 w-4" />
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("fiscalYear")}</CardTitle></CardHeader>
           <CardContent className="text-lg font-semibold">{project.fiscal_year}</CardContent>

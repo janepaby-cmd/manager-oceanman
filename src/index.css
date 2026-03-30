@@ -84,10 +84,24 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+  }
+
+  input, select, textarea {
+    font-size: 16px !important; /* Prevent iOS zoom on focus */
   }
 }
 

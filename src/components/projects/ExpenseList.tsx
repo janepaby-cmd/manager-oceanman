@@ -54,8 +54,8 @@ export default function ExpenseList({ projectId, canManage }: Props) {
   return (
     <>
       <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+        <CardHeader className="pb-3 px-3 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Receipt className="h-5 w-5" />
               {t("title")}
@@ -72,53 +72,93 @@ export default function ExpenseList({ projectId, canManage }: Props) {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 sm:px-6">
           {expenses.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">{t("noExpenses")}</div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("expenseDate")}</TableHead>
-                  <TableHead>{t("expenseType")}</TableHead>
-                  <TableHead>{t("description")}</TableHead>
-                  <TableHead>{t("documentNumber")}</TableHead>
-                  <TableHead className="text-right">{t("totalAmount")}</TableHead>
-                  <TableHead>{t("ticket")}</TableHead>
-                  {canManage && <TableHead className="text-right">{t("common:actions")}</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("expenseDate")}</TableHead>
+                      <TableHead>{t("expenseType")}</TableHead>
+                      <TableHead>{t("description")}</TableHead>
+                      <TableHead>{t("documentNumber")}</TableHead>
+                      <TableHead className="text-right">{t("totalAmount")}</TableHead>
+                      <TableHead>{t("ticket")}</TableHead>
+                      {canManage && <TableHead className="text-right">{t("common:actions")}</TableHead>}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expenses.map((exp) => (
+                      <TableRow key={exp.id}>
+                        <TableCell>{format(new Date(exp.expense_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
+                        <TableCell>{exp.expense_types?.name || "—"}</TableCell>
+                        <TableCell className="max-w-[200px] truncate">{exp.description || "—"}</TableCell>
+                        <TableCell>{exp.document_number || "—"}</TableCell>
+                        <TableCell className="text-right font-medium">€{parseFloat(exp.amount).toFixed(2)}</TableCell>
+                        <TableCell>
+                          {exp.ticket_url ? (
+                            <a href={exp.ticket_url} target="_blank" rel="noopener noreferrer">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </a>
+                          ) : "—"}
+                        </TableCell>
+                        {canManage && (
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(exp.id)}>
+                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="md:hidden space-y-3">
                 {expenses.map((exp) => (
-                  <TableRow key={exp.id}>
-                    <TableCell>{format(new Date(exp.expense_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
-                    <TableCell>{exp.expense_types?.name || "—"}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">{exp.description || "—"}</TableCell>
-                    <TableCell>{exp.document_number || "—"}</TableCell>
-                    <TableCell className="text-right font-medium">€{parseFloat(exp.amount).toFixed(2)}</TableCell>
-                    <TableCell>
-                      {exp.ticket_url ? (
-                        <a href={exp.ticket_url} target="_blank" rel="noopener noreferrer">
-                          <FileText className="h-4 w-4 text-primary" />
-                        </a>
-                      ) : "—"}
-                    </TableCell>
-                    {canManage && (
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(exp.id)}>
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    )}
-                  </TableRow>
+                  <div key={exp.id} className="border rounded-lg p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">{exp.expense_types?.name || "—"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{exp.description || "—"}</p>
+                      </div>
+                      <span className="font-semibold text-sm shrink-0">€{parseFloat(exp.amount).toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{format(new Date(exp.expense_date), "dd/MM/yyyy", { locale: dateLocale })}</span>
+                      <div className="flex items-center gap-2">
+                        {exp.ticket_url && (
+                          <a href={exp.ticket_url} target="_blank" rel="noopener noreferrer">
+                            <FileText className="h-3.5 w-3.5 text-primary" />
+                          </a>
+                        )}
+                        {canManage && (
+                          <>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteId(exp.id)}>
+                              <Trash2 className="h-3 w-3 text-destructive" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

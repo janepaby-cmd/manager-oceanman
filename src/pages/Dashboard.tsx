@@ -66,24 +66,24 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto space-y-8">
-        <div className="glass-card p-6">
-          <div className="flex items-start gap-5">
-            <Avatar className="h-16 w-16 border-2 border-primary/20">
-              <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
+      <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
+        <div className="glass-card p-4 sm:p-6">
+          <div className="flex items-start gap-3 sm:gap-5">
+            <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-primary/20">
+              <AvatarFallback className="bg-primary/10 text-primary text-lg sm:text-xl font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">
+            <div className="flex-1 min-w-0 space-y-1">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate">
                 {profile?.full_name || t("common:user")}
               </h1>
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
-                <span className="flex items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5" /> {profile?.email || "—"}
+              <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-2">
+                <span className="flex items-center gap-1.5 truncate">
+                  <Mail className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{profile?.email || "—"}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Shield className="h-3.5 w-3.5" />
+                  <Shield className="h-3.5 w-3.5 shrink-0" />
                   {roles.length > 0 ? (
                     <span className="flex gap-1">
                       {roles.map((r) => (
@@ -105,8 +105,8 @@ export default function Dashboard() {
             <h2 className="text-lg font-semibold">{t("dashboard:myProjects")}</h2>
           </div>
 
-          <div className="flex flex-wrap gap-3 mb-4">
-            <div className="relative flex-1 min-w-[200px]">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={t("projects:searchByName", "Buscar por nombre...")}
@@ -116,7 +116,7 @@ export default function Dashboard() {
               />
             </div>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder={t("common:status")} />
               </SelectTrigger>
               <SelectContent>
@@ -141,7 +141,7 @@ export default function Dashboard() {
               {projects.length === 0 && <p className="text-xs text-muted-foreground mt-1">{t("dashboard:projectsWillAppear")}</p>}
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               {filtered.map((project) => {
                 const phases = (project as any).project_phases || [];
                 const totalPhases = phases.length;
