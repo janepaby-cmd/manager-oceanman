@@ -662,6 +662,7 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          document_number: string | null
           expense_date: string
           expense_type_id: string
           id: string
@@ -674,6 +675,7 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          document_number?: string | null
           expense_date: string
           expense_type_id: string
           id?: string
@@ -686,6 +688,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          document_number?: string | null
           expense_date?: string
           expense_type_id?: string
           id?: string
