@@ -56,7 +56,7 @@ export default function Login() {
   };
 
   return (
-    <div className="login-gradient flex min-h-screen items-center justify-center px-4">
+    <div className="login-gradient flex min-h-[100dvh] items-center justify-center px-4">
       <div className="absolute top-4 right-4">
         <LanguageSelector variant="minimal" />
       </div>
