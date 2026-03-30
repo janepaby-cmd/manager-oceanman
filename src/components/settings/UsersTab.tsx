@@ -185,7 +185,8 @@ export function UsersTab() {
         </Button>
       </div>
 
-      <div className="glass-card overflow-hidden">
+      {/* Desktop table */}
+      <div className="glass-card overflow-hidden hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -262,6 +263,63 @@ export function UsersTab() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-2">
+        {users.length === 0 ? (
+          <p className="text-center py-8 text-muted-foreground">{t("users.noUsers")}</p>
+        ) : (
+          users.map((u) => {
+            const isSuperadmin = u.roles.includes("superadmin" as AppRole);
+            return (
+              <div key={u.user_id} className="border rounded-lg p-3 bg-card space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{u.full_name || "—"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                  </div>
+                  <Badge variant={u.is_active ? "secondary" : "destructive"} className="text-[10px] shrink-0">
+                    {u.is_active ? t("users.active") : t("users.suspended")}
+                  </Badge>
+                </div>
+                <div className="flex gap-1 flex-wrap">
+                  {u.roles.length > 0 ? u.roles.map((r) => (
+                    <Badge key={r} variant="secondary" className="text-[10px]">{getRoleLabel(r, i18n.language)}</Badge>
+                  )) : <span className="text-muted-foreground text-[10px]">{t("common:noRole")}</span>}
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-border/50">
+                  <span className="text-[10px] text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</span>
+                  <div className="flex gap-0.5">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(u)}>
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedRole("user"); setRoleDialog({ user: u, action: "assign" }); }}>
+                      <ShieldPlus className="h-3 w-3" />
+                    </Button>
+                    {u.roles.length > 0 && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedRole(u.roles[0]); setRoleDialog({ user: u, action: "remove" }); }}>
+                        <ShieldMinus className="h-3 w-3" />
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="icon" className="h-7 w-7"
+                      onClick={() => !isSuperadmin && handleToggleStatus(u)}
+                      disabled={isSuperadmin}>
+                      {u.is_active
+                        ? <Ban className="h-3 w-3 text-warning" />
+                        : <CheckCircle2 className="h-3 w-3 text-success" />}
+                    </Button>
+                    {u.user_id !== user?.id && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => setDeleteUser(u)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Create Dialog */}

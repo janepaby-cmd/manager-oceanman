@@ -186,7 +186,8 @@ export function RolesTab() {
           </Button>
         </div>
 
-        <div className="glass-card overflow-hidden">
+        {/* Desktop table */}
+        <div className="glass-card overflow-hidden hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -230,12 +231,50 @@ export function RolesTab() {
             </TableBody>
           </Table>
         </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-2">
+          {roles.length === 0 ? (
+            <p className="text-center py-8 text-muted-foreground">{t("roles.noRoles")}</p>
+          ) : (
+            roles.map((r) => {
+              const count = assignments.filter((a) => a.role === r.name).length;
+              return (
+                <div key={r.id} className="border rounded-lg p-3 bg-card space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <Badge variant="secondary" className="capitalize text-xs">{r.name}</Badge>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{r.description || "—"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-1 border-t border-border/50">
+                    <div className="flex gap-2 text-[10px] text-muted-foreground">
+                      <span>{count} {t("roles.usersCount")}</span>
+                      <span>·</span>
+                      <span>{new Date(r.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex gap-0.5">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditRole(r)}>
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      {r.name !== "superadmin" && (
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => setDeleteRole(r)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </TabsContent>
 
       <TabsContent value="assignments" className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-2">
           <Select value={filterRole} onValueChange={setFilterRole}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-36 sm:w-48">
               <SelectValue placeholder={t("roles.filterByRole")} />
             </SelectTrigger>
             <SelectContent>
@@ -246,11 +285,12 @@ export function RolesTab() {
             </SelectContent>
           </Select>
           <Button size="sm" onClick={() => setAssignOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> {t("roles.assignRole")}
+            <Plus className="mr-1 h-4 w-4" /> <span className="hidden sm:inline">{t("roles.assignRole")}</span><span className="sm:hidden">{t("users.assign")}</span>
           </Button>
         </div>
 
-        <div className="glass-card overflow-hidden">
+        {/* Desktop table */}
+        <div className="glass-card overflow-hidden hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -283,6 +323,31 @@ export function RolesTab() {
               )}
             </TableBody>
           </Table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-2">
+          {filteredAssignments.length === 0 ? (
+            <p className="text-center py-8 text-muted-foreground">{t("roles.noAssignments")}</p>
+          ) : (
+            filteredAssignments.map((a) => (
+              <div key={a.id} className="border rounded-lg p-3 bg-card space-y-1">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{a.full_name || "—"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+                  </div>
+                  <Badge variant="secondary" className="capitalize text-[10px] shrink-0">{a.role}</Badge>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-border/50">
+                  <span className="text-[10px] text-muted-foreground">{new Date(a.created_at).toLocaleDateString()}</span>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => setDeleteAssignment(a)}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </TabsContent>
 

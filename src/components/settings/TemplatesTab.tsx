@@ -418,13 +418,13 @@ export function TemplatesTab() {
                             <CollapsibleContent>
                               <div className="border-t px-3 pb-3 space-y-1">
                                 {phaseItems.map(item => (
-                                  <div key={item.id} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-muted/20 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                      <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
-                                      <span className="text-sm">{item.title}</span>
-                                      <Badge variant="outline" className="text-xs">{item.item_type_code}</Badge>
+                                  <div key={item.id} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-muted/20 transition-colors gap-1">
+                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                      <ListChecks className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span className="text-sm truncate">{item.title}</span>
+                                      <Badge variant="outline" className="text-[10px] shrink-0">{item.item_type_code}</Badge>
                                     </div>
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-0.5 shrink-0">
                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditItem(item)}>
                                         <Pencil className="h-3 w-3" />
                                       </Button>
