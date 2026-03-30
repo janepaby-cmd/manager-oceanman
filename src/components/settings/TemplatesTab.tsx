@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Loader2, Plus, Pencil, Trash2, ChevronDown, ChevronRight, GripVertical, ListChecks, Layers,
+  Loader2, Plus, Pencil, Trash2, ChevronDown, ChevronRight, GripVertical, ListChecks, Layers, Copy,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -260,6 +260,43 @@ export function TemplatesTab() {
     fetchAll();
   };
 
+  const cloneTemplate = async (tpl: Template) => {
+    const tplPhases = phases.filter(p => p.template_id === tpl.id);
+    const clonedName = `${tpl.name} (${t("templates.clonedSuffix")})`;
+    const { data: newTpl, error } = await supabase.from("checklist_templates").insert({
+      name: clonedName,
+      description: tpl.description,
+      is_active: tpl.is_active,
+    }).select().single();
+    if (error || !newTpl) {
+      toast({ title: t("templates.cloneError"), variant: "destructive" });
+      return;
+    }
+    for (const phase of tplPhases) {
+      const { data: newPhase } = await supabase.from("checklist_template_phases").insert({
+        template_id: newTpl.id,
+        name: phase.name,
+        description: phase.description,
+        position: phase.position,
+      }).select().single();
+      if (!newPhase) continue;
+      const phaseItems = items.filter(i => i.phase_id === phase.id);
+      if (phaseItems.length > 0) {
+        await supabase.from("checklist_template_items").insert(
+          phaseItems.map(i => ({
+            phase_id: newPhase.id,
+            title: i.title,
+            description: i.description,
+            item_type_code: i.item_type_code,
+            position: i.position,
+          }))
+        );
+      }
+    }
+    toast({ title: t("templates.templateCloned") });
+    fetchAll();
+  };
+
   const toggleTemplate = (id: string) => {
     setOpenTemplates(prev => {
       const next = new Set(prev);
@@ -324,6 +361,9 @@ export function TemplatesTab() {
                         <span className="text-xs text-muted-foreground mr-2">
                           {tplPhases.length} {t("templates.phasesCount")} · {tplItems.length} {t("templates.itemsCount")}
                         </span>
+                        <Button variant="ghost" size="icon" onClick={() => cloneTemplate(tpl)} title={t("templates.cloneTemplate")}>
+                          <Copy className="h-4 w-4" />
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => openEditTemplate(tpl)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
