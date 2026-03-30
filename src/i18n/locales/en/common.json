@@ -41,5 +41,7 @@
   "user": "User",
   "noRole": "No role",
   "saving": "Saving...",
-  "language": "Language"
+  "language": "Language",
+  "back": "Back",
+  "next": "Next"
 }

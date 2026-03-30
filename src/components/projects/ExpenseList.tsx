@@ -94,6 +94,7 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                     <TableCell>{format(new Date(exp.expense_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
                     <TableCell>{exp.expense_types?.name || "—"}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{exp.description || "—"}</TableCell>
+                    <TableCell>{exp.document_number || "—"}</TableCell>
                     <TableCell className="text-right font-medium">€{parseFloat(exp.amount).toFixed(2)}</TableCell>
                     <TableCell>
                       {exp.ticket_url ? (
