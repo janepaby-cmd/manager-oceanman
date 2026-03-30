@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, ListChecks } from "lucide-react";
+import { CalendarIcon, ListChecks, Settings2 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,13 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
   const [isRestrictive, setIsRestrictive] = useState(false);
+  const [maxFilesPerItem, setMaxFilesPerItem] = useState(5);
+  const [allowedExtensions, setAllowedExtensions] = useState<string[]>([
+    'pdf','doc','docx','xls','xlsx','ppt','pptx',
+    'kml','kmz','gpx',
+    'jpg','jpeg','png','gif','webp','bmp','tiff','svg',
+    'zip'
+  ]);
   // Template state
   const [templates, setTemplates] = useState<any[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
@@ -56,6 +63,13 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     }
   }, [open, project]);
 
+  const defaultExtensions = [
+    'pdf','doc','docx','xls','xlsx','ppt','pptx',
+    'kml','kmz','gpx',
+    'jpg','jpeg','png','gif','webp','bmp','tiff','svg',
+    'zip'
+  ];
+
   useEffect(() => {
     if (project) {
       setName(project.name);
@@ -65,6 +79,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStartDate(new Date(project.start_date));
       setEndDate(project.estimated_end_date ? new Date(project.estimated_end_date) : undefined);
       setIsRestrictive(project.is_restrictive || false);
+      setMaxFilesPerItem(project.max_files_per_item || 5);
+      setAllowedExtensions(project.allowed_file_extensions || defaultExtensions);
       setUseTemplate(false);
       setSelectedTemplateId("");
     } else {
@@ -75,6 +91,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setStartDate(new Date());
       setEndDate(undefined);
       setIsRestrictive(false);
+      setMaxFilesPerItem(5);
+      setAllowedExtensions(defaultExtensions);
       setUseTemplate(false);
       setSelectedTemplateId("");
     }
@@ -146,6 +164,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       start_date: startDate.toISOString(),
       estimated_end_date: endDate?.toISOString() || null,
       is_restrictive: isRestrictive,
+      max_files_per_item: maxFilesPerItem,
+      allowed_file_extensions: allowedExtensions,
     };
 
     let error;
@@ -269,7 +289,55 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
             </div>
           </div>
 
-          {/* Template selection - only for new projects */}
+          {/* File attachment configuration */}
+          <div className="rounded-lg border border-dashed p-4 space-y-3 bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Settings2 className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">{t("fileConfig")}</span>
+            </div>
+            <div>
+              <Label>{t("maxFilesPerItem")}</Label>
+              <p className="text-xs text-muted-foreground mb-1">{t("maxFilesPerItemHint")}</p>
+              <Select value={String(maxFilesPerItem)} onValueChange={(v) => setMaxFilesPerItem(Number(v))}>
+                <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[1,2,3,5,10,15,20].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{t("allowedFileTypes")}</Label>
+              <p className="text-xs text-muted-foreground mb-2">{t("allowedFileTypesHint")}</p>
+              <div className="space-y-2">
+                {[
+                  { label: t("fileGroupDocuments"), exts: ["pdf","doc","docx","xls","xlsx","ppt","pptx"] },
+                  { label: t("fileGroupImages"), exts: ["jpg","jpeg","png","gif","webp","bmp","tiff","svg"] },
+                  { label: t("fileGroupGeo"), exts: ["kml","kmz","gpx"] },
+                  { label: t("fileGroupOther"), exts: ["zip"] },
+                ].map((group) => {
+                  const allChecked = group.exts.every(e => allowedExtensions.includes(e));
+                  const someChecked = group.exts.some(e => allowedExtensions.includes(e));
+                  return (
+                    <div key={group.label} className="flex items-center gap-2">
+                      <Checkbox
+                        checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setAllowedExtensions(prev => [...new Set([...prev, ...group.exts])]);
+                          } else {
+                            setAllowedExtensions(prev => prev.filter(e => !group.exts.includes(e)));
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{group.label}</span>
+                      <span className="text-xs text-muted-foreground">({group.exts.map(e => `.${e}`).join(", ")})</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
           {!project && templates.length > 0 && (
             <div className="rounded-lg border border-dashed p-4 space-y-3 bg-muted/30">
               <div className="flex items-center gap-2">

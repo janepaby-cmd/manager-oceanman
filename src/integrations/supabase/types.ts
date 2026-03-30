@@ -483,6 +483,47 @@ export type Database = {
           },
         ]
       }
+      phase_item_files: {
+        Row: {
+          created_at: string
+          file_extension: string
+          file_name: string
+          file_size: number
+          file_url: string
+          id: string
+          item_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_extension?: string
+          file_name: string
+          file_size?: number
+          file_url: string
+          id?: string
+          item_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_extension?: string
+          file_name?: string
+          file_size?: number
+          file_url?: string
+          id?: string
+          item_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phase_item_files_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "phase_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phase_item_types: {
         Row: {
           code: string
@@ -768,6 +809,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          allowed_file_extensions: string[]
           created_at: string
           created_by: string
           description: string | null
@@ -775,12 +817,14 @@ export type Database = {
           fiscal_year: number
           id: string
           is_restrictive: boolean
+          max_files_per_item: number
           name: string
           start_date: string
           status_id: string | null
           updated_at: string
         }
         Insert: {
+          allowed_file_extensions?: string[]
           created_at?: string
           created_by: string
           description?: string | null
@@ -788,12 +832,14 @@ export type Database = {
           fiscal_year?: number
           id?: string
           is_restrictive?: boolean
+          max_files_per_item?: number
           name: string
           start_date?: string
           status_id?: string | null
           updated_at?: string
         }
         Update: {
+          allowed_file_extensions?: string[]
           created_at?: string
           created_by?: string
           description?: string | null
@@ -801,6 +847,7 @@ export type Database = {
           fiscal_year?: number
           id?: string
           is_restrictive?: boolean
+          max_files_per_item?: number
           name?: string
           start_date?: string
           status_id?: string | null
