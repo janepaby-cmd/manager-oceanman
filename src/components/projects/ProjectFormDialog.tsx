@@ -164,6 +164,8 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       start_date: startDate.toISOString(),
       estimated_end_date: endDate?.toISOString() || null,
       is_restrictive: isRestrictive,
+      max_files_per_item: maxFilesPerItem,
+      allowed_file_extensions: allowedExtensions,
     };
 
     let error;
