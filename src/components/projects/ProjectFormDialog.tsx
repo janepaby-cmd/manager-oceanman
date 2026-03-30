@@ -289,7 +289,55 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
             </div>
           </div>
 
-          {/* Template selection - only for new projects */}
+          {/* File attachment configuration */}
+          <div className="rounded-lg border border-dashed p-4 space-y-3 bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Settings2 className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">{t("fileConfig")}</span>
+            </div>
+            <div>
+              <Label>{t("maxFilesPerItem")}</Label>
+              <p className="text-xs text-muted-foreground mb-1">{t("maxFilesPerItemHint")}</p>
+              <Select value={String(maxFilesPerItem)} onValueChange={(v) => setMaxFilesPerItem(Number(v))}>
+                <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[1,2,3,5,10,15,20].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{t("allowedFileTypes")}</Label>
+              <p className="text-xs text-muted-foreground mb-2">{t("allowedFileTypesHint")}</p>
+              <div className="space-y-2">
+                {[
+                  { label: t("fileGroupDocuments"), exts: ["pdf","doc","docx","xls","xlsx","ppt","pptx"] },
+                  { label: t("fileGroupImages"), exts: ["jpg","jpeg","png","gif","webp","bmp","tiff","svg"] },
+                  { label: t("fileGroupGeo"), exts: ["kml","kmz","gpx"] },
+                  { label: t("fileGroupOther"), exts: ["zip"] },
+                ].map((group) => {
+                  const allChecked = group.exts.every(e => allowedExtensions.includes(e));
+                  const someChecked = group.exts.some(e => allowedExtensions.includes(e));
+                  return (
+                    <div key={group.label} className="flex items-center gap-2">
+                      <Checkbox
+                        checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setAllowedExtensions(prev => [...new Set([...prev, ...group.exts])]);
+                          } else {
+                            setAllowedExtensions(prev => prev.filter(e => !group.exts.includes(e)));
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{group.label}</span>
+                      <span className="text-xs text-muted-foreground">({group.exts.map(e => `.${e}`).join(", ")})</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
           {!project && templates.length > 0 && (
             <div className="rounded-lg border border-dashed p-4 space-y-3 bg-muted/30">
               <div className="flex items-center gap-2">
