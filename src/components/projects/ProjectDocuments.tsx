@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
   projectId: string;
+  refreshKey?: number;
 }
 
 interface DocItem {
