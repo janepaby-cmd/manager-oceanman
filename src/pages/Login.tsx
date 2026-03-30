@@ -13,6 +13,7 @@ import { useAppSettings } from "@/hooks/useAppSettings";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
