@@ -67,23 +67,23 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
-        <div className="glass-card p-6">
-          <div className="flex items-start gap-5">
-            <Avatar className="h-16 w-16 border-2 border-primary/20">
-              <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
+        <div className="glass-card p-4 sm:p-6">
+          <div className="flex items-start gap-3 sm:gap-5">
+            <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-primary/20">
+              <AvatarFallback className="bg-primary/10 text-primary text-lg sm:text-xl font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">
+            <div className="flex-1 min-w-0 space-y-1">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate">
                 {profile?.full_name || t("common:user")}
               </h1>
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
-                <span className="flex items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5" /> {profile?.email || "—"}
+              <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-2">
+                <span className="flex items-center gap-1.5 truncate">
+                  <Mail className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{profile?.email || "—"}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Shield className="h-3.5 w-3.5" />
+                  <Shield className="h-3.5 w-3.5 shrink-0" />
                   {roles.length > 0 ? (
                     <span className="flex gap-1">
                       {roles.map((r) => (
