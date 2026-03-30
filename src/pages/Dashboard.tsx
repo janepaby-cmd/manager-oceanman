@@ -116,7 +116,7 @@ export default function Dashboard() {
               />
             </div>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder={t("common:status")} />
               </SelectTrigger>
               <SelectContent>
