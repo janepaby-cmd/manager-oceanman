@@ -3,7 +3,8 @@
   "tabs": {
     "general": "General",
     "users": "Users",
-    "roles": "Roles"
+    "roles": "Roles",
+    "templates": "Templates"
   },
   "generalComingSoon": "General system settings coming soon.",
   "general": {
