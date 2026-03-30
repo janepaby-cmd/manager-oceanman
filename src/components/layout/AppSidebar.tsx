@@ -25,8 +25,9 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+  const isMobile = useIsMobile();
   const { hasRole, signOut } = useAuth();
   const navigate = useNavigate();
   const isSuperadmin = hasRole("superadmin");
