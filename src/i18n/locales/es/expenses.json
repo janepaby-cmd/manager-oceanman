@@ -27,5 +27,8 @@
   "uploadDocument": "Documento del gasto",
   "uploadHint": "Toma una foto del ticket o sube un PDF/imagen del documento",
   "documentNumber": "Nº documento",
-  "documentNumberPlaceholder": "Número de factura o ticket"
+  "documentNumberPlaceholder": "Número de factura o ticket",
+  "searchPlaceholder": "Buscar por descripción o nº documento...",
+  "filterByType": "Filtrar por tipo",
+  "allTypes": "Todos los tipos"
 }

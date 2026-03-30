@@ -27,5 +27,8 @@
   "uploadDocument": "Expense document",
   "uploadHint": "Take a photo of the receipt or upload a PDF/image",
   "documentNumber": "Document number",
-  "documentNumberPlaceholder": "Invoice or receipt number"
+  "documentNumberPlaceholder": "Invoice or receipt number",
+  "searchPlaceholder": "Search by description or document number...",
+  "filterByType": "Filter by type",
+  "allTypes": "All types"
 }
