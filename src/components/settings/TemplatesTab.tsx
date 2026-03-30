@@ -347,32 +347,34 @@ export function TemplatesTab() {
             <Card key={tpl.id}>
               <Collapsible open={isOpen} onOpenChange={() => toggleTemplate(tpl.id)}>
                 <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        <Layers className="h-4 w-4 text-primary" />
-                        <CardTitle className="text-base">{tpl.name}</CardTitle>
-                        <Badge variant={tpl.is_active ? "default" : "secondary"}>
+                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3 px-3 sm:px-6">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {isOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+                        <Layers className="h-4 w-4 text-primary shrink-0" />
+                        <CardTitle className="text-sm sm:text-base truncate">{tpl.name}</CardTitle>
+                        <Badge variant={tpl.is_active ? "default" : "secondary"} className="shrink-0 text-[10px]">
                           {tpl.is_active ? t("templates.active") : t("templates.inactive")}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                        <span className="text-xs text-muted-foreground mr-2">
+                      <div className="flex items-center justify-between ml-6" onClick={e => e.stopPropagation()}>
+                        <span className="text-[11px] text-muted-foreground">
                           {tplPhases.length} {t("templates.phasesCount")} · {tplItems.length} {t("templates.itemsCount")}
                         </span>
-                        <Button variant="ghost" size="icon" onClick={() => cloneTemplate(tpl)} title={t("templates.cloneTemplate")}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => openEditTemplate(tpl)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteTemplate(tpl)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <div className="flex items-center gap-0.5">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => cloneTemplate(tpl)} title={t("templates.cloneTemplate")}>
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditTemplate(tpl)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteTemplate(tpl)}>
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                    {tpl.description && <CardDescription className="ml-10">{tpl.description}</CardDescription>}
+                    {tpl.description && <CardDescription className="ml-6 text-xs">{tpl.description}</CardDescription>}
                   </CardHeader>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
@@ -396,14 +398,14 @@ export function TemplatesTab() {
                         <Collapsible key={phase.id} open={phaseOpen} onOpenChange={() => togglePhase(phase.id)}>
                           <div className="border rounded-md">
                             <CollapsibleTrigger asChild>
-                              <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted/30 transition-colors">
-                                <div className="flex items-center gap-2">
-                                  {phaseOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                                  <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                                  <span className="font-medium text-sm">{phase.position + 1}. {phase.name}</span>
-                                  <span className="text-xs text-muted-foreground">({phaseItems.length} {t("templates.itemsCount")})</span>
+                              <div className="flex flex-col gap-1 p-2 sm:p-3 cursor-pointer hover:bg-muted/30 transition-colors">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {phaseOpen ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
+                                  <GripVertical className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                  <span className="font-medium text-sm truncate">{phase.position + 1}. {phase.name}</span>
+                                  <span className="text-[11px] text-muted-foreground shrink-0">({phaseItems.length})</span>
                                 </div>
-                                <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                <div className="flex justify-end gap-0.5" onClick={e => e.stopPropagation()}>
                                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditPhase(phase)}>
                                     <Pencil className="h-3.5 w-3.5" />
                                   </Button>
@@ -416,13 +418,13 @@ export function TemplatesTab() {
                             <CollapsibleContent>
                               <div className="border-t px-3 pb-3 space-y-1">
                                 {phaseItems.map(item => (
-                                  <div key={item.id} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-muted/20 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                      <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
-                                      <span className="text-sm">{item.title}</span>
-                                      <Badge variant="outline" className="text-xs">{item.item_type_code}</Badge>
+                                  <div key={item.id} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-muted/20 transition-colors gap-1">
+                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                      <ListChecks className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span className="text-sm truncate">{item.title}</span>
+                                      <Badge variant="outline" className="text-[10px] shrink-0">{item.item_type_code}</Badge>
                                     </div>
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-0.5 shrink-0">
                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditItem(item)}>
                                         <Pencil className="h-3 w-3" />
                                       </Button>
