@@ -86,32 +86,30 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("fiscalYear")}</CardTitle></CardHeader>
-          <CardContent className="text-lg font-semibold">{project.fiscal_year}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("start")}</CardTitle></CardHeader>
-          <CardContent className="text-lg font-semibold">{format(new Date(project.start_date), "dd/MM/yyyy", { locale: dateLocale })}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("estimatedEnd")}</CardTitle></CardHeader>
-          <CardContent className="text-lg font-semibold">
-            {project.estimated_end_date ? format(new Date(project.estimated_end_date), "dd/MM/yyyy", { locale: dateLocale }) : "—"}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("phases")}</CardTitle></CardHeader>
-          <CardContent className="flex items-center gap-2">
-            <span className="text-lg font-semibold">{phases.filter(p => p.is_completed).length}/{phases.length}</span>
+      <div className="grid grid-cols-4 gap-2">
+        <div className="rounded-md border bg-card px-2 py-1.5">
+          <p className="text-[10px] text-muted-foreground leading-none">{t("fiscalYear")}</p>
+          <p className="text-sm font-semibold">{project.fiscal_year}</p>
+        </div>
+        <div className="rounded-md border bg-card px-2 py-1.5">
+          <p className="text-[10px] text-muted-foreground leading-none">{t("start")}</p>
+          <p className="text-sm font-semibold">{format(new Date(project.start_date), "dd/MM/yy", { locale: dateLocale })}</p>
+        </div>
+        <div className="rounded-md border bg-card px-2 py-1.5">
+          <p className="text-[10px] text-muted-foreground leading-none">{t("estimatedEnd")}</p>
+          <p className="text-sm font-semibold">{project.estimated_end_date ? format(new Date(project.estimated_end_date), "dd/MM/yy", { locale: dateLocale }) : "—"}</p>
+        </div>
+        <div className="rounded-md border bg-card px-2 py-1.5">
+          <p className="text-[10px] text-muted-foreground leading-none">{t("phases")}</p>
+          <div className="flex items-center gap-1">
+            <p className="text-sm font-semibold">{phases.filter(p => p.is_completed).length}/{phases.length}</p>
             {phases.length > 0 && phases.every(p => p.is_completed) ? (
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
             ) : (
-              <Circle className="h-5 w-5 text-muted-foreground" />
+              <Circle className="h-3.5 w-3.5 text-muted-foreground" />
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-4">
