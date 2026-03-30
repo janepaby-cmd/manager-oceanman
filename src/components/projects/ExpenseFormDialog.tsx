@@ -324,7 +324,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
               )}
 
               {extractionFailed && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-400">
+                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <span className="text-sm">{t("extractionFailedManual")}</span>
                 </div>
