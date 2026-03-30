@@ -218,7 +218,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
           )}
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto min-h-0 py-2">
+        <div className="flex-1 overflow-y-auto min-h-0 py-2 overscroll-contain" data-scroll-area>
           {/* STEP 1: Expense type */}
           {(step === 1 || isEditing) && (
             <div className={`space-y-4 ${isEditing ? "" : step !== 1 ? "hidden" : ""}`}>
