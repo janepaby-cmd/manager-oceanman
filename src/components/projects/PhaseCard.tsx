@@ -115,6 +115,8 @@ export default function PhaseCard({ phase, canManage, isLocked = false, maxFiles
                   canManage={canManage}
                   onUpdated={fetchItems}
                   onEdit={() => { setEditItem(item); setShowItemForm(true); }}
+                  maxFiles={maxFiles}
+                  allowedExtensions={allowedExtensions}
                 />
               ))}
               {canManage && (
