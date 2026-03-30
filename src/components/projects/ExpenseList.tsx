@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, FileText, Receipt } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Pencil, Trash2, FileText, Receipt, Search, Download } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
@@ -14,32 +15,78 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Pagination, PaginationContent, PaginationItem, PaginationLink,
+  PaginationNext, PaginationPrevious, PaginationEllipsis,
+} from "@/components/ui/pagination";
+import * as XLSX from "xlsx";
 
 interface Props {
   projectId: string;
   canManage: boolean;
 }
 
+const PAGE_SIZE = 10;
+
 export default function ExpenseList({ projectId, canManage }: Props) {
   const { t, i18n } = useTranslation(["expenses", "common"]);
   const dateLocale = i18n.language === "es" ? es : undefined;
   const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenseTypes, setExpenseTypes] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editExpense, setEditExpense] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTypeId, setFilterTypeId] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchExpenses = useCallback(async () => {
     const { data } = await supabase
       .from("project_expenses")
       .select("*, expense_types(name)")
       .eq("project_id", projectId)
-      .order("expense_date", { ascending: false });
+      .order("created_at", { ascending: false });
     if (data) setExpenses(data);
   }, [projectId]);
 
+  const fetchExpenseTypes = useCallback(async () => {
+    const { data } = await supabase.from("expense_types").select("id, name").order("name");
+    if (data) setExpenseTypes(data);
+  }, []);
+
   useEffect(() => {
     fetchExpenses();
-  }, [fetchExpenses]);
+    fetchExpenseTypes();
+  }, [fetchExpenses, fetchExpenseTypes]);
+
+  const filteredExpenses = useMemo(() => {
+    let result = expenses;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (e) =>
+          (e.description && e.description.toLowerCase().includes(q)) ||
+          (e.document_number && e.document_number.toLowerCase().includes(q))
+      );
+    }
+    if (filterTypeId !== "all") {
+      result = result.filter((e) => e.expense_type_id === filterTypeId);
+    }
+    return result;
+  }, [expenses, searchQuery, filterTypeId]);
+
+  const totalAmount = filteredExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+  const totalPages = Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedExpenses = useMemo(() => {
+    const start = (safeCurrentPage - 1) * PAGE_SIZE;
+    return filteredExpenses.slice(start, start + PAGE_SIZE);
+  }, [filteredExpenses, safeCurrentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterTypeId]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -49,7 +96,65 @@ export default function ExpenseList({ projectId, canManage }: Props) {
     setDeleteId(null);
   };
 
-  const totalAmount = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+  const handleExport = () => {
+    if (filteredExpenses.length === 0) return;
+    const rows = filteredExpenses.map((e) => ({
+      [t("expenseDate")]: format(new Date(e.expense_date), "dd/MM/yyyy", { locale: dateLocale }),
+      [t("expenseType")]: e.expense_types?.name || "",
+      [t("description")]: e.description || "",
+      [t("documentNumber")]: e.document_number || "",
+      [t("totalAmount")]: parseFloat(e.amount).toFixed(2),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, t("title"));
+    XLSX.writeFile(wb, `gastos_${format(new Date(), "yyyyMMdd")}.xlsx`);
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    const pages: (number | "ellipsis")[] = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - safeCurrentPage) <= 1) {
+        pages.push(i);
+      } else if (pages[pages.length - 1] !== "ellipsis") {
+        pages.push("ellipsis");
+      }
+    }
+    return (
+      <Pagination className="mt-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className={safeCurrentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            />
+          </PaginationItem>
+          {pages.map((p, idx) =>
+            p === "ellipsis" ? (
+              <PaginationItem key={`e-${idx}`}><PaginationEllipsis /></PaginationItem>
+            ) : (
+              <PaginationItem key={p}>
+                <PaginationLink
+                  isActive={p === safeCurrentPage}
+                  onClick={() => setCurrentPage(p)}
+                  className="cursor-pointer"
+                >
+                  {p}
+                </PaginationLink>
+              </PaginationItem>
+            )
+          )}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className={safeCurrentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
 
   return (
     <>
@@ -60,20 +165,47 @@ export default function ExpenseList({ projectId, canManage }: Props) {
               <Receipt className="h-5 w-5" />
               {t("title")}
             </CardTitle>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold text-muted-foreground">
                 {t("total")}: €{totalAmount.toFixed(2)}
               </span>
+              <Button variant="outline" size="sm" onClick={handleExport} disabled={filteredExpenses.length === 0}>
+                <Download className="h-4 w-4 mr-1" /> Excel
+              </Button>
               {canManage && (
                 <Button size="sm" onClick={() => { setEditExpense(null); setShowForm(true); }}>
-                  <Plus className="h-4 w-4 mr-2" /> {t("newExpense")}
+                  <Plus className="h-4 w-4 mr-1" /> {t("newExpense")}
                 </Button>
               )}
             </div>
           </div>
+
+          {/* Search & Filter */}
+          <div className="flex flex-col sm:flex-row gap-2 mt-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t("searchPlaceholder")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-9"
+              />
+            </div>
+            <Select value={filterTypeId} onValueChange={setFilterTypeId}>
+              <SelectTrigger className="w-full sm:w-[200px] h-9">
+                <SelectValue placeholder={t("filterByType")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("allTypes")}</SelectItem>
+                {expenseTypes.map((et) => (
+                  <SelectItem key={et.id} value={et.id}>{et.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent className="px-3 sm:px-6">
-          {expenses.length === 0 ? (
+          {paginatedExpenses.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">{t("noExpenses")}</div>
           ) : (
             <>
@@ -92,7 +224,7 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {expenses.map((exp) => (
+                    {paginatedExpenses.map((exp) => (
                       <TableRow key={exp.id}>
                         <TableCell>{format(new Date(exp.expense_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
                         <TableCell>{exp.expense_types?.name || "—"}</TableCell>
@@ -126,7 +258,7 @@ export default function ExpenseList({ projectId, canManage }: Props) {
 
               {/* Mobile cards */}
               <div className="md:hidden space-y-3">
-                {expenses.map((exp) => (
+                {paginatedExpenses.map((exp) => (
                   <div key={exp.id} className="border rounded-lg p-3 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
@@ -158,6 +290,12 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                   </div>
                 ))}
               </div>
+
+              {renderPagination()}
+
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                {filteredExpenses.length} {t("common:results")}
+              </p>
             </>
           )}
         </CardContent>
