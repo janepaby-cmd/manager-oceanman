@@ -6,6 +6,7 @@ import { Settings } from "lucide-react";
 import { UsersTab } from "@/components/settings/UsersTab";
 import { RolesTab } from "@/components/settings/RolesTab";
 import { GeneralTab } from "@/components/settings/GeneralTab";
+import { TemplatesTab } from "@/components/settings/TemplatesTab";
 import { useTranslation } from "react-i18next";
 
 export default function SettingsPage() {
@@ -29,6 +30,7 @@ export default function SettingsPage() {
             <TabsTrigger value="general">{t("tabs.general")}</TabsTrigger>
             <TabsTrigger value="users">{t("tabs.users")}</TabsTrigger>
             <TabsTrigger value="roles">{t("tabs.roles")}</TabsTrigger>
+            <TabsTrigger value="templates">{t("tabs.templates")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general">
@@ -41,6 +43,10 @@ export default function SettingsPage() {
 
           <TabsContent value="roles">
             <RolesTab />
+          </TabsContent>
+
+          <TabsContent value="templates">
+            <TemplatesTab />
           </TabsContent>
         </Tabs>
       </div>
