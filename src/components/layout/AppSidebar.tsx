@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useAppSettings } from "@/hooks/useAppSettings";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Sidebar,
   SidebarContent,
@@ -24,8 +25,9 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+  const isMobile = useIsMobile();
   const { hasRole, signOut } = useAuth();
   const navigate = useNavigate();
   const isSuperadmin = hasRole("superadmin");
@@ -52,18 +54,19 @@ export function AppSidebar() {
             end={item.url === "/dashboard"}
             className="hover:bg-sidebar-accent/50"
             activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+            onClick={() => isMobile && setOpenMobile(false)}
           >
             <item.icon className="mr-2 h-4 w-4 shrink-0" />
-            {!collapsed && <span>{item.title}</span>}
+            {(!collapsed || isMobile) && <span>{item.title}</span>}
           </NavLink>
         </SidebarMenuButton>
       </SidebarMenuItem>
     ));
 
   return (
-    <Sidebar collapsible="icon" className="sidebar-gradient border-r-0">
+    <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="sidebar-gradient border-r-0">
       <SidebarContent>
-        {!collapsed && (
+        {(!collapsed || isMobile) && (
         <div className="flex flex-col items-center gap-2 px-3 py-5">
             {settings.logo_url ? (
               <img src={settings.logo_url} alt="Logo" className="w-full max-h-16 rounded object-contain brightness-0 invert" />
@@ -104,9 +107,9 @@ export function AppSidebar() {
             className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
           >
             <LogOut className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>{t("nav.logout")}</span>}
+            {(!collapsed || isMobile) && <span>{t("nav.logout")}</span>}
           </button>
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <p className="px-2 text-[10px] text-sidebar-muted">
               {t("projectManager")} {t("version")}
             </p>
