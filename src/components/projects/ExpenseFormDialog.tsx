@@ -317,7 +317,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
               )}
 
               {extracted && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400">
+                <div className="flex items-center gap-2 p-3 rounded-md bg-accent text-accent-foreground">
                   <Check className="h-4 w-4" />
                   <span className="text-sm">{t("dataExtracted")}</span>
                 </div>
