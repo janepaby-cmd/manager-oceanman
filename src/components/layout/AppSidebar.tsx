@@ -66,7 +66,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="sidebar-gradient border-r-0">
       <SidebarContent>
-        {!collapsed && (
+        {(!collapsed || isMobile) && (
         <div className="flex flex-col items-center gap-2 px-3 py-5">
             {settings.logo_url ? (
               <img src={settings.logo_url} alt="Logo" className="w-full max-h-16 rounded object-contain brightness-0 invert" />
