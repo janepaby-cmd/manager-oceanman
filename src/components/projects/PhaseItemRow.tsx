@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -14,30 +14,55 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const ACCEPTED_FILE_TYPES = ".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx,.zip,.gpx,.kml,.kmz";
+interface ItemFile {
+  id: string;
+  file_url: string;
+  file_name: string;
+  file_extension: string;
+}
 
 interface Props {
   item: any;
   canManage: boolean;
   onUpdated: () => void;
   onEdit: () => void;
+  maxFiles?: number;
+  allowedExtensions?: string[];
 }
 
-export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Props) {
+export default function PhaseItemRow({ item, canManage, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
   const { user, profile } = useAuth();
   const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const checkboxFileRef = useRef<HTMLInputElement>(null);
-  const [checkboxUploading, setCheckboxUploading] = useState(false);
+  const [files, setFiles] = useState<ItemFile[]>([]);
   const typeCode = item.phase_item_types?.code;
+
+  const acceptString = allowedExtensions?.length
+    ? allowedExtensions.map(e => `.${e}`).join(",")
+    : ".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx,.zip,.gpx,.kml,.kmz,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,.svg";
+
+  const fetchFiles = async () => {
+    const { data } = await supabase
+      .from("phase_item_files")
+      .select("id, file_url, file_name, file_extension")
+      .eq("item_id", item.id)
+      .order("created_at");
+    if (data) setFiles(data);
+  };
+
+  useEffect(() => {
+    fetchFiles();
+  }, [item.id]);
+
+  const hasFiles = files.length > 0;
+  const canAddMoreFiles = files.length < maxFiles;
 
   const toggleCheckbox = async () => {
     const completed = !item.is_completed;
-    // If trying to complete and requires file but no file attached, block
-    if (completed && item.requires_file && !item.file_url) {
+    if (completed && item.requires_file && !hasFiles) {
       toast.error(t("fileRequiredToComplete"));
       return;
     }
@@ -46,9 +71,6 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
       completed_by: completed ? user!.id : null,
       completed_at: completed ? new Date().toISOString() : null,
     };
-    if (!completed) {
-      updateData.file_url = null;
-    }
     await supabase.from("phase_items").update(updateData).eq("id", item.id);
     if (completed) {
       notifyItemCompleted({
@@ -61,48 +83,62 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
     onUpdated();
   };
 
-  const handleCheckboxFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setCheckboxUploading(true);
-    const path = `${item.phase_id}/${item.id}/${file.name}`;
-    const { error: upErr } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
-    if (upErr) { toast.error(t("fileUploadError")); setCheckboxUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
-    await supabase.from("phase_items").update({ file_url: urlData.publicUrl }).eq("id", item.id);
-    toast.success(t("fileUploaded"));
-    setCheckboxUploading(false);
-    onUpdated();
-  };
-
-  const handleRemoveCheckboxFile = async () => {
-    await supabase.from("phase_items").update({ file_url: null }).eq("id", item.id);
-    toast.success(t("fileRemoved"));
-    onUpdated();
-  };
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const selectedFiles = e.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
     setUploading(true);
-    const path = `${item.phase_id}/${item.id}/${file.name}`;
-    const { error: upErr } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
-    if (upErr) { toast.error(t("fileUploadError")); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
-    await supabase.from("phase_items").update({
-      file_url: urlData.publicUrl,
-      is_completed: true,
-      completed_by: user!.id,
-      completed_at: new Date().toISOString(),
-    }).eq("id", item.id);
+
+    const filesToUpload = Array.from(selectedFiles).slice(0, maxFiles - files.length);
+
+    for (const file of filesToUpload) {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "";
+      if (allowedExtensions?.length && !allowedExtensions.includes(ext)) {
+        toast.error(`${t("fileTypeNotAllowed")}: .${ext}`);
+        continue;
+      }
+
+      const path = `${item.phase_id}/${item.id}/${Date.now()}_${file.name}`;
+      const { error: upErr } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
+      if (upErr) { toast.error(t("fileUploadError")); continue; }
+      const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
+
+      await supabase.from("phase_item_files").insert({
+        item_id: item.id,
+        file_url: urlData.publicUrl,
+        file_name: file.name,
+        file_extension: ext,
+        file_size: file.size,
+        uploaded_by: user!.id,
+      });
+    }
+
+    // For file-type items, mark as completed
+    if (typeCode === "file") {
+      await supabase.from("phase_items").update({
+        is_completed: true,
+        completed_by: user!.id,
+        completed_at: new Date().toISOString(),
+      }).eq("id", item.id);
+      notifyItemCompleted({
+        itemId: item.id,
+        itemTitle: item.title,
+        phaseId: item.phase_id,
+        completedByName: profile?.full_name || user!.email || "—",
+      });
+    }
+
     toast.success(t("fileUploaded"));
-    notifyItemCompleted({
-      itemId: item.id,
-      itemTitle: item.title,
-      phaseId: item.phase_id,
-      completedByName: profile?.full_name || user!.email || "—",
-    });
     setUploading(false);
+    // Reset file input
+    if (fileRef.current) fileRef.current.value = "";
+    await fetchFiles();
+    onUpdated();
+  };
+
+  const handleRemoveFile = async (fileId: string) => {
+    await supabase.from("phase_item_files").delete().eq("id", fileId);
+    toast.success(t("fileRemoved"));
+    await fetchFiles();
     onUpdated();
   };
 
@@ -136,80 +172,83 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit }: Pro
 
   return (
     <>
-      <div className="flex items-center gap-3 p-2 rounded-md border bg-background">
-        {typeCode === "checkbox" && (
-          <Checkbox checked={item.is_completed} onCheckedChange={toggleCheckbox} />
-        )}
-        {typeCode === "file" && (
-          item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <FileText className="h-4 w-4 text-muted-foreground" />
-        )}
-        {typeCode === "signature" && (
-          item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <PenTool className="h-4 w-4 text-muted-foreground" />
-        )}
+      <div className="flex flex-col gap-1 p-2 rounded-md border bg-background">
+        <div className="flex items-center gap-3">
+          {typeCode === "checkbox" && (
+            <Checkbox checked={item.is_completed} onCheckedChange={toggleCheckbox} />
+          )}
+          {typeCode === "file" && (
+            item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <FileText className="h-4 w-4 text-muted-foreground" />
+          )}
+          {typeCode === "signature" && (
+            item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <PenTool className="h-4 w-4 text-muted-foreground" />
+          )}
 
-        <div className="flex-1 min-w-0">
-          <p className={`text-sm ${item.is_completed ? "line-through text-muted-foreground" : ""}`}>{item.title}</p>
-          {item.description && <p className="text-xs text-muted-foreground truncate">{item.description}</p>}
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm ${item.is_completed ? "line-through text-muted-foreground" : ""}`}>{item.title}</p>
+            {item.description && <p className="text-xs text-muted-foreground truncate">{item.description}</p>}
+          </div>
+
+          {item.requires_file && (
+            <Badge variant="secondary" className="text-xs shrink-0">
+              <Paperclip className="h-3 w-3 mr-1" /> {t("requiresFile")}
+            </Badge>
+          )}
+
+          {/* Upload button - show for checkbox with requires_file or file type */}
+          {((typeCode === "checkbox" && item.requires_file) || (typeCode === "file" && !item.is_completed)) && canAddMoreFiles && (
+            <>
+              <input
+                ref={fileRef}
+                type="file"
+                accept={acceptString}
+                className="hidden"
+                onChange={handleFileUpload}
+                multiple={maxFiles > 1}
+              />
+              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                <Paperclip className="h-3.5 w-3.5 mr-1" />
+                {uploading ? t("uploading") : t("attachFile")}
+                {maxFiles > 1 && <span className="ml-1 text-xs text-muted-foreground">({files.length}/{maxFiles})</span>}
+              </Button>
+            </>
+          )}
+
+          {typeCode === "signature" && !item.is_completed && (
+            <Button variant="outline" size="sm" onClick={() => setShowSignature(true)}>
+              <PenTool className="h-3.5 w-3.5 mr-1" /> {t("sign")}
+            </Button>
+          )}
+
+          {canManage && (
+            <div className="flex gap-1 shrink-0">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
+                <Pencil className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
+                <Trash2 className="h-3 w-3 text-destructive" />
+              </Button>
+            </div>
+          )}
         </div>
 
-        {item.requires_file && (
-          <Badge variant="secondary" className="text-xs shrink-0">
-            <Paperclip className="h-3 w-3 mr-1" /> {t("requiresFile")}
-          </Badge>
-        )}
-
-        {/* Checkbox file attachment - only show when requires_file */}
-        {typeCode === "checkbox" && item.requires_file && !item.file_url && (
-          <>
-            <input ref={checkboxFileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleCheckboxFileUpload} />
-            <Button variant="outline" size="sm" onClick={() => checkboxFileRef.current?.click()} disabled={checkboxUploading}>
-              <Paperclip className="h-3.5 w-3.5 mr-1" /> {checkboxUploading ? t("uploading") : t("attachFile")}
-            </Button>
-          </>
-        )}
-        {typeCode === "checkbox" && item.file_url && (
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" asChild>
-              <a href={item.file_url} target="_blank" rel="noopener noreferrer">
-                <FileText className="h-3.5 w-3.5" />
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleRemoveCheckboxFile}>
-              <X className="h-3 w-3 text-destructive" />
-            </Button>
-          </div>
-        )}
-
-        {typeCode === "file" && !item.is_completed && (
-          <>
-            <input ref={fileRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={handleFileUpload} />
-            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-              <Upload className="h-3.5 w-3.5 mr-1" /> {uploading ? t("uploading") : t("attach")}
-            </Button>
-          </>
-        )}
-        {typeCode === "file" && item.file_url && (
-          <Button variant="ghost" size="sm" asChild>
-            <a href={item.file_url} target="_blank" rel="noopener noreferrer">
-              <FileText className="h-3.5 w-3.5" />
-            </a>
-          </Button>
-        )}
-
-        {typeCode === "signature" && !item.is_completed && (
-          <Button variant="outline" size="sm" onClick={() => setShowSignature(true)}>
-            <PenTool className="h-3.5 w-3.5 mr-1" /> {t("sign")}
-          </Button>
-        )}
-
-        {canManage && (
-          <div className="flex gap-1 shrink-0">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
-              <Pencil className="h-3 w-3" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
-              <Trash2 className="h-3 w-3 text-destructive" />
-            </Button>
+        {/* File list */}
+        {hasFiles && (
+          <div className="flex flex-wrap gap-1.5 ml-7">
+            {files.map((f) => (
+              <div key={f.id} className="flex items-center gap-1 bg-muted/50 rounded px-2 py-0.5 text-xs">
+                <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline text-foreground">
+                  <FileText className="h-3 w-3" />
+                  <span className="max-w-[120px] truncate">{f.file_name}</span>
+                  {f.file_extension && (
+                    <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 uppercase">{f.file_extension}</Badge>
+                  )}
+                </a>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => handleRemoveFile(f.id)}>
+                  <X className="h-2.5 w-2.5 text-destructive" />
+                </Button>
+              </div>
+            ))}
           </div>
         )}
       </div>

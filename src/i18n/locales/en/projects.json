@@ -85,5 +85,15 @@
   "isRestrictive": "Restrictive phase execution",
   "isRestrictiveHint": "Phases must be completed in sequential order",
   "fileRequiredToComplete": "You must attach a file before completing this item",
-  "phaseLocked": "Complete the previous phase to unlock this phase"
+  "phaseLocked": "Complete the previous phase to unlock this phase",
+  "fileTypeNotAllowed": "File type not allowed",
+  "maxFilesPerItem": "Max files per item",
+  "maxFilesPerItemHint": "Maximum number of files that can be attached to each item",
+  "allowedFileTypes": "Allowed file types",
+  "allowedFileTypesHint": "Select which file types are allowed for uploads",
+  "fileConfig": "File attachment settings",
+  "fileGroupDocuments": "Documents",
+  "fileGroupImages": "Images",
+  "fileGroupGeo": "Geospatial",
+  "fileGroupOther": "Other"
 }

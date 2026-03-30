@@ -12,30 +12,11 @@ interface Props {
 
 interface DocItem {
   id: string;
-  title: string;
+  item_title: string;
   file_url: string;
+  file_name: string;
+  file_extension: string;
   phase_name: string;
-  type_name: string;
-  type_code: string;
-}
-
-function getFileExtension(url: string): string {
-  try {
-    const pathname = new URL(url).pathname;
-    const ext = pathname.split(".").pop()?.toLowerCase() || "";
-    return ext;
-  } catch {
-    return "";
-  }
-}
-
-function getFileName(url: string): string {
-  try {
-    const pathname = new URL(url).pathname;
-    return decodeURIComponent(pathname.split("/").pop() || "file");
-  } catch {
-    return "file";
-  }
 }
 
 export default function ProjectDocuments({ projectId }: Props) {
@@ -43,59 +24,60 @@ export default function ProjectDocuments({ projectId }: Props) {
   const [docs, setDocs] = useState<DocItem[]>([]);
 
   const fetchDocs = useCallback(async () => {
-    // Get all phases for this project
     const { data: phases } = await supabase
       .from("project_phases")
       .select("id, name")
       .eq("project_id", projectId);
 
-    if (!phases || phases.length === 0) {
-      setDocs([]);
-      return;
-    }
+    if (!phases || phases.length === 0) { setDocs([]); return; }
 
     const phaseIds = phases.map((p) => p.id);
     const phaseMap = Object.fromEntries(phases.map((p) => [p.id, p.name]));
 
-    // Get all items with file_url
+    // Get items for these phases
     const { data: items } = await supabase
       .from("phase_items")
-      .select("id, title, file_url, phase_id, phase_item_types(name, code)")
-      .in("phase_id", phaseIds)
-      .not("file_url", "is", null);
+      .select("id, title, phase_id")
+      .in("phase_id", phaseIds);
 
-    if (!items) {
-      setDocs([]);
-      return;
-    }
+    if (!items || items.length === 0) { setDocs([]); return; }
 
-    const docItems: DocItem[] = items
-      .filter((item: any) => item.file_url)
-      .map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        file_url: item.file_url,
-        phase_name: phaseMap[item.phase_id] || "",
-        type_name: item.phase_item_types?.name || "",
-        type_code: item.phase_item_types?.code || "",
-      }));
+    const itemIds = items.map((i) => i.id);
+    const itemMap = Object.fromEntries(items.map((i) => [i.id, { title: i.title, phase_id: i.phase_id }]));
+
+    // Get all files
+    const { data: files } = await supabase
+      .from("phase_item_files")
+      .select("id, item_id, file_url, file_name, file_extension")
+      .in("item_id", itemIds)
+      .order("created_at");
+
+    if (!files) { setDocs([]); return; }
+
+    const docItems: DocItem[] = files.map((f: any) => {
+      const itemInfo = itemMap[f.item_id] || { title: "", phase_id: "" };
+      return {
+        id: f.id,
+        item_title: itemInfo.title,
+        file_url: f.file_url,
+        file_name: f.file_name,
+        file_extension: f.file_extension,
+        phase_name: phaseMap[itemInfo.phase_id] || "",
+      };
+    });
 
     setDocs(docItems);
   }, [projectId]);
 
-  useEffect(() => {
-    fetchDocs();
-  }, [fetchDocs]);
+  useEffect(() => { fetchDocs(); }, [fetchDocs]);
 
-  // Also refetch when storage changes (listen to phase_items changes)
   useEffect(() => {
     const channel = supabase
       .channel(`project-docs-${projectId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "phase_items" }, () => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "phase_item_files" }, () => {
         fetchDocs();
       })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [projectId, fetchDocs]);
 
@@ -103,9 +85,8 @@ export default function ProjectDocuments({ projectId }: Props) {
     if (["pdf"].includes(ext)) return "destructive";
     if (["xlsx", "xls"].includes(ext)) return "default";
     if (["doc", "docx"].includes(ext)) return "secondary";
-    if (["ppt", "pptx"].includes(ext)) return "outline";
-    if (["gpx", "kml", "kmz"].includes(ext)) return "default";
-    if (["zip"].includes(ext)) return "secondary";
+    if (["jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "svg"].includes(ext)) return "outline";
+    if (["kml", "kmz", "gpx"].includes(ext)) return "default";
     return "outline";
   };
 
@@ -125,29 +106,25 @@ export default function ProjectDocuments({ projectId }: Props) {
           <p className="text-sm text-muted-foreground text-center py-4">{t("noDocuments")}</p>
         ) : (
           <div className="space-y-2">
-            {docs.map((doc) => {
-              const ext = getFileExtension(doc.file_url);
-              const fileName = getFileName(doc.file_url);
-              return (
-                <div key={doc.id} className="flex items-center gap-3 p-2 rounded-md border bg-background">
-                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{doc.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{doc.phase_name} · {fileName}</p>
-                  </div>
-                  {ext && (
-                    <Badge variant={extBadgeColor(ext) as any} className="text-xs uppercase shrink-0">
-                      {ext}
-                    </Badge>
-                  )}
-                  <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" asChild>
-                    <a href={doc.file_url} target="_blank" rel="noopener noreferrer" download>
-                      <Download className="h-3.5 w-3.5" />
-                    </a>
-                  </Button>
+            {docs.map((doc) => (
+              <div key={doc.id} className="flex items-center gap-3 p-2 rounded-md border bg-background">
+                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{doc.item_title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{doc.phase_name} · {doc.file_name}</p>
                 </div>
-              );
-            })}
+                {doc.file_extension && (
+                  <Badge variant={extBadgeColor(doc.file_extension) as any} className="text-xs uppercase shrink-0">
+                    {doc.file_extension}
+                  </Badge>
+                )}
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" asChild>
+                  <a href={doc.file_url} target="_blank" rel="noopener noreferrer" download>
+                    <Download className="h-3.5 w-3.5" />
+                  </a>
+                </Button>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
