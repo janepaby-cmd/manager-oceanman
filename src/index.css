@@ -88,18 +88,26 @@
   }
 
   html {
-    touch-action: pan-x pan-y;
     -webkit-text-size-adjust: 100%;
-    -ms-touch-action: pan-x pan-y;
     overflow-x: hidden;
-    overscroll-behavior: none;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     min-height: 100dvh;
     overflow-x: hidden;
-    overscroll-behavior: none;
+  }
+
+  /* Mobile-only: block pinch-zoom and overscroll bounce */
+  @media (pointer: coarse) {
+    html {
+      touch-action: pan-x pan-y;
+      -ms-touch-action: pan-x pan-y;
+      overscroll-behavior: none;
+    }
+    body {
+      overscroll-behavior: none;
+    }
   }
 
   input, select, textarea {
