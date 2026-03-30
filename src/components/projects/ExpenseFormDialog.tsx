@@ -149,7 +149,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
         ticketUrl = urlData.publicUrl;
       }
 
-      const payload: Record<string, any> = {
+      const payload = {
         project_id: projectId,
         expense_type_id: expenseTypeId,
         expense_date: expenseDate || new Date().toISOString().split("T")[0],
