@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
   projectId: string;
+  refreshKey?: number;
 }
 
 interface DocItem {
@@ -19,7 +20,7 @@ interface DocItem {
   phase_name: string;
 }
 
-export default function ProjectDocuments({ projectId }: Props) {
+export default function ProjectDocuments({ projectId, refreshKey }: Props) {
   const { t } = useTranslation(["projects"]);
   const [docs, setDocs] = useState<DocItem[]>([]);
 
@@ -69,7 +70,7 @@ export default function ProjectDocuments({ projectId }: Props) {
     setDocs(docItems);
   }, [projectId]);
 
-  useEffect(() => { fetchDocs(); }, [fetchDocs]);
+  useEffect(() => { fetchDocs(); }, [fetchDocs, refreshKey]);
 
   useEffect(() => {
     const channel = supabase

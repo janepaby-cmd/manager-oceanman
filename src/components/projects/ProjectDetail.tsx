@@ -27,6 +27,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [status, setStatus] = useState<any>(null);
   const [showPhaseForm, setShowPhaseForm] = useState(false);
   const [editPhase, setEditPhase] = useState<any>(null);
+  const [docsRefreshKey, setDocsRefreshKey] = useState(0);
   const [showUsers, setShowUsers] = useState(false);
 
   const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
@@ -50,6 +51,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
       .eq("project_id", projectId)
       .order("position");
     if (data) setPhases(data);
+    setDocsRefreshKey((k) => k + 1);
   }, [projectId]);
 
   useEffect(() => {
@@ -143,7 +145,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         )}
       </div>
 
-      <ProjectDocuments projectId={projectId} />
+      <ProjectDocuments projectId={projectId} refreshKey={docsRefreshKey} />
 
       <ExpenseList projectId={projectId} canManage={canManage} />
 
