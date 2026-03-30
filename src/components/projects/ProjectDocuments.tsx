@@ -70,7 +70,7 @@ export default function ProjectDocuments({ projectId, refreshKey }: Props) {
     setDocs(docItems);
   }, [projectId]);
 
-  useEffect(() => { fetchDocs(); }, [fetchDocs]);
+  useEffect(() => { fetchDocs(); }, [fetchDocs, refreshKey]);
 
   useEffect(() => {
     const channel = supabase
