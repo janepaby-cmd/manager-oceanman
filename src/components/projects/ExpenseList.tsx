@@ -159,7 +159,7 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                 ))}
               </div>
             </>
-          )
+          )}
         </CardContent>
       </Card>
 
