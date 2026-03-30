@@ -195,7 +195,12 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90dvh] flex flex-col">
+      <DialogContent className="sm:max-w-lg max-h-[90dvh] flex flex-col gap-2 touch-none" onTouchMove={(e) => {
+        // Allow scrolling only inside the scrollable content area
+        const target = e.target as HTMLElement;
+        const scrollable = target.closest('[data-scroll-area]');
+        if (!scrollable) e.preventDefault();
+      }}>
         <DialogHeader className="shrink-0">
           <DialogTitle>{isEditing ? t("editExpense") : t("newExpense")}</DialogTitle>
           {!isEditing && (
@@ -213,7 +218,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
           )}
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto min-h-0 py-2">
+        <div className="flex-1 overflow-y-auto min-h-0 py-2 overscroll-contain" data-scroll-area>
           {/* STEP 1: Expense type */}
           {(step === 1 || isEditing) && (
             <div className={`space-y-4 ${isEditing ? "" : step !== 1 ? "hidden" : ""}`}>
