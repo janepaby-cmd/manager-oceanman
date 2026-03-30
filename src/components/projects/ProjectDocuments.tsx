@@ -20,7 +20,7 @@ interface DocItem {
   phase_name: string;
 }
 
-export default function ProjectDocuments({ projectId }: Props) {
+export default function ProjectDocuments({ projectId, refreshKey }: Props) {
   const { t } = useTranslation(["projects"]);
   const [docs, setDocs] = useState<DocItem[]>([]);
 
