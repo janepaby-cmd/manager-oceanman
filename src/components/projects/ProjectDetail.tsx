@@ -51,6 +51,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
       .eq("project_id", projectId)
       .order("position");
     if (data) setPhases(data);
+    setDocsRefreshKey((k) => k + 1);
   }, [projectId]);
 
   useEffect(() => {
