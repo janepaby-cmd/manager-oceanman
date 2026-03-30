@@ -8,7 +8,7 @@
   "expenseType": "Expense type",
   "totalAmount": "Total amount",
   "description": "Description",
-  "descriptionPlaceholder": "Expense description",
+  "descriptionPlaceholder": "Brief expense description",
   "ticket": "Ticket",
   "viewTicket": "View attached ticket",
   "selectType": "Select type",
@@ -17,8 +17,15 @@
   "expenseCreated": "Expense created",
   "expenseUpdated": "Expense updated",
   "expenseDeleted": "Expense deleted",
-  "requiredFields": "Date, type and amount are required",
+  "requiredFields": "Expense type and amount are required",
   "extract": "Read",
-  "dataExtracted": "Data extracted from ticket",
-  "extractError": "Could not extract data from ticket"
+  "dataExtracted": "Data extracted from document",
+  "extractError": "Could not extract data from document",
+  "extractionPartial": "Could not extract all data, please complete the fields manually",
+  "extractionFailedManual": "Could not extract data automatically. Please enter the data manually.",
+  "analyzing": "Analyzing document...",
+  "uploadDocument": "Expense document",
+  "uploadHint": "Take a photo of the receipt or upload a PDF/image",
+  "documentNumber": "Document number",
+  "documentNumberPlaceholder": "Invoice or receipt number"
 }

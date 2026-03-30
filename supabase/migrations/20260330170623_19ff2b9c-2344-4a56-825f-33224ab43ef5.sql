@@ -1,0 +1,1 @@
+ALTER TABLE public.project_expenses ADD COLUMN document_number text;

@@ -8,7 +8,7 @@
   "expenseType": "Tipo de gasto",
   "totalAmount": "Importe total",
   "description": "Descripción",
-  "descriptionPlaceholder": "Descripción del gasto",
+  "descriptionPlaceholder": "Descripción breve del gasto",
   "ticket": "Ticket",
   "viewTicket": "Ver ticket adjunto",
   "selectType": "Seleccionar tipo",
@@ -17,8 +17,15 @@
   "expenseCreated": "Gasto creado",
   "expenseUpdated": "Gasto actualizado",
   "expenseDeleted": "Gasto eliminado",
-  "requiredFields": "Fecha, tipo e importe son obligatorios",
+  "requiredFields": "El tipo de gasto y el importe son obligatorios",
   "extract": "Leer",
-  "dataExtracted": "Datos extraídos del ticket",
-  "extractError": "No se pudieron extraer datos del ticket"
+  "dataExtracted": "Datos extraídos del documento",
+  "extractError": "No se pudieron extraer datos del documento",
+  "extractionPartial": "No se han podido extraer todos los datos, por favor completa los campos manualmente",
+  "extractionFailedManual": "No se han podido extraer los datos automáticamente. Por favor, introduce los datos manualmente.",
+  "analyzing": "Analizando documento...",
+  "uploadDocument": "Documento del gasto",
+  "uploadHint": "Toma una foto del ticket o sube un PDF/imagen del documento",
+  "documentNumber": "Nº documento",
+  "documentNumberPlaceholder": "Número de factura o ticket"
 }

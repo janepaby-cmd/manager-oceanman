@@ -25,7 +25,10 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY not configured");
     }
 
-    const response = await fetch("https://api.lovable.dev/v1/chat/completions", {
+    const isPdf = mimeType === "application/pdf";
+    const mediaType = isPdf ? "application/pdf" : (mimeType || "image/jpeg");
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,17 +42,18 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this receipt/ticket image and extract the following data. Return ONLY a JSON object with these fields:
+                text: `Analyze this receipt/ticket/invoice document and extract the following data. Return ONLY a JSON object with these fields:
 - "date": the date of the expense in YYYY-MM-DD format (or null if not found)
-- "amount": the total amount as a number (or null if not found)
-- "description": a brief description of the expense (or null if not found)
+- "amount": the total amount as a number (or null if not found). Look for "Total", "Importe Total", "Total a pagar", "Amount Due" or similar
+- "description": a brief description of the expense/purchase (or null if not found)
+- "document_number": the invoice number, receipt number, ticket number or document reference (or null if not found). Look for "Nº", "Factura", "Invoice", "Receipt #", "Ticket" or similar
 
 Return ONLY the JSON, no markdown, no explanation.`,
               },
               {
                 type: "image_url",
                 image_url: {
-                  url: `data:${mimeType || "image/jpeg"};base64,${imageBase64}`,
+                  url: `data:${mediaType};base64,${imageBase64}`,
                 },
               },
             ],
@@ -67,7 +71,6 @@ Return ONLY the JSON, no markdown, no explanation.`,
     const aiResult = await response.json();
     const content = aiResult.choices?.[0]?.message?.content || "{}";
 
-    // Parse the JSON from AI response
     const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const extracted = JSON.parse(cleanContent);
 
@@ -77,7 +80,7 @@ Return ONLY the JSON, no markdown, no explanation.`,
   } catch (error) {
     console.error("Error extracting ticket data:", error);
     return new Response(
-      JSON.stringify({ error: error.message, date: null, amount: null, description: null }),
+      JSON.stringify({ error: error.message, date: null, amount: null, description: null, document_number: null }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
