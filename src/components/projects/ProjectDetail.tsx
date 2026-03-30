@@ -27,6 +27,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [status, setStatus] = useState<any>(null);
   const [showPhaseForm, setShowPhaseForm] = useState(false);
   const [editPhase, setEditPhase] = useState<any>(null);
+  const [docsRefreshKey, setDocsRefreshKey] = useState(0);
   const [showUsers, setShowUsers] = useState(false);
 
   const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
