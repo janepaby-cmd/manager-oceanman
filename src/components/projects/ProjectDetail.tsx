@@ -86,7 +86,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">{t("fiscalYear")}</CardTitle></CardHeader>
           <CardContent className="text-lg font-semibold">{project.fiscal_year}</CardContent>
