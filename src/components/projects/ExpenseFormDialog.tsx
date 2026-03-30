@@ -195,18 +195,17 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg max-h-[90dvh] flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{isEditing ? t("editExpense") : t("newExpense")}</DialogTitle>
           {!isEditing && (
             <div className="flex items-center gap-2 pt-2">
               {[1, 2, 3].map((s) => (
-                <div key={s} className="flex items-center gap-1.5">
+                <div key={s} className="flex-1">
                   <div
-                    className={`h-2 flex-1 rounded-full transition-colors ${
+                    className={`h-2 rounded-full transition-colors ${
                       s <= step ? "bg-primary" : "bg-muted"
                     }`}
-                    style={{ width: 80 }}
                   />
                 </div>
               ))}
@@ -214,7 +213,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
           )}
         </DialogHeader>
 
-        <div className="min-h-[200px]">
+        <div className="flex-1 overflow-y-auto min-h-0 py-2">
           {/* STEP 1: Expense type */}
           {(step === 1 || isEditing) && (
             <div className={`space-y-4 ${isEditing ? "" : step !== 1 ? "hidden" : ""}`}>
@@ -250,7 +249,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
                       </div>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-3">
                     <div className="space-y-2">
                       <Label>{t("expenseDate")}</Label>
                       <Input type="date" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} />
@@ -289,21 +288,21 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>{t("uploadDocument")}</Label>
-                <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                  <div className="flex justify-center gap-4 mb-3">
-                    <Camera className="h-8 w-8 text-muted-foreground" />
-                    <FileUp className="h-8 w-8 text-muted-foreground" />
+                <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                  <div className="flex justify-center gap-4 mb-2">
+                    <Camera className="h-6 w-6 text-muted-foreground" />
+                    <FileUp className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">{t("uploadHint")}</p>
+                  <p className="text-xs text-muted-foreground mb-2">{t("uploadHint")}</p>
                   <Input
                     type="file"
                     accept="image/*,.pdf"
                     onChange={handleFileChange}
-                    className="max-w-xs mx-auto"
+                    className="w-full"
                   />
                 </div>
                 {file && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs truncate max-w-full">
                     {file.name}
                   </Badge>
                 )}
@@ -311,21 +310,21 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
 
               {extracting && (
                 <div className="flex items-center gap-2 p-3 rounded-md bg-muted">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
                   <span className="text-sm">{t("analyzing")}</span>
                 </div>
               )}
 
               {extracted && (
                 <div className="flex items-center gap-2 p-3 rounded-md bg-accent text-accent-foreground">
-                  <Check className="h-4 w-4" />
+                  <Check className="h-4 w-4 shrink-0" />
                   <span className="text-sm">{t("dataExtracted")}</span>
                 </div>
               )}
 
               {extractionFailed && (
                 <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive">
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
                   <span className="text-sm">{t("extractionFailedManual")}</span>
                 </div>
               )}
@@ -333,7 +332,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
               {/* Always show fields after extraction attempt or if no file */}
               {(extracted || extractionFailed || !file) && !extracting && (
                 <div className="space-y-3 pt-1">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-3">
                     <div className="space-y-2">
                       <Label>{t("expenseDate")}</Label>
                       <Input type="date" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} />
@@ -353,25 +352,25 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
           )}
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between">
+        <DialogFooter className="shrink-0 flex flex-row justify-between sm:justify-between gap-2">
           {!isEditing && step > 1 ? (
-            <Button variant="outline" onClick={goBack}>
+            <Button variant="outline" onClick={goBack} className="flex-1 sm:flex-none">
               <ChevronLeft className="h-4 w-4 mr-1" /> {t("common:back")}
             </Button>
           ) : (
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">
               {t("common:cancel")}
             </Button>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-1 sm:flex-none justify-end">
             {!isEditing && step < totalSteps && (
-              <Button onClick={goNext} disabled={!canGoNext()}>
+              <Button onClick={goNext} disabled={!canGoNext()} className="flex-1 sm:flex-none">
                 {t("common:next")} <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             )}
             {(isEditing || step === totalSteps) && (
-              <Button onClick={handleSave} disabled={saving || extracting}>
+              <Button onClick={handleSave} disabled={saving || extracting} className="flex-1 sm:flex-none">
                 {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 {t("common:save")}
               </Button>
