@@ -172,53 +172,25 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit, maxFi
 
   return (
     <>
-      <div className="flex flex-col gap-1 p-2 rounded-md border bg-background">
-        <div className="flex items-center gap-3">
-          {typeCode === "checkbox" && (
-            <Checkbox checked={item.is_completed} onCheckedChange={toggleCheckbox} />
-          )}
-          {typeCode === "file" && (
-            item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <FileText className="h-4 w-4 text-muted-foreground" />
-          )}
-          {typeCode === "signature" && (
-            item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <PenTool className="h-4 w-4 text-muted-foreground" />
-          )}
+      <div className="flex flex-col gap-2 p-2 rounded-md border bg-background">
+        {/* Row 1: checkbox/icon + title + manage buttons */}
+        <div className="flex items-start gap-2">
+          <div className="pt-0.5 shrink-0">
+            {typeCode === "checkbox" && (
+              <Checkbox checked={item.is_completed} onCheckedChange={toggleCheckbox} />
+            )}
+            {typeCode === "file" && (
+              item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <FileText className="h-4 w-4 text-muted-foreground" />
+            )}
+            {typeCode === "signature" && (
+              item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <PenTool className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
 
           <div className="flex-1 min-w-0">
             <p className={`text-sm ${item.is_completed ? "line-through text-muted-foreground" : ""}`}>{item.title}</p>
-            {item.description && <p className="text-xs text-muted-foreground truncate">{item.description}</p>}
+            {item.description && <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
           </div>
-
-          {item.requires_file && (
-            <Badge variant="secondary" className="text-xs shrink-0">
-              <Paperclip className="h-3 w-3 mr-1" /> {t("requiresFile")}
-            </Badge>
-          )}
-
-          {/* Upload button - show for checkbox with requires_file or file type */}
-          {((typeCode === "checkbox" && item.requires_file) || (typeCode === "file" && !item.is_completed)) && canAddMoreFiles && (
-            <>
-              <input
-                ref={fileRef}
-                type="file"
-                accept={acceptString}
-                className="hidden"
-                onChange={handleFileUpload}
-                multiple={maxFiles > 1}
-              />
-              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                <Paperclip className="h-3.5 w-3.5 mr-1" />
-                {uploading ? t("uploading") : t("attachFile")}
-                {maxFiles > 1 && <span className="ml-1 text-xs text-muted-foreground">({files.length}/{maxFiles})</span>}
-              </Button>
-            </>
-          )}
-
-          {typeCode === "signature" && !item.is_completed && (
-            <Button variant="outline" size="sm" onClick={() => setShowSignature(true)}>
-              <PenTool className="h-3.5 w-3.5 mr-1" /> {t("sign")}
-            </Button>
-          )}
 
           {canManage && (
             <div className="flex gap-1 shrink-0">
@@ -232,20 +204,55 @@ export default function PhaseItemRow({ item, canManage, onUpdated, onEdit, maxFi
           )}
         </div>
 
-        {/* File list */}
+        {/* Row 2: badges + action buttons */}
+        {(item.requires_file || typeCode === "signature" || ((typeCode === "checkbox" && item.requires_file) || (typeCode === "file" && !item.is_completed)) && canAddMoreFiles) && (
+          <div className="flex flex-wrap items-center gap-2 ml-6">
+            {item.requires_file && (
+              <Badge variant="secondary" className="text-xs">
+                <Paperclip className="h-3 w-3 mr-1" /> {t("requiresFile")}
+              </Badge>
+            )}
+
+            {((typeCode === "checkbox" && item.requires_file) || (typeCode === "file" && !item.is_completed)) && canAddMoreFiles && (
+              <>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept={acceptString}
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  multiple={maxFiles > 1}
+                />
+                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                  <Paperclip className="h-3 w-3 mr-1" />
+                  {uploading ? t("uploading") : t("attachFile")}
+                  {maxFiles > 1 && <span className="ml-1 text-muted-foreground">({files.length}/{maxFiles})</span>}
+                </Button>
+              </>
+            )}
+
+            {typeCode === "signature" && !item.is_completed && (
+              <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setShowSignature(true)}>
+                <PenTool className="h-3 w-3 mr-1" /> {t("sign")}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Row 3: attached files */}
         {hasFiles && (
-          <div className="flex flex-wrap gap-1.5 ml-7">
+          <div className="flex flex-col gap-1 ml-6">
             {files.map((f) => (
-              <div key={f.id} className="flex items-center gap-1 bg-muted/50 rounded px-2 py-0.5 text-xs">
-                <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline text-foreground">
-                  <FileText className="h-3 w-3" />
-                  <span className="max-w-[120px] truncate">{f.file_name}</span>
+              <div key={f.id} className="flex items-center gap-1.5 bg-muted/50 rounded px-2 py-1 text-xs">
+                <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:underline text-foreground min-w-0 flex-1">
+                  <FileText className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{f.file_name}</span>
                   {f.file_extension && (
-                    <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 uppercase">{f.file_extension}</Badge>
+                    <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 uppercase shrink-0">{f.file_extension}</Badge>
                   )}
                 </a>
-                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => handleRemoveFile(f.id)}>
-                  <X className="h-2.5 w-2.5 text-destructive" />
+                <Button variant="ghost" size="icon" className="h-5 w-5 p-0 shrink-0" onClick={() => handleRemoveFile(f.id)}>
+                  <X className="h-3 w-3 text-destructive" />
                 </Button>
               </div>
             ))}
