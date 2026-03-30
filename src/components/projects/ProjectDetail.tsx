@@ -131,6 +131,8 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                   phase={phase}
                   canManage={canManage}
                   isLocked={isLocked}
+                  maxFiles={project.max_files_per_item || 5}
+                  allowedExtensions={project.allowed_file_extensions || undefined}
                   onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
                   onDeleted={fetchPhases}
                   onUpdated={fetchPhases}
