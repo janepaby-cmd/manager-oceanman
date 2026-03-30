@@ -55,7 +55,7 @@ export default function ExpenseList({ projectId, canManage }: Props) {
     <>
       <Card>
         <CardHeader className="pb-3 px-3 sm:px-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Receipt className="h-5 w-5" />
               {t("title")}
