@@ -145,7 +145,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         )}
       </div>
 
-      <ProjectDocuments projectId={projectId} />
+      <ProjectDocuments projectId={projectId} refreshKey={docsRefreshKey} />
 
       <ExpenseList projectId={projectId} canManage={canManage} />
 
