@@ -141,7 +141,7 @@ export default function Dashboard() {
               {projects.length === 0 && <p className="text-xs text-muted-foreground mt-1">{t("dashboard:projectsWillAppear")}</p>}
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               {filtered.map((project) => {
                 const phases = (project as any).project_phases || [];
                 const totalPhases = phases.length;
