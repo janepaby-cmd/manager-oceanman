@@ -36,6 +36,13 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [saving, setSaving] = useState(false);
   const [isRestrictive, setIsRestrictive] = useState(false);
+  const [maxFilesPerItem, setMaxFilesPerItem] = useState(5);
+  const [allowedExtensions, setAllowedExtensions] = useState<string[]>([
+    'pdf','doc','docx','xls','xlsx','ppt','pptx',
+    'kml','kmz','gpx',
+    'jpg','jpeg','png','gif','webp','bmp','tiff','svg',
+    'zip'
+  ]);
   // Template state
   const [templates, setTemplates] = useState<any[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
