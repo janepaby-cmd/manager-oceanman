@@ -169,66 +169,105 @@ export default function ProjectList({ onSelectProject }: Props) {
           <p className="text-muted-foreground">{projects.length === 0 ? t("noProjects") : t("noResults", "No se encontraron resultados")}</p>
         </div>
       ) : (
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("common:name")}</TableHead>
-                <TableHead>{t("fiscalYear")}</TableHead>
-                <TableHead>{t("common:status")}</TableHead>
-                <TableHead>{t("progress", "Progreso")}</TableHead>
-                <TableHead>{t("startDate")}</TableHead>
-                <TableHead>{t("estimatedEndDate")}</TableHead>
-                <TableHead className="text-right">{t("common:actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell>{p.fiscal_year}</TableCell>
-                  <TableCell>
-                    <Badge style={{ backgroundColor: p.status_color, color: "#fff" }}>
-                      {p.status_name}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2 min-w-[120px]">
-                      <Progress value={(p as any).progress ?? 0} className="h-2 flex-1" />
-                      <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-                        {(p as any).progress ?? 0}%
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">
-                      {(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items
-                    </span>
-                  </TableCell>
-                  <TableCell>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
-                  <TableCell>
-                    {p.estimated_end_date
-                      ? format(new Date(p.estimated_end_date), "dd/MM/yyyy", { locale: dateLocale })
-                      : "—"}
-                  </TableCell>
-                  <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="icon" onClick={() => onSelectProject(p.id)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {canManage && (
-                      <>
-                        <Button variant="ghost" size="icon" onClick={() => { setEditProject(p); setShowForm(true); }}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </>
-                    )}
-                  </TableCell>
+        <>
+          {/* Desktop table */}
+          <div className="border rounded-lg hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("common:name")}</TableHead>
+                  <TableHead>{t("fiscalYear")}</TableHead>
+                  <TableHead>{t("common:status")}</TableHead>
+                  <TableHead>{t("progress", "Progreso")}</TableHead>
+                  <TableHead>{t("startDate")}</TableHead>
+                  <TableHead>{t("estimatedEndDate")}</TableHead>
+                  <TableHead className="text-right">{t("common:actions")}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-medium">{p.name}</TableCell>
+                    <TableCell>{p.fiscal_year}</TableCell>
+                    <TableCell>
+                      <Badge style={{ backgroundColor: p.status_color, color: "#fff" }}>
+                        {p.status_name}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 min-w-[120px]">
+                        <Progress value={(p as any).progress ?? 0} className="h-2 flex-1" />
+                        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                          {(p as any).progress ?? 0}%
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">
+                        {(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items
+                      </span>
+                    </TableCell>
+                    <TableCell>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</TableCell>
+                    <TableCell>
+                      {p.estimated_end_date
+                        ? format(new Date(p.estimated_end_date), "dd/MM/yyyy", { locale: dateLocale })
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button variant="ghost" size="icon" onClick={() => onSelectProject(p.id)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      {canManage && (
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => { setEditProject(p); setShowForm(true); }}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((p) => (
+              <div
+                key={p.id}
+                className="glass-card p-4 space-y-3 cursor-pointer active:scale-[0.98] transition-transform"
+                onClick={() => onSelectProject(p.id)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-sm flex-1 min-w-0 truncate">{p.name}</h3>
+                  <Badge style={{ backgroundColor: p.status_color, color: "#fff" }} className="shrink-0 text-xs">
+                    {p.status_name}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={(p as any).progress ?? 0} className="h-1.5 flex-1" />
+                  <span className="text-xs font-semibold text-muted-foreground">{(p as any).progress ?? 0}%</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</span>
+                  <span>{(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items</span>
+                </div>
+                {canManage && (
+                  <div className="flex justify-end gap-1 pt-1 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditProject(p); setShowForm(true); }}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(p.id)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <ProjectFormDialog
