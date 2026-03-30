@@ -398,14 +398,14 @@ export function TemplatesTab() {
                         <Collapsible key={phase.id} open={phaseOpen} onOpenChange={() => togglePhase(phase.id)}>
                           <div className="border rounded-md">
                             <CollapsibleTrigger asChild>
-                              <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted/30 transition-colors">
-                                <div className="flex items-center gap-2">
-                                  {phaseOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                                  <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                                  <span className="font-medium text-sm">{phase.position + 1}. {phase.name}</span>
-                                  <span className="text-xs text-muted-foreground">({phaseItems.length} {t("templates.itemsCount")})</span>
+                              <div className="flex flex-col gap-1 p-2 sm:p-3 cursor-pointer hover:bg-muted/30 transition-colors">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {phaseOpen ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
+                                  <GripVertical className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                  <span className="font-medium text-sm truncate">{phase.position + 1}. {phase.name}</span>
+                                  <span className="text-[11px] text-muted-foreground shrink-0">({phaseItems.length})</span>
                                 </div>
-                                <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                <div className="flex justify-end gap-0.5" onClick={e => e.stopPropagation()}>
                                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditPhase(phase)}>
                                     <Pencil className="h-3.5 w-3.5" />
                                   </Button>
