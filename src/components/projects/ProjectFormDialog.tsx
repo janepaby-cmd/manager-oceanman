@@ -197,7 +197,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       await supabase.from("project_users").insert({ project_id: newProjectId, user_id: user.id });
     }
 
-    if (!project && useTemplate && selectedTemplateId && newProjectId) {
+    if (!project && selectedTemplateId && newProjectId) {
       try {
         await applyTemplate(newProjectId, selectedTemplateId);
         toast.success(t("templateApplied"));
