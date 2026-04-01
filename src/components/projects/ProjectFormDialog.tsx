@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Props {
   open: boolean;
@@ -43,10 +44,10 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     'jpg','jpeg','png','gif','webp','bmp','tiff','svg',
     'zip'
   ]);
-  // Template state
   const [templates, setTemplates] = useState<any[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [useTemplate, setUseTemplate] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const dateLocale = i18n.language === "es" ? es : undefined;
 
@@ -96,10 +97,19 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setUseTemplate(false);
       setSelectedTemplateId("");
     }
+    setErrors({});
   }, [project, open, statuses]);
 
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = t("nameRequired");
+    if (!statusId) errs.status = t("statusRequired");
+    if (useTemplate && !selectedTemplateId) errs.template = t("templateRequired");
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const applyTemplate = async (projectId: string, templateId: string) => {
-    // Fetch template phases with items
     const { data: tPhases } = await supabase
       .from("checklist_template_phases")
       .select("id, name, description, position")
@@ -108,7 +118,6 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
 
     if (!tPhases || tPhases.length === 0) return;
 
-    // Get the default checkbox item type
     const { data: itemTypes } = await supabase
       .from("phase_item_types")
       .select("id, code");
@@ -117,7 +126,6 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     const defaultTypeId = typeMap.get("checkbox");
 
     for (const tPhase of tPhases) {
-      // Create project phase
       const { data: newPhase } = await supabase
         .from("project_phases")
         .insert({
@@ -131,7 +139,6 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
 
       if (!newPhase) continue;
 
-      // Fetch template items for this phase
       const { data: tItems } = await supabase
         .from("checklist_template_items")
         .select("title, description, item_type_code, position")
@@ -153,7 +160,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   };
 
   const handleSave = async () => {
-    if (!name.trim()) { toast.error(t("nameRequired")); return; }
+    if (!validate()) return;
     setSaving(true);
 
     const data: any = {
@@ -186,12 +193,10 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       return;
     }
 
-    // Auto-assign creator to project
     if (!project && newProjectId && user) {
       await supabase.from("project_users").insert({ project_id: newProjectId, user_id: user.id });
     }
 
-    // Apply template if selected
     if (!project && useTemplate && selectedTemplateId && newProjectId) {
       try {
         await applyTemplate(newProjectId, selectedTemplateId);
@@ -210,176 +215,210 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
 
+  const fileGroups = [
+    { label: t("fileGroupDocuments"), exts: ["pdf","doc","docx","xls","xlsx","ppt","pptx"] },
+    { label: t("fileGroupImages"), exts: ["jpg","jpeg","png","gif","webp","bmp","tiff","svg"] },
+    { label: t("fileGroupGeo"), exts: ["kml","kmz","gpx"] },
+    { label: t("fileGroupOther"), exts: ["zip"] },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg p-0 flex flex-col max-h-[90dvh] gap-0">
+        {/* Fixed header */}
+        <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogTitle>{project ? t("editProject") : t("newProject")}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>{t("projectName")} *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("projectNamePlaceholder")} />
-          </div>
-          <div>
-            <Label>{t("common:description")}</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("descriptionPlaceholder")} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>{t("fiscalYear")}</Label>
-              <Select value={String(fiscalYear)} onValueChange={(v) => setFiscalYear(Number(v))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {years.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t("common:status")}</Label>
-              <Select value={statusId} onValueChange={setStatusId}>
-                <SelectTrigger><SelectValue placeholder={t("selectStatus")} /></SelectTrigger>
-                <SelectContent>
-                  {statuses.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>{t("startDate")}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(startDate, "dd/MM/yyyy", { locale: dateLocale })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={startDate} onSelect={(d) => d && setStartDate(d)} initialFocus className="p-3 pointer-events-auto" />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div>
-              <Label>{t("estimatedEndDate")}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "dd/MM/yyyy", { locale: dateLocale }) : t("selectDate")}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className="p-3 pointer-events-auto" />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
 
-          {/* Restrictive execution */}
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="is-restrictive"
-              checked={isRestrictive}
-              onCheckedChange={(c) => setIsRestrictive(!!c)}
-            />
-            <div>
-              <label htmlFor="is-restrictive" className="text-sm font-medium cursor-pointer">{t("isRestrictive")}</label>
-              <p className="text-xs text-muted-foreground">{t("isRestrictiveHint")}</p>
+        {/* Scrollable body */}
+        <ScrollArea className="flex-1 min-h-0" data-scroll-area>
+          <div className="px-6 py-4 space-y-4">
+            {/* Name */}
+            <div className="space-y-1.5">
+              <Label>{t("projectName")} <span className="text-destructive">*</span></Label>
+              <Input
+                value={name}
+                onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: "" })); }}
+                placeholder={t("projectNamePlaceholder")}
+                className={cn(errors.name && "border-destructive")}
+              />
+              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
-          </div>
 
-          {/* File attachment configuration */}
-          <div className="rounded-lg border border-dashed p-4 space-y-3 bg-muted/30">
-            <div className="flex items-center gap-2">
-              <Settings2 className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">{t("fileConfig")}</span>
+            {/* Description */}
+            <div className="space-y-1.5">
+              <Label>{t("common:description")}</Label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t("descriptionPlaceholder")}
+                rows={2}
+              />
             </div>
-            <div>
-              <Label>{t("maxFilesPerItem")}</Label>
-              <p className="text-xs text-muted-foreground mb-1">{t("maxFilesPerItemHint")}</p>
-              <Select value={String(maxFilesPerItem)} onValueChange={(v) => setMaxFilesPerItem(Number(v))}>
-                <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {[1,2,3,5,10,15,20].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t("allowedFileTypes")}</Label>
-              <p className="text-xs text-muted-foreground mb-2">{t("allowedFileTypesHint")}</p>
-              <div className="space-y-2">
-                {[
-                  { label: t("fileGroupDocuments"), exts: ["pdf","doc","docx","xls","xlsx","ppt","pptx"] },
-                  { label: t("fileGroupImages"), exts: ["jpg","jpeg","png","gif","webp","bmp","tiff","svg"] },
-                  { label: t("fileGroupGeo"), exts: ["kml","kmz","gpx"] },
-                  { label: t("fileGroupOther"), exts: ["zip"] },
-                ].map((group) => {
-                  const allChecked = group.exts.every(e => allowedExtensions.includes(e));
-                  const someChecked = group.exts.some(e => allowedExtensions.includes(e));
-                  return (
-                    <div key={group.label} className="flex items-center gap-2">
-                      <Checkbox
-                        checked={allChecked ? true : someChecked ? "indeterminate" : false}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setAllowedExtensions(prev => [...new Set([...prev, ...group.exts])]);
-                          } else {
-                            setAllowedExtensions(prev => prev.filter(e => !group.exts.includes(e)));
-                          }
-                        }}
-                      />
-                      <span className="text-sm">{group.label}</span>
-                      <span className="text-xs text-muted-foreground">({group.exts.map(e => `.${e}`).join(", ")})</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
 
-          {!project && templates.length > 0 && (
-            <div className="rounded-lg border border-dashed p-4 space-y-3 bg-muted/30">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="use-template"
-                  checked={useTemplate}
-                  onCheckedChange={(c) => {
-                    setUseTemplate(!!c);
-                    if (!c) setSelectedTemplateId("");
-                  }}
-                />
-                <label htmlFor="use-template" className="text-sm font-medium flex items-center gap-2 cursor-pointer">
-                  <ListChecks className="h-4 w-4 text-primary" />
-                  {t("useTemplate")}
-                </label>
-              </div>
-              {useTemplate && (
-                <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("selectTemplate")} />
-                  </SelectTrigger>
+            {/* Fiscal year + Status */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>{t("fiscalYear")}</Label>
+                <Select value={String(fiscalYear)} onValueChange={(v) => setFiscalYear(Number(v))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {templates.map((tmpl) => (
-                      <SelectItem key={tmpl.id} value={tmpl.id}>
-                        {tmpl.name}
-                      </SelectItem>
-                    ))}
+                    {years.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
                   </SelectContent>
                 </Select>
-              )}
-              {useTemplate && selectedTemplateId && (
-                <p className="text-xs text-muted-foreground">
-                  {templates.find((t) => t.id === selectedTemplateId)?.description}
-                </p>
-              )}
+              </div>
+              <div className="space-y-1.5">
+                <Label>{t("common:status")} <span className="text-destructive">*</span></Label>
+                <Select value={statusId} onValueChange={(v) => { setStatusId(v); setErrors(prev => ({ ...prev, status: "" })); }}>
+                  <SelectTrigger className={cn(errors.status && "border-destructive")}>
+                    <SelectValue placeholder={t("selectStatus")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {errors.status && <p className="text-xs text-destructive">{errors.status}</p>}
+              </div>
             </div>
-          )}
-        </div>
-        <DialogFooter>
+
+            {/* Dates */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>{t("startDate")}</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal text-sm h-10">
+                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="truncate">{format(startDate, "dd/MM/yyyy", { locale: dateLocale })}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={startDate} onSelect={(d) => d && setStartDate(d)} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-1.5">
+                <Label>{t("estimatedEndDate")}</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal text-sm h-10", !endDate && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="truncate">{endDate ? format(endDate, "dd/MM/yyyy", { locale: dateLocale }) : t("selectDate")}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Restrictive */}
+            <div className="flex items-start gap-2 py-1">
+              <Checkbox
+                id="is-restrictive"
+                checked={isRestrictive}
+                onCheckedChange={(c) => setIsRestrictive(!!c)}
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <label htmlFor="is-restrictive" className="text-sm font-medium cursor-pointer leading-tight">{t("isRestrictive")}</label>
+                <p className="text-xs text-muted-foreground leading-tight">{t("isRestrictiveHint")}</p>
+              </div>
+            </div>
+
+            {/* File config */}
+            <div className="rounded-lg border border-dashed p-3 space-y-3 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Settings2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-sm font-medium">{t("fileConfig")}</span>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">{t("maxFilesPerItem")}</Label>
+                <p className="text-xs text-muted-foreground">{t("maxFilesPerItemHint")}</p>
+                <Select value={String(maxFilesPerItem)} onValueChange={(v) => setMaxFilesPerItem(Number(v))}>
+                  <SelectTrigger className="w-24 h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {[1,2,3,5,10,15,20].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">{t("allowedFileTypes")}</Label>
+                <p className="text-xs text-muted-foreground">{t("allowedFileTypesHint")}</p>
+                <div className="space-y-1.5">
+                  {fileGroups.map((group) => {
+                    const allChecked = group.exts.every(e => allowedExtensions.includes(e));
+                    const someChecked = group.exts.some(e => allowedExtensions.includes(e));
+                    return (
+                      <div key={group.label} className="flex items-center gap-2">
+                        <Checkbox
+                          checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setAllowedExtensions(prev => [...new Set([...prev, ...group.exts])]);
+                            } else {
+                              setAllowedExtensions(prev => prev.filter(e => !group.exts.includes(e)));
+                            }
+                          }}
+                        />
+                        <span className="text-xs">{group.label}</span>
+                        <span className="text-[10px] text-muted-foreground">({group.exts.map(e => `.${e}`).join(", ")})</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Template */}
+            {!project && templates.length > 0 && (
+              <div className={cn(
+                "rounded-lg border border-dashed p-3 space-y-3 bg-muted/30",
+                errors.template && "border-destructive"
+              )}>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="use-template"
+                    checked={useTemplate}
+                    onCheckedChange={(c) => {
+                      setUseTemplate(!!c);
+                      if (!c) { setSelectedTemplateId(""); setErrors(prev => ({ ...prev, template: "" })); }
+                    }}
+                  />
+                  <label htmlFor="use-template" className="text-sm font-medium flex items-center gap-2 cursor-pointer">
+                    <ListChecks className="h-4 w-4 text-primary" />
+                    {t("useTemplate")}
+                  </label>
+                </div>
+                {useTemplate && (
+                  <Select value={selectedTemplateId} onValueChange={(v) => { setSelectedTemplateId(v); setErrors(prev => ({ ...prev, template: "" })); }}>
+                    <SelectTrigger className={cn(errors.template && "border-destructive")}>
+                      <SelectValue placeholder={t("selectTemplate")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {templates.map((tmpl) => (
+                        <SelectItem key={tmpl.id} value={tmpl.id}>{tmpl.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {errors.template && <p className="text-xs text-destructive">{errors.template}</p>}
+                {useTemplate && selectedTemplateId && (
+                  <p className="text-xs text-muted-foreground">
+                    {templates.find((t) => t.id === selectedTemplateId)?.description}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* Sticky footer */}
+        <div className="px-6 py-4 border-t shrink-0 flex justify-end gap-2 bg-background">
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:cancel")}</Button>
           <Button onClick={handleSave} disabled={saving}>{saving ? t("common:saving") : t("common:save")}</Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
