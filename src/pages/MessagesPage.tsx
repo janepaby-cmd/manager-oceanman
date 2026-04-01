@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useTranslation } from "react-i18next";
 import { useInboxMessages, useSentMessages, useBoardMessages } from "@/hooks/useMessages";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +13,7 @@ import MessageManage from "@/components/messages/MessageManage";
 
 export default function MessagesPage() {
   const { hasRole } = useAuth();
+  const { can } = usePermissions();
   const { t } = useTranslation("messages");
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "inbox";
@@ -21,6 +23,7 @@ export default function MessagesPage() {
   const { data: boardData = [], isLoading: boardLoading } = useBoardMessages();
 
   const isAdmin = hasRole("superadmin") || hasRole("admin");
+  const canCompose = can("create", "messages");
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
