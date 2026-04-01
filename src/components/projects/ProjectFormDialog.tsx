@@ -240,43 +240,44 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
         <div className="flex-1 min-h-0 overflow-y-auto" data-scroll-area>
           <div className="px-4 py-3 space-y-3">
             {/* Name */}
-            <div className="space-y-1.5">
-              <Label>{t("projectName")} <span className="text-destructive">*</span></Label>
+            <div className="space-y-1">
+              <Label className="text-xs">{t("projectName")} <span className="text-destructive">*</span></Label>
               <Input
                 value={name}
                 onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: "" })); }}
                 placeholder={t("projectNamePlaceholder")}
-                className={cn(errors.name && "border-destructive")}
+                className={cn("h-8 text-sm", errors.name && "border-destructive")}
               />
               {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
 
             {/* Description */}
-            <div className="space-y-1.5">
-              <Label>{t("common:description")}</Label>
+            <div className="space-y-1">
+              <Label className="text-xs">{t("common:description")}</Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t("descriptionPlaceholder")}
                 rows={2}
+                className="text-sm min-h-[56px]"
               />
             </div>
 
             {/* Fiscal year + Status */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label>{t("fiscalYear")}</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">{t("fiscalYear")}</Label>
                 <Select value={String(fiscalYear)} onValueChange={(v) => setFiscalYear(Number(v))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {years.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5">
-                <Label>{t("common:status")} <span className="text-destructive">*</span></Label>
+              <div className="space-y-1">
+                <Label className="text-xs">{t("common:status")} <span className="text-destructive">*</span></Label>
                 <Select value={statusId} onValueChange={(v) => { setStatusId(v); setErrors(prev => ({ ...prev, status: "" })); }}>
-                  <SelectTrigger className={cn(errors.status && "border-destructive")}>
+                  <SelectTrigger className={cn("h-8 text-sm", errors.status && "border-destructive")}>
                     <SelectValue placeholder={t("selectStatus")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -288,13 +289,13 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label>{t("startDate")}</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">{t("startDate")}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal text-sm h-10">
-                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                    <Button variant="outline" className="w-full justify-start text-left font-normal text-xs h-8">
+                      <CalendarIcon className="mr-1.5 h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{format(startDate, "dd/MM/yyyy", { locale: dateLocale })}</span>
                     </Button>
                   </PopoverTrigger>
@@ -303,12 +304,12 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="space-y-1.5">
-                <Label>{t("estimatedEndDate")}</Label>
+              <div className="space-y-1">
+                <Label className="text-xs">{t("estimatedEndDate")}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal text-sm h-10", !endDate && "text-muted-foreground")}>
-                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal text-xs h-8", !endDate && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-1.5 h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{endDate ? format(endDate, "dd/MM/yyyy", { locale: dateLocale }) : t("selectDate")}</span>
                     </Button>
                   </PopoverTrigger>
@@ -320,44 +321,42 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
             </div>
 
             {/* Restrictive */}
-            <div className="flex items-start gap-2 py-1">
+            <div className="flex items-start gap-2">
               <Checkbox
                 id="is-restrictive"
                 checked={isRestrictive}
                 onCheckedChange={(c) => setIsRestrictive(!!c)}
                 className="mt-0.5"
               />
-              <div className="space-y-0.5">
-                <label htmlFor="is-restrictive" className="text-sm font-medium cursor-pointer leading-tight">{t("isRestrictive")}</label>
-                <p className="text-xs text-muted-foreground leading-tight">{t("isRestrictiveHint")}</p>
+              <div>
+                <label htmlFor="is-restrictive" className="text-xs font-medium cursor-pointer leading-tight">{t("isRestrictive")}</label>
+                <p className="text-[11px] text-muted-foreground leading-tight">{t("isRestrictiveHint")}</p>
               </div>
             </div>
 
             {/* File config */}
-            <div className="rounded-lg border border-dashed p-3 space-y-3 bg-muted/30">
-              <div className="flex items-center gap-2">
-                <Settings2 className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-sm font-medium">{t("fileConfig")}</span>
+            <div className="rounded-md border border-dashed p-2.5 space-y-2 bg-muted/30">
+              <div className="flex items-center gap-1.5">
+                <Settings2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span className="text-xs font-medium">{t("fileConfig")}</span>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">{t("maxFilesPerItem")}</Label>
-                <p className="text-xs text-muted-foreground">{t("maxFilesPerItemHint")}</p>
+              <div className="space-y-1">
+                <Label className="text-[11px]">{t("maxFilesPerItem")}</Label>
                 <Select value={String(maxFilesPerItem)} onValueChange={(v) => setMaxFilesPerItem(Number(v))}>
-                  <SelectTrigger className="w-24 h-9"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-20 h-7 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {[1,2,3,5,10,15,20].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">{t("allowedFileTypes")}</Label>
-                <p className="text-xs text-muted-foreground">{t("allowedFileTypesHint")}</p>
-                <div className="space-y-1.5">
+              <div className="space-y-1">
+                <Label className="text-[11px]">{t("allowedFileTypes")}</Label>
+                <div className="space-y-1">
                   {fileGroups.map((group) => {
                     const allChecked = group.exts.every(e => allowedExtensions.includes(e));
                     const someChecked = group.exts.some(e => allowedExtensions.includes(e));
                     return (
-                      <div key={group.label} className="flex items-center gap-2">
+                      <div key={group.label} className="flex items-center gap-1.5">
                         <Checkbox
                           checked={allChecked ? true : someChecked ? "indeterminate" : false}
                           onCheckedChange={(checked) => {
@@ -367,8 +366,9 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
                               setAllowedExtensions(prev => prev.filter(e => !group.exts.includes(e)));
                             }
                           }}
+                          className="h-3.5 w-3.5"
                         />
-                        <span className="text-xs">{group.label}</span>
+                        <span className="text-[11px]">{group.label}</span>
                         <span className="text-[10px] text-muted-foreground">({group.exts.map(e => `.${e}`).join(", ")})</span>
                       </div>
                     );
@@ -380,15 +380,15 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
             {/* Template - obligatorio solo en creación */}
             {!project && templates.length > 0 && (
               <div className={cn(
-                "rounded-lg border border-dashed p-3 space-y-3 bg-muted/30",
+                "rounded-md border border-dashed p-2.5 space-y-2 bg-muted/30",
                 errors.template && "border-destructive"
               )}>
-                <div className="flex items-center gap-2">
-                  <ListChecks className="h-4 w-4 text-primary shrink-0" />
-                  <span className="text-sm font-medium">{t("useTemplate")} <span className="text-destructive">*</span></span>
+                <div className="flex items-center gap-1.5">
+                  <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-xs font-medium">{t("useTemplate")} <span className="text-destructive">*</span></span>
                 </div>
                 <Select value={selectedTemplateId} onValueChange={(v) => { setSelectedTemplateId(v); setErrors(prev => ({ ...prev, template: "" })); }}>
-                  <SelectTrigger className={cn(errors.template && "border-destructive")}>
+                  <SelectTrigger className={cn("h-8 text-sm", errors.template && "border-destructive")}>
                     <SelectValue placeholder={t("selectTemplate")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -399,19 +399,19 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
                 </Select>
                 {errors.template && <p className="text-xs text-destructive">{errors.template}</p>}
                 {selectedTemplateId && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     {templates.find((t) => t.id === selectedTemplateId)?.description}
                   </p>
                 )}
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Sticky footer */}
-        <div className="px-6 py-4 border-t shrink-0 flex justify-end gap-2 bg-background">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:cancel")}</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? t("common:saving") : t("common:save")}</Button>
+        <div className="px-4 py-3 border-t shrink-0 flex justify-end gap-2 bg-background">
+          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>{t("common:cancel")}</Button>
+          <Button size="sm" onClick={handleSave} disabled={saving}>{saving ? t("common:saving") : t("common:save")}</Button>
         </div>
       </DialogContent>
     </Dialog>
