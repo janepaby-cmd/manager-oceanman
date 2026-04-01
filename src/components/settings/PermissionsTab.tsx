@@ -39,6 +39,7 @@ export function PermissionsTab() {
     can_read: t("permissions.actions.read", "Consultar"),
     can_update: t("permissions.actions.update", "Editar"),
     can_delete: t("permissions.actions.delete", "Eliminar"),
+    can_complete: t("permissions.actions.complete", "Completar"),
   };
 
   const fetchPermissions = async () => {
