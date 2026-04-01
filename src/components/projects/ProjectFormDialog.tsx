@@ -230,15 +230,15 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 flex flex-col max-h-[90dvh] gap-0">
+      <DialogContent className="sm:max-w-md p-0 flex flex-col max-h-[90dvh] gap-0">
         {/* Fixed header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
-          <DialogTitle>{project ? t("editProject") : t("newProject")}</DialogTitle>
+        <DialogHeader className="px-4 pt-4 pb-2 border-b shrink-0">
+          <DialogTitle className="text-base">{project ? t("editProject") : t("newProject")}</DialogTitle>
         </DialogHeader>
 
         {/* Scrollable body */}
-        <ScrollArea className="flex-1 min-h-0" data-scroll-area>
-          <div className="px-6 py-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto" data-scroll-area>
+          <div className="px-4 py-3 space-y-3">
             {/* Name */}
             <div className="space-y-1.5">
               <Label>{t("projectName")} <span className="text-destructive">*</span></Label>
