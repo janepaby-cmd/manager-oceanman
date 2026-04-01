@@ -155,7 +155,7 @@ export default function Dashboard() {
                   <div
                     key={project.id}
                     className="glass-card p-5 space-y-3 cursor-pointer hover:border-primary/40 transition-colors"
-                    onClick={() => navigate("/dashboard/projects")}
+                    onClick={() => navigate(`/dashboard/projects?open=${project.id}`)}
                   >
                     <div className="flex items-start justify-between">
                       <h3 className="font-semibold text-foreground">{project.name}</h3>
