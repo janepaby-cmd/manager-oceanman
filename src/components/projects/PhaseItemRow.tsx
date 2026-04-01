@@ -179,7 +179,7 @@ export default function PhaseItemRow({ item, canManage, canComplete = false, onU
         <div className="flex items-start gap-2">
           <div className="pt-0.5 shrink-0">
             {typeCode === "checkbox" && (
-              <Checkbox checked={item.is_completed} onCheckedChange={toggleCheckbox} />
+              <Checkbox checked={item.is_completed} onCheckedChange={toggleCheckbox} disabled={!canComplete && !canManage} />
             )}
             {typeCode === "file" && (
               item.is_completed ? <Check className="h-4 w-4 text-green-500" /> : <FileText className="h-4 w-4 text-muted-foreground" />
