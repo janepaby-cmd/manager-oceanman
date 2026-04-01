@@ -53,7 +53,7 @@ export default function RecipientSelector({
     ? "admin"
     : hasRole("manager")
     ? "manager"
-    : "user";
+    : "franquicias";
 
   const allowedScopes = ALLOWED_SCOPES[userRole] || ["user"];
 
