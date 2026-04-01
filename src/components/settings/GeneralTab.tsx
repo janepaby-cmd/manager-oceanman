@@ -189,6 +189,58 @@ export function GeneralTab() {
         </CardContent>
       </Card>
 
+      {/* Email Sender Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            {t("general.senderConfigTitle")}
+          </CardTitle>
+          <CardDescription>{t("general.senderConfigDesc")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="senderName">{t("general.senderName")}</Label>
+            <Input
+              id="senderName"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              placeholder={t("general.senderNamePlaceholder")}
+              className="max-w-md"
+            />
+            <p className="text-xs text-muted-foreground">{t("general.senderNameHint")}</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="senderAddress">{t("general.senderAddress")}</Label>
+            <Input
+              id="senderAddress"
+              type="email"
+              value={senderAddress}
+              onChange={(e) => setSenderAddress(e.target.value)}
+              placeholder={t("general.senderAddressPlaceholder")}
+              className="max-w-md"
+            />
+            <p className="text-xs text-muted-foreground">{t("general.senderAddressHint")}</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="replyTo">{t("general.replyTo")}</Label>
+            <Input
+              id="replyTo"
+              type="email"
+              value={replyTo}
+              onChange={(e) => setReplyTo(e.target.value)}
+              placeholder={t("general.replyToPlaceholder")}
+              className="max-w-md"
+            />
+            <p className="text-xs text-muted-foreground">{t("general.replyToHint")}</p>
+          </div>
+          <Button onClick={handleSaveEmailConfig} disabled={savingEmail} className="mt-2">
+            {savingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {t("general.save")}
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Email Test Section */}
       <Card>
         <CardHeader>
