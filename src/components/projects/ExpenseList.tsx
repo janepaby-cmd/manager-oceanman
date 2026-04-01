@@ -30,7 +30,7 @@ interface Props {
 
 const PAGE_SIZE = 10;
 
-export default function ExpenseList({ projectId, canManage }: Props) {
+export default function ExpenseList({ projectId, canManage, canEdit = canManage, canDelete = canManage }: Props) {
   const { t, i18n } = useTranslation(["expenses", "common"]);
   const dateLocale = i18n.language === "es" ? es : undefined;
   const [expenses, setExpenses] = useState<any[]>([]);
