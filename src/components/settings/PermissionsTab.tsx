@@ -115,12 +115,7 @@ export function PermissionsTab() {
                       <TableHead className="min-w-[140px]">{t("permissions.module", "Módulo")}</TableHead>
                       {Object.entries(actionLabels).map(([key, label]) => (
                         <TableHead key={key} className="text-center min-w-[80px]">{label}</TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
+                   </TableHeader>
                   <TableBody>
                     {MODULES.map((mod) => {
                       const perm = rolePerms.find((p) => p.module === mod);
