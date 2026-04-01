@@ -96,9 +96,11 @@ export default function MessagesPage() {
             />
           </TabsContent>
 
-          <TabsContent value="compose">
-            <MessageCompose onSent={() => handleTabChange("sent")} />
-          </TabsContent>
+          {canCompose && (
+            <TabsContent value="compose">
+              <MessageCompose onSent={() => handleTabChange("sent")} />
+            </TabsContent>
+          )}
 
           {isAdmin && (
             <TabsContent value="manage">
