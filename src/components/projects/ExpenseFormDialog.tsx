@@ -195,12 +195,7 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90dvh] flex flex-col gap-2 touch-none" onTouchMove={(e) => {
-        // Allow scrolling only inside the scrollable content area
-        const target = e.target as HTMLElement;
-        const scrollable = target.closest('[data-scroll-area]');
-        if (!scrollable) e.preventDefault();
-      }}>
+      <DialogContent className="sm:max-w-lg max-h-[90dvh] flex flex-col gap-2">
         <DialogHeader className="shrink-0">
           <DialogTitle>{isEditing ? t("editExpense") : t("newExpense")}</DialogTitle>
           {!isEditing && (
