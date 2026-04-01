@@ -101,17 +101,23 @@
   /* Mobile-only: block pinch-zoom and overscroll bounce */
   @media (pointer: coarse) {
     html {
-      touch-action: pan-x pan-y;
-      -ms-touch-action: pan-x pan-y;
+      touch-action: manipulation;
       overscroll-behavior: none;
     }
     body {
       overscroll-behavior: none;
     }
+
+    /* Prevent iOS zoom on input focus — mobile only */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
 
-  input, select, textarea {
-    font-size: 16px !important; /* Prevent iOS zoom on focus */
+  /* Dialog/modal scroll isolation */
+  [data-scroll-area] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 }
 
