@@ -39,12 +39,13 @@ export function usePermissions() {
         if (!roles.includes(row.role as any)) continue;
         const key = row.module;
         if (!merged[key]) {
-          merged[key] = { can_create: false, can_read: false, can_update: false, can_delete: false };
+          merged[key] = { can_create: false, can_read: false, can_update: false, can_delete: false, can_complete: false };
         }
         if (row.can_create) merged[key].can_create = true;
         if (row.can_read) merged[key].can_read = true;
         if (row.can_update) merged[key].can_update = true;
         if (row.can_delete) merged[key].can_delete = true;
+        if ((row as any).can_complete) merged[key].can_complete = true;
       }
       setPermMap(merged);
       setLoading(false);
