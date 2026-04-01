@@ -34,7 +34,11 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
   const [fiscalYear, setFiscalYear] = useState(new Date().getFullYear());
   const [statusId, setStatusId] = useState("");
   const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>(() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+    return d;
+  });
   const [saving, setSaving] = useState(false);
   const [isRestrictive, setIsRestrictive] = useState(false);
   const [maxFilesPerItem, setMaxFilesPerItem] = useState(5);
