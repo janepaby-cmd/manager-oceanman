@@ -55,10 +55,12 @@ export default function MessagesPage() {
               <Megaphone className="h-4 w-4" />
               <span className="hidden sm:inline">{t("board")}</span>
             </TabsTrigger>
-            <TabsTrigger value="compose" className="gap-1.5 text-xs sm:text-sm">
-              <PenSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("compose")}</span>
-            </TabsTrigger>
+            {canCompose && (
+              <TabsTrigger value="compose" className="gap-1.5 text-xs sm:text-sm">
+                <PenSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("compose")}</span>
+              </TabsTrigger>
+            )}
             {isAdmin && (
               <TabsTrigger value="manage" className="gap-1.5 text-xs sm:text-sm">
                 <Settings2 className="h-4 w-4" />
