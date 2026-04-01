@@ -15,4 +15,4 @@ export function getRoleLabel(role: AppRole, lang: string = "es"): string {
   return lang === "en" ? labels.en : labels.es;
 }
 
-export const APP_ROLES: AppRole[] = ["superadmin", "admin", "manager", "user"];
+export const APP_ROLES: AppRole[] = ["superadmin", "admin", "manager", "franquicias"];
