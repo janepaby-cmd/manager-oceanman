@@ -49,6 +49,21 @@ export function GeneralTab() {
     setSavingName(false);
   };
 
+  const handleSaveEmailConfig = async () => {
+    setSavingEmail(true);
+    try {
+      await Promise.all([
+        updateSetting.mutateAsync({ key: "email_sender_name", value: senderName.trim() || null }),
+        updateSetting.mutateAsync({ key: "email_sender_address", value: senderAddress.trim() || null }),
+        updateSetting.mutateAsync({ key: "email_reply_to", value: replyTo.trim() || null }),
+      ]);
+      toast({ title: t("general.emailConfigSaved") });
+    } catch {
+      toast({ title: t("general.emailConfigError"), variant: "destructive" });
+    }
+    setSavingEmail(false);
+  };
+
   const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
