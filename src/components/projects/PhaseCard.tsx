@@ -97,9 +97,11 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                  </Button>
+                  {canDelete && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
