@@ -294,7 +294,7 @@ export function UsersTab() {
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(u)}>
                       <Pencil className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedRole("user"); setRoleDialog({ user: u, action: "assign" }); }}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedRole("franquicias"); setRoleDialog({ user: u, action: "assign" }); }}>
                       <ShieldPlus className="h-3 w-3" />
                     </Button>
                     {u.roles.length > 0 && (
