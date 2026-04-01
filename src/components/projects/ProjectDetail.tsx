@@ -22,6 +22,7 @@ interface Props {
 
 export default function ProjectDetail({ projectId, onBack }: Props) {
   const { hasRole } = useAuth();
+  const { can } = usePermissions();
   const { t, i18n } = useTranslation(["projects", "common"]);
   const [project, setProject] = useState<any>(null);
   const [phases, setPhases] = useState<any[]>([]);
@@ -31,7 +32,10 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [docsRefreshKey, setDocsRefreshKey] = useState(0);
   const [showUsers, setShowUsers] = useState(false);
 
-  const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
+  const canManageProject = can("update", "projects");
+  const canCreatePhase = can("create", "phases");
+  const canEditPhase = can("update", "phases");
+  const canDeletePhase = can("delete", "phases");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProject = useCallback(async () => {
