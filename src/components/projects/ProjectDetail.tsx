@@ -139,7 +139,9 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                 <PhaseCard
                   key={phase.id}
                   phase={phase}
-                  canManage={canManage}
+                  canManage={canEditPhase}
+                  canDelete={canDeletePhase}
+                  canCreateItems={canCreatePhase}
                   isLocked={isLocked}
                   maxFiles={project.max_files_per_item || 5}
                   allowedExtensions={project.allowed_file_extensions || undefined}
