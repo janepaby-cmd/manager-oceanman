@@ -6,7 +6,7 @@ const ROLE_LABELS: Record<AppRole, { en: string; es: string }> = {
   superadmin: { en: "Super Admin", es: "Super Admin" },
   admin: { en: "Administrator", es: "Administrador" },
   manager: { en: "Project Manager", es: "Project Manager" },
-  user: { en: "User", es: "Usuario" },
+  franquicias: { en: "Franchise", es: "Franquicias" },
 };
 
 export function getRoleLabel(role: AppRole, lang: string = "es"): string {
