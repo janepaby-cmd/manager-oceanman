@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +22,7 @@ interface Props {
 
 export default function ProjectDetail({ projectId, onBack }: Props) {
   const { hasRole } = useAuth();
+  const { can } = usePermissions();
   const { t, i18n } = useTranslation(["projects", "common"]);
   const [project, setProject] = useState<any>(null);
   const [phases, setPhases] = useState<any[]>([]);
@@ -30,7 +32,10 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [docsRefreshKey, setDocsRefreshKey] = useState(0);
   const [showUsers, setShowUsers] = useState(false);
 
-  const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
+  const canManageProject = can("update", "projects");
+  const canCreatePhase = can("create", "phases");
+  const canEditPhase = can("update", "phases");
+  const canDeletePhase = can("delete", "phases");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProject = useCallback(async () => {
@@ -74,12 +79,12 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         {status && (
           <Badge className="shrink-0" style={{ backgroundColor: status.color, color: "#fff" }}>{status.name}</Badge>
         )}
-        {canManage && (
+        {canManageProject && (
           <Button variant="outline" size="sm" onClick={() => setShowUsers(true)} className="shrink-0 hidden sm:flex">
             <Users className="h-4 w-4 mr-2" /> {t("users")}
           </Button>
         )}
-        {canManage && (
+        {canManageProject && (
           <Button variant="outline" size="icon" onClick={() => setShowUsers(true)} className="shrink-0 sm:hidden h-8 w-8">
             <Users className="h-4 w-4" />
           </Button>
@@ -115,7 +120,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{t("phases")}</h3>
-          {canManage && (
+          {canCreatePhase && (
             <Button size="sm" onClick={() => { setEditPhase(null); setShowPhaseForm(true); }}>
               <Plus className="h-4 w-4 mr-2" /> {t("newPhase")}
             </Button>
@@ -134,7 +139,9 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                 <PhaseCard
                   key={phase.id}
                   phase={phase}
-                  canManage={canManage}
+                  canManage={canEditPhase}
+                  canDelete={canDeletePhase}
+                  canCreateItems={canCreatePhase}
                   isLocked={isLocked}
                   maxFiles={project.max_files_per_item || 5}
                   allowedExtensions={project.allowed_file_extensions || undefined}
@@ -150,7 +157,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
 
       <ProjectDocuments projectId={projectId} refreshKey={docsRefreshKey} />
 
-      <ExpenseList projectId={projectId} canManage={canManage} />
+      <ExpenseList projectId={projectId} canManage={can("create", "expenses")} canEdit={can("update", "expenses")} canDelete={can("delete", "expenses")} />
 
       <PhaseFormDialog
         open={showPhaseForm}

@@ -4,7 +4,26 @@
     "general": "General",
     "users": "Users",
     "roles": "Roles",
+    "permissions": "Permissions",
     "templates": "Templates"
+  },
+  "permissions": {
+    "module": "Module",
+    "modules": {
+      "projects": "Projects",
+      "phases": "Phases & Items",
+      "expenses": "Expenses",
+      "messages": "Messages"
+    },
+    "actions": {
+      "create": "Create",
+      "read": "Read",
+      "update": "Edit",
+      "delete": "Delete"
+    },
+    "description": "Configure CRUD permissions for each role and application module. Superadmin always has full access.",
+    "superadminProtected": "Superadmin permissions cannot be modified",
+    "updated": "Permission updated"
   },
   "generalComingSoon": "General system settings coming soon.",
   "general": {

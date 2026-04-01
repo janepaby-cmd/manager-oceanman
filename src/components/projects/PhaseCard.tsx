@@ -18,6 +18,8 @@ import {
 interface Props {
   phase: any;
   canManage: boolean;
+  canDelete?: boolean;
+  canCreateItems?: boolean;
   isLocked?: boolean;
   maxFiles?: number;
   allowedExtensions?: string[];
@@ -26,7 +28,7 @@ interface Props {
   onUpdated: () => void;
 }
 
-export default function PhaseCard({ phase, canManage, isLocked = false, maxFiles, allowedExtensions, onEdit, onDeleted, onUpdated }: Props) {
+export default function PhaseCard({ phase, canManage, canDelete = canManage, canCreateItems = canManage, isLocked = false, maxFiles, allowedExtensions, onEdit, onDeleted, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
@@ -95,9 +97,11 @@ export default function PhaseCard({ phase, canManage, isLocked = false, maxFiles
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                  </Button>
+                  {canDelete && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
@@ -119,7 +123,7 @@ export default function PhaseCard({ phase, canManage, isLocked = false, maxFiles
                   allowedExtensions={allowedExtensions}
                 />
               ))}
-              {canManage && (
+              {canCreateItems && (
                 <Button variant="outline" size="sm" className="w-full" onClick={() => { setEditItem(null); setShowItemForm(true); }}>
                   <Plus className="h-3.5 w-3.5 mr-2" /> {t("addItem")}
                 </Button>

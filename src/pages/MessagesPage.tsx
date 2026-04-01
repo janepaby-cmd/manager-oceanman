@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useTranslation } from "react-i18next";
 import { useInboxMessages, useSentMessages, useBoardMessages } from "@/hooks/useMessages";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +13,7 @@ import MessageManage from "@/components/messages/MessageManage";
 
 export default function MessagesPage() {
   const { hasRole } = useAuth();
+  const { can } = usePermissions();
   const { t } = useTranslation("messages");
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "inbox";
@@ -21,6 +23,7 @@ export default function MessagesPage() {
   const { data: boardData = [], isLoading: boardLoading } = useBoardMessages();
 
   const isAdmin = hasRole("superadmin") || hasRole("admin");
+  const canCompose = can("create", "messages");
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -34,7 +37,7 @@ export default function MessagesPage() {
         <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
 
         <Tabs value={tab} onValueChange={handleTabChange}>
-          <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${isAdmin ? 5 : 4}, 1fr)` }}>
+          <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${(canCompose ? 1 : 0) + (isAdmin ? 1 : 0) + 3}, 1fr)` }}>
             <TabsTrigger value="inbox" className="gap-1.5 text-xs sm:text-sm">
               <Inbox className="h-4 w-4" />
               <span className="hidden sm:inline">{t("inbox")}</span>
@@ -52,10 +55,12 @@ export default function MessagesPage() {
               <Megaphone className="h-4 w-4" />
               <span className="hidden sm:inline">{t("board")}</span>
             </TabsTrigger>
-            <TabsTrigger value="compose" className="gap-1.5 text-xs sm:text-sm">
-              <PenSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("compose")}</span>
-            </TabsTrigger>
+            {canCompose && (
+              <TabsTrigger value="compose" className="gap-1.5 text-xs sm:text-sm">
+                <PenSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("compose")}</span>
+              </TabsTrigger>
+            )}
             {isAdmin && (
               <TabsTrigger value="manage" className="gap-1.5 text-xs sm:text-sm">
                 <Settings2 className="h-4 w-4" />
@@ -91,9 +96,11 @@ export default function MessagesPage() {
             />
           </TabsContent>
 
-          <TabsContent value="compose">
-            <MessageCompose onSent={() => handleTabChange("sent")} />
-          </TabsContent>
+          {canCompose && (
+            <TabsContent value="compose">
+              <MessageCompose onSent={() => handleTabChange("sent")} />
+            </TabsContent>
+          )}
 
           {isAdmin && (
             <TabsContent value="manage">

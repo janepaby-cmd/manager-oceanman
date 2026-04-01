@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -43,6 +44,7 @@ interface Props {
 
 export default function ProjectList({ onSelectProject }: Props) {
   const { hasRole } = useAuth();
+  const { can } = usePermissions();
   const { t, i18n } = useTranslation(["projects", "common"]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
@@ -53,7 +55,9 @@ export default function ProjectList({ onSelectProject }: Props) {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>("all");
-  const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
+  const canCreate = can("create", "projects");
+  const canEdit = can("update", "projects");
+  const canDelete = can("delete", "projects");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProjects = async () => {
@@ -119,7 +123,7 @@ export default function ProjectList({ onSelectProject }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{t("list")}</h2>
-        {canManage && (
+        {canCreate && (
           <Button onClick={() => { setEditProject(null); setShowForm(true); }}>
             <Plus className="h-4 w-4 mr-2" /> {t("newProject")}
           </Button>
@@ -215,15 +219,15 @@ export default function ProjectList({ onSelectProject }: Props) {
                       <Button variant="ghost" size="icon" onClick={() => onSelectProject(p.id)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      {canManage && (
-                        <>
+                      {canEdit && (
                           <Button variant="ghost" size="icon" onClick={() => { setEditProject(p); setShowForm(true); }}>
                             <Pencil className="h-4 w-4" />
                           </Button>
+                      )}
+                      {canDelete && (
                           <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
-                        </>
                       )}
                     </TableCell>
                   </TableRow>
@@ -254,14 +258,18 @@ export default function ProjectList({ onSelectProject }: Props) {
                   <span>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</span>
                   <span>{(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items</span>
                 </div>
-                {canManage && (
+                {(canEdit || canDelete) && (
                   <div className="flex justify-end gap-1 pt-1 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditProject(p); setShowForm(true); }}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(p.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
+                    {canEdit && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditProject(p); setShowForm(true); }}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(p.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

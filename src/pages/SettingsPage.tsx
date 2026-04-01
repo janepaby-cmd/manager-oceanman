@@ -8,6 +8,7 @@ import { UsersTab } from "@/components/settings/UsersTab";
 import { RolesTab } from "@/components/settings/RolesTab";
 import { GeneralTab } from "@/components/settings/GeneralTab";
 import { TemplatesTab } from "@/components/settings/TemplatesTab";
+import { PermissionsTab } from "@/components/settings/PermissionsTab";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-const TAB_KEYS = ["general", "users", "roles", "templates"] as const;
+const TAB_KEYS = ["general", "users", "roles", "permissions", "templates"] as const;
 
 export default function SettingsPage() {
   const { hasRole, loading } = useAuth();
@@ -34,6 +35,7 @@ export default function SettingsPage() {
     general: t("tabs.general"),
     users: t("tabs.users"),
     roles: t("tabs.roles"),
+    permissions: t("tabs.permissions", "Permisos"),
     templates: t("tabs.templates"),
   };
 
@@ -74,21 +76,11 @@ export default function SettingsPage() {
             </TabsList>
           )}
 
-          <TabsContent value="general">
-            <GeneralTab />
-          </TabsContent>
-
-          <TabsContent value="users">
-            <UsersTab />
-          </TabsContent>
-
-          <TabsContent value="roles">
-            <RolesTab />
-          </TabsContent>
-
-          <TabsContent value="templates">
-            <TemplatesTab />
-          </TabsContent>
+          <TabsContent value="general"><GeneralTab /></TabsContent>
+          <TabsContent value="users"><UsersTab /></TabsContent>
+          <TabsContent value="roles"><RolesTab /></TabsContent>
+          <TabsContent value="permissions"><PermissionsTab /></TabsContent>
+          <TabsContent value="templates"><TemplatesTab /></TabsContent>
         </Tabs>
       </div>
     </DashboardLayout>

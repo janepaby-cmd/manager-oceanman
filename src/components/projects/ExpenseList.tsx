@@ -24,11 +24,13 @@ import * as XLSX from "xlsx";
 interface Props {
   projectId: string;
   canManage: boolean;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 const PAGE_SIZE = 10;
 
-export default function ExpenseList({ projectId, canManage }: Props) {
+export default function ExpenseList({ projectId, canManage, canEdit = canManage, canDelete = canManage }: Props) {
   const { t, i18n } = useTranslation(["expenses", "common"]);
   const dateLocale = i18n.language === "es" ? es : undefined;
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -220,7 +222,7 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                       <TableHead>{t("documentNumber")}</TableHead>
                       <TableHead className="text-right">{t("totalAmount")}</TableHead>
                       <TableHead>{t("ticket")}</TableHead>
-                      {canManage && <TableHead className="text-right">{t("common:actions")}</TableHead>}
+                      {(canEdit || canDelete) && <TableHead className="text-right">{t("common:actions")}</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -238,15 +240,19 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                             </a>
                           ) : "—"}
                         </TableCell>
-                        {canManage && (
+                        {(canEdit || canDelete) && (
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
-                                <Pencil className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(exp.id)}>
-                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                              </Button>
+                              {canEdit && (
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                              {canDelete && (
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(exp.id)}>
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         )}
@@ -275,14 +281,18 @@ export default function ExpenseList({ projectId, canManage }: Props) {
                             <FileText className="h-3.5 w-3.5 text-primary" />
                           </a>
                         )}
-                        {canManage && (
+                        {(canEdit || canDelete) && (
                           <>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
-                              <Pencil className="h-3 w-3" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteId(exp.id)}>
-                              <Trash2 className="h-3 w-3 text-destructive" />
-                            </Button>
+                            {canEdit && (
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                            )}
+                            {canDelete && (
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteId(exp.id)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            )}
                           </>
                         )}
                       </div>
