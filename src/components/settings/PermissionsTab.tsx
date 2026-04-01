@@ -55,7 +55,7 @@ export function PermissionsTab() {
 
   useEffect(() => { fetchPermissions(); }, []);
 
-  const togglePermission = async (perm: Permission, field: keyof Pick<Permission, "can_create" | "can_read" | "can_update" | "can_delete">) => {
+  const togglePermission = async (perm: Permission, field: keyof Pick<Permission, "can_create" | "can_read" | "can_update" | "can_delete" | "can_complete">) => {
     // Don't allow modifying superadmin permissions
     if (perm.role === "superadmin") {
       toast.error(t("permissions.superadminProtected", "Los permisos de superadmin no se pueden modificar"));
