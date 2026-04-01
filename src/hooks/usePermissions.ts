@@ -29,7 +29,7 @@ export function usePermissions() {
     const fetchPerms = async () => {
       const { data } = await supabase
         .from("role_permissions")
-        .select("role, module, can_create, can_read, can_update, can_delete");
+        .select("role, module, can_create, can_read, can_update, can_delete, can_complete");
 
       if (!data) { setLoading(false); return; }
 
