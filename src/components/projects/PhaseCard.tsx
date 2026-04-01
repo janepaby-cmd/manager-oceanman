@@ -118,6 +118,7 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
                   key={item.id}
                   item={item}
                   canManage={canManage}
+                  canComplete={canCompleteItems}
                   onUpdated={fetchItems}
                   onEdit={() => { setEditItem(item); setShowItemForm(true); }}
                   maxFiles={maxFiles}
