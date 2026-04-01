@@ -123,7 +123,7 @@ export default function ProjectList({ onSelectProject }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{t("list")}</h2>
-        {canManage && (
+        {canCreate && (
           <Button onClick={() => { setEditProject(null); setShowForm(true); }}>
             <Plus className="h-4 w-4 mr-2" /> {t("newProject")}
           </Button>
