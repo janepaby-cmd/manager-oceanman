@@ -24,6 +24,8 @@ import * as XLSX from "xlsx";
 interface Props {
   projectId: string;
   canManage: boolean;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 const PAGE_SIZE = 10;
