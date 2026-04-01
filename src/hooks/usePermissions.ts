@@ -60,13 +60,14 @@ export function usePermissions() {
     return permMap[module] || NO_ACCESS;
   };
 
-  const can = (action: "create" | "read" | "update" | "delete", module: AppModule): boolean => {
+  const can = (action: "create" | "read" | "update" | "delete" | "complete", module: AppModule): boolean => {
     const perms = getModulePermissions(module);
     switch (action) {
       case "create": return perms.can_create;
       case "read": return perms.can_read;
       case "update": return perms.can_update;
       case "delete": return perms.can_delete;
+      case "complete": return perms.can_complete;
     }
   };
 

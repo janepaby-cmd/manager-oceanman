@@ -125,7 +125,7 @@ export function PermissionsTab() {
                       return (
                         <TableRow key={mod}>
                           <TableCell className="font-medium">{moduleLabels[mod]}</TableCell>
-                          {(["can_create", "can_read", "can_update", "can_delete"] as const).map((field) => (
+                          {(["can_create", "can_read", "can_update", "can_delete", ...(mod === "phases" ? ["can_complete" as const] : [])] as const).map((field) => (
                             <TableCell key={field} className="text-center">
                               <Switch
                                 checked={perm[field]}

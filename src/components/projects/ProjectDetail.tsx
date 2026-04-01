@@ -143,6 +143,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                   canManage={canEditPhase}
                   canDelete={canDeletePhase}
                   canCreateItems={canCreatePhase}
+                  canCompleteItems={canCompleteItems}
                   isLocked={isLocked}
                   maxFiles={project.max_files_per_item || 5}
                   allowedExtensions={project.allowed_file_extensions || undefined}
