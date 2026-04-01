@@ -230,7 +230,7 @@ export function UsersTab() {
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(u)} title={t("common:edit")}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole("user"); setRoleDialog({ user: u, action: "assign" }); }} title={t("users.assignRole")}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole("franquicias"); setRoleDialog({ user: u, action: "assign" }); }} title={t("users.assignRole")}>
                         <ShieldPlus className="h-3.5 w-3.5" />
                       </Button>
                       {u.roles.length > 0 && (
