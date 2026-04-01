@@ -222,7 +222,7 @@ export default function ExpenseList({ projectId, canManage, canEdit = canManage,
                       <TableHead>{t("documentNumber")}</TableHead>
                       <TableHead className="text-right">{t("totalAmount")}</TableHead>
                       <TableHead>{t("ticket")}</TableHead>
-                      {canManage && <TableHead className="text-right">{t("common:actions")}</TableHead>}
+                      {(canEdit || canDelete) && <TableHead className="text-right">{t("common:actions")}</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
