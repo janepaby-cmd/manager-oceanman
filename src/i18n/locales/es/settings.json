@@ -4,7 +4,26 @@
     "general": "General",
     "users": "Usuarios",
     "roles": "Roles",
+    "permissions": "Permisos",
     "templates": "Plantillas"
+  },
+  "permissions": {
+    "module": "Módulo",
+    "modules": {
+      "projects": "Proyectos",
+      "phases": "Fases e ítems",
+      "expenses": "Gastos",
+      "messages": "Mensajes"
+    },
+    "actions": {
+      "create": "Crear",
+      "read": "Consultar",
+      "update": "Editar",
+      "delete": "Eliminar"
+    },
+    "description": "Configura los permisos CRUD para cada rol y módulo de la aplicación. El superadmin siempre tiene acceso completo.",
+    "superadminProtected": "Los permisos de superadmin no se pueden modificar",
+    "updated": "Permiso actualizado"
   },
   "generalComingSoon": "Configuración general del sistema próximamente.",
   "general": {
