@@ -318,7 +318,23 @@ Deno.serve(async (req) => {
       ? template.subject(templateData)
       : template.subject
 
-  // 5. Enqueue the pre-rendered email for async processing by the dispatcher.
+  // 5. Read email sender config from app_settings
+  const { data: emailSettings } = await supabase
+    .from('app_settings')
+    .select('key, value')
+    .in('key', ['email_sender_name', 'email_sender_address', 'email_reply_to'])
+
+  let configSenderName = SITE_NAME
+  let configSenderAddress = `noreply@${FROM_DOMAIN}`
+  let configReplyTo: string | null = null
+
+  emailSettings?.forEach((row: { key: string; value: string | null }) => {
+    if (row.key === 'email_sender_name' && row.value) configSenderName = row.value
+    if (row.key === 'email_sender_address' && row.value) configSenderAddress = row.value
+    if (row.key === 'email_reply_to' && row.value) configReplyTo = row.value
+  })
+
+  // 6. Enqueue the pre-rendered email for async processing by the dispatcher.
   // The dispatcher (process-email-queue) handles sending, retries, and rate-limit backoff.
 
   // Log pending BEFORE enqueue so we have a record even if enqueue crashes
@@ -334,7 +350,8 @@ Deno.serve(async (req) => {
     payload: {
       message_id: messageId,
       to: effectiveRecipient,
-      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      from: `${configSenderName} <${configSenderAddress}>`,
+      reply_to: configReplyTo,
       sender_domain: SENDER_DOMAIN,
       subject: resolvedSubject,
       html,
