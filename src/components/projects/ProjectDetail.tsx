@@ -79,12 +79,12 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         {status && (
           <Badge className="shrink-0" style={{ backgroundColor: status.color, color: "#fff" }}>{status.name}</Badge>
         )}
-        {canManage && (
+        {canManageProject && (
           <Button variant="outline" size="sm" onClick={() => setShowUsers(true)} className="shrink-0 hidden sm:flex">
             <Users className="h-4 w-4 mr-2" /> {t("users")}
           </Button>
         )}
-        {canManage && (
+        {canManageProject && (
           <Button variant="outline" size="icon" onClick={() => setShowUsers(true)} className="shrink-0 sm:hidden h-8 w-8">
             <Users className="h-4 w-4" />
           </Button>
