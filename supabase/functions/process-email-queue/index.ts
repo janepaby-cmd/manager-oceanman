@@ -1,4 +1,3 @@
-import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const MAX_RETRIES = 5
@@ -79,12 +78,12 @@ async function moveToDlq(
 }
 
 Deno.serve(async (req) => {
-  const apiKey = Deno.env.get('LOVABLE_API_KEY')
+  const brevoApiKey = Deno.env.get('BREVO_API_KEY')
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
-  if (!apiKey || !supabaseUrl || !supabaseServiceKey) {
-    console.error('Missing required environment variables')
+  if (!brevoApiKey || !supabaseUrl || !supabaseServiceKey) {
+    console.error('Missing required environment variables (BREVO_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)')
     return new Response(
       JSON.stringify({ error: 'Server configuration error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -246,26 +245,37 @@ Deno.serve(async (req) => {
       }
 
       try {
-        await sendLovableEmail(
-          {
-            run_id: payload.run_id,
-            to: payload.to,
-            from: payload.from,
-            sender_domain: payload.sender_domain,
-            subject: payload.subject,
-            html: payload.html,
-            text: payload.text,
-            purpose: payload.purpose,
-            label: payload.label,
-            idempotency_key: payload.idempotency_key,
-            unsubscribe_token: payload.unsubscribe_token,
-            message_id: payload.message_id,
+        // Parse "Name <email>" or plain email from the `from` field
+        const fromField = (payload.from as string) || ''
+        let senderName = 'OceanMan'
+        let senderEmail = fromField
+        const fromMatch = fromField.match(/^(.+?)\s*<(.+?)>$/)
+        if (fromMatch) {
+          senderName = fromMatch[1].trim()
+          senderEmail = fromMatch[2].trim()
+        }
+
+        const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'api-key': brevoApiKey,
+            'Content-Type': 'application/json',
           },
-          // sendUrl is optional — when LOVABLE_SEND_URL is not set, the library
-          // falls back to the default Lovable API endpoint (https://api.lovable.dev).
-          // Set LOVABLE_SEND_URL as a Supabase secret to override (e.g. for local dev).
-          { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
-        )
+          body: JSON.stringify({
+            sender: { name: senderName, email: senderEmail },
+            to: [{ email: payload.to }],
+            subject: payload.subject,
+            htmlContent: payload.html,
+            ...(payload.text ? { textContent: payload.text } : {}),
+          }),
+        })
+
+        if (!brevoResponse.ok) {
+          const errBody = await brevoResponse.text()
+          const err = new Error(`Brevo API error [${brevoResponse.status}]: ${errBody}`) as Error & { status: number }
+          err.status = brevoResponse.status
+          throw err
+        }
 
         // Log success
         await supabase.from('email_send_log').insert({
