@@ -9,10 +9,11 @@ interface ModulePermissions {
   can_read: boolean;
   can_update: boolean;
   can_delete: boolean;
+  can_complete: boolean;
 }
 
-const FULL_ACCESS: ModulePermissions = { can_create: true, can_read: true, can_update: true, can_delete: true };
-const NO_ACCESS: ModulePermissions = { can_create: false, can_read: false, can_update: false, can_delete: false };
+const FULL_ACCESS: ModulePermissions = { can_create: true, can_read: true, can_update: true, can_delete: true, can_complete: true };
+const NO_ACCESS: ModulePermissions = { can_create: false, can_read: false, can_update: false, can_delete: false, can_complete: false };
 
 export function usePermissions() {
   const { roles, user } = useAuth();
