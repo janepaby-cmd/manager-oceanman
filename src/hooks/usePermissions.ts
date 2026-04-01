@@ -9,10 +9,11 @@ interface ModulePermissions {
   can_read: boolean;
   can_update: boolean;
   can_delete: boolean;
+  can_complete: boolean;
 }
 
-const FULL_ACCESS: ModulePermissions = { can_create: true, can_read: true, can_update: true, can_delete: true };
-const NO_ACCESS: ModulePermissions = { can_create: false, can_read: false, can_update: false, can_delete: false };
+const FULL_ACCESS: ModulePermissions = { can_create: true, can_read: true, can_update: true, can_delete: true, can_complete: true };
+const NO_ACCESS: ModulePermissions = { can_create: false, can_read: false, can_update: false, can_delete: false, can_complete: false };
 
 export function usePermissions() {
   const { roles, user } = useAuth();
@@ -38,12 +39,13 @@ export function usePermissions() {
         if (!roles.includes(row.role as any)) continue;
         const key = row.module;
         if (!merged[key]) {
-          merged[key] = { can_create: false, can_read: false, can_update: false, can_delete: false };
+          merged[key] = { can_create: false, can_read: false, can_update: false, can_delete: false, can_complete: false };
         }
         if (row.can_create) merged[key].can_create = true;
         if (row.can_read) merged[key].can_read = true;
         if (row.can_update) merged[key].can_update = true;
         if (row.can_delete) merged[key].can_delete = true;
+        if ((row as any).can_complete) merged[key].can_complete = true;
       }
       setPermMap(merged);
       setLoading(false);
@@ -58,13 +60,14 @@ export function usePermissions() {
     return permMap[module] || NO_ACCESS;
   };
 
-  const can = (action: "create" | "read" | "update" | "delete", module: AppModule): boolean => {
+  const can = (action: "create" | "read" | "update" | "delete" | "complete", module: AppModule): boolean => {
     const perms = getModulePermissions(module);
     switch (action) {
       case "create": return perms.can_create;
       case "read": return perms.can_read;
       case "update": return perms.can_update;
       case "delete": return perms.can_delete;
+      case "complete": return perms.can_complete;
     }
   };
 

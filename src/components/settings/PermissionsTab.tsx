@@ -17,6 +17,7 @@ interface Permission {
   can_read: boolean;
   can_update: boolean;
   can_delete: boolean;
+  can_complete: boolean;
 }
 
 const MODULES = ["projects", "phases", "expenses", "messages"];
@@ -38,6 +39,7 @@ export function PermissionsTab() {
     can_read: t("permissions.actions.read", "Consultar"),
     can_update: t("permissions.actions.update", "Editar"),
     can_delete: t("permissions.actions.delete", "Eliminar"),
+    can_complete: t("permissions.actions.complete", "Completar"),
   };
 
   const fetchPermissions = async () => {
@@ -53,7 +55,7 @@ export function PermissionsTab() {
 
   useEffect(() => { fetchPermissions(); }, []);
 
-  const togglePermission = async (perm: Permission, field: keyof Pick<Permission, "can_create" | "can_read" | "can_update" | "can_delete">) => {
+  const togglePermission = async (perm: Permission, field: keyof Pick<Permission, "can_create" | "can_read" | "can_update" | "can_delete" | "can_complete">) => {
     // Don't allow modifying superadmin permissions
     if (perm.role === "superadmin") {
       toast.error(t("permissions.superadminProtected", "Los permisos de superadmin no se pueden modificar"));
@@ -131,6 +133,16 @@ export function PermissionsTab() {
                               />
                             </TableCell>
                           ))}
+                          <TableCell className="text-center">
+                            {mod === "phases" ? (
+                              <Switch
+                                checked={perm.can_complete}
+                                onCheckedChange={() => togglePermission(perm, "can_complete")}
+                              />
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
                         </TableRow>
                       );
                     })}

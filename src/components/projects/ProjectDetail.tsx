@@ -36,6 +36,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const canCreatePhase = can("create", "phases");
   const canEditPhase = can("update", "phases");
   const canDeletePhase = can("delete", "phases");
+  const canCompleteItems = can("complete", "phases");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProject = useCallback(async () => {
@@ -142,6 +143,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                   canManage={canEditPhase}
                   canDelete={canDeletePhase}
                   canCreateItems={canCreatePhase}
+                  canCompleteItems={canCompleteItems}
                   isLocked={isLocked}
                   maxFiles={project.max_files_per_item || 5}
                   allowedExtensions={project.allowed_file_extensions || undefined}

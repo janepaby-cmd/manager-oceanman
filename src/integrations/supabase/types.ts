@@ -868,6 +868,7 @@ export type Database = {
       }
       role_permissions: {
         Row: {
+          can_complete: boolean
           can_create: boolean
           can_delete: boolean
           can_read: boolean
@@ -879,6 +880,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          can_complete?: boolean
           can_create?: boolean
           can_delete?: boolean
           can_read?: boolean
@@ -890,6 +892,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          can_complete?: boolean
           can_create?: boolean
           can_delete?: boolean
           can_read?: boolean

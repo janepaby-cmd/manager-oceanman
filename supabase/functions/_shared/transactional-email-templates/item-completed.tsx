@@ -1,10 +1,16 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Preview, Text, Section, Hr,
+  Body, Container, Head, Heading, Html, Preview, Text, Section, Hr, Link,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = "manager-oceanman"
+
+interface AttachedFile {
+  name?: string
+  url?: string
+  extension?: string
+}
 
 interface ItemCompletedProps {
   projectName?: string
@@ -13,6 +19,7 @@ interface ItemCompletedProps {
   completedBy?: string
   completedAt?: string
   lang?: string
+  attachedFiles?: AttachedFile[]
 }
 
 const t = (lang: string | undefined, en: string, es: string) =>
@@ -25,6 +32,7 @@ const ItemCompletedEmail = ({
   completedBy,
   completedAt,
   lang,
+  attachedFiles,
 }: ItemCompletedProps) => (
   <Html lang={lang || 'es'} dir="ltr">
     <Head />
@@ -73,6 +81,29 @@ const ItemCompletedEmail = ({
           </Text>
         </Section>
 
+        {attachedFiles && attachedFiles.length > 0 && (
+          <Section style={filesSection}>
+            <Text style={filesSectionTitle}>
+              {t(lang, 'Attached Files', 'Archivos Adjuntos')} ({attachedFiles.length})
+            </Text>
+            {attachedFiles.map((file, index) => (
+              <Text key={index} style={fileRow}>
+                📎{' '}
+                {file.url ? (
+                  <Link href={file.url} style={fileLink}>
+                    {file.name || t(lang, 'File', 'Archivo')}
+                  </Link>
+                ) : (
+                  file.name || t(lang, 'File', 'Archivo')
+                )}
+                {file.extension && (
+                  <span style={fileExt}> .{file.extension}</span>
+                )}
+              </Text>
+            ))}
+          </Section>
+        )}
+
         <Text style={footer}>
           {t(
             lang,
@@ -99,6 +130,10 @@ export const template = {
     completedBy: 'Juan García',
     completedAt: '29/03/2026 15:30',
     lang: 'es',
+    attachedFiles: [
+      { name: 'documento-revision.pdf', url: 'https://example.com/doc.pdf', extension: 'pdf' },
+      { name: 'foto-obra.jpg', url: 'https://example.com/foto.jpg', extension: 'jpg' },
+    ],
   },
 } satisfies TemplateEntry
 
@@ -146,6 +181,34 @@ const detailLabel = {
 const divider = {
   borderColor: '#e5e7eb',
   margin: '12px 0',
+}
+const filesSection = {
+  backgroundColor: '#f0f9ff',
+  borderRadius: '8px',
+  padding: '16px 20px',
+  marginBottom: '24px',
+  border: '1px solid #bae6fd',
+}
+const filesSectionTitle = {
+  fontSize: '13px',
+  fontWeight: '600' as const,
+  color: '#0369a1',
+  margin: '0 0 10px',
+}
+const fileRow = {
+  fontSize: '13px',
+  color: '#374151',
+  margin: '0 0 6px',
+  lineHeight: '1.5',
+}
+const fileLink = {
+  color: '#0066cc',
+  textDecoration: 'underline' as const,
+}
+const fileExt = {
+  fontSize: '11px',
+  color: '#9ca3af',
+  textTransform: 'uppercase' as const,
 }
 const footer = {
   fontSize: '11px',
