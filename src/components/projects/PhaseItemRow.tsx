@@ -62,6 +62,7 @@ export default function PhaseItemRow({ item, canManage, canComplete = false, onU
   const canAddMoreFiles = files.length < maxFiles;
 
   const toggleCheckbox = async () => {
+    if (!canComplete && !canManage) return;
     const completed = !item.is_completed;
     if (completed && item.requires_file && !hasFiles) {
       toast.error(t("fileRequiredToComplete"));
