@@ -39,7 +39,7 @@ export function UsersTab() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
-  const [newRole, setNewRole] = useState<string>("user");
+  const [newRole, setNewRole] = useState<string>("franquicias");
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
