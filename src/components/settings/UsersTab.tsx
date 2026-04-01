@@ -92,7 +92,7 @@ export function UsersTab() {
       });
       toast({ title: t("users.userCreated") });
       setCreateOpen(false);
-      setNewEmail(""); setNewPassword(""); setNewName(""); setNewRole("user");
+      setNewEmail(""); setNewPassword(""); setNewName(""); setNewRole("franquicias");
       await fetchUsers();
     } catch (e: any) {
       toast({ title: t("common:error"), description: e.message, variant: "destructive" });

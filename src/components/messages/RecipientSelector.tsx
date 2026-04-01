@@ -82,8 +82,8 @@ export default function RecipientSelector({
   };
 
   const loadAvailableUsers = async () => {
-    if (userRole === "user") {
-      // User can only message managers of their projects
+    if (userRole === "franquicias") {
+      // Franchise user can only message managers of their projects
       const { data: myProjects } = await supabase
         .from("project_users")
         .select("project_id")
