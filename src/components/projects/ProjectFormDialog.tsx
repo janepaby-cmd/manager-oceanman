@@ -94,7 +94,9 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       setFiscalYear(new Date().getFullYear());
       setStatusId(statuses[0]?.id || "");
       setStartDate(new Date());
-      setEndDate(undefined);
+      const defaultEnd = new Date();
+      defaultEnd.setFullYear(defaultEnd.getFullYear() + 1);
+      setEndDate(defaultEnd);
       setIsRestrictive(false);
       setMaxFilesPerItem(5);
       setAllowedExtensions(defaultExtensions);
