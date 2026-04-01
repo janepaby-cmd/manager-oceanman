@@ -27,13 +27,13 @@ interface UserOption {
 }
 
 const ALLOWED_SCOPES: Record<string, string[]> = {
-  user: ["user"],
+  franquicias: ["user"],
   manager: ["user", "role"],
   admin: ["user", "role", "project", "global"],
   superadmin: ["user", "role", "project", "global"],
 };
 
-const ROLES_LIST = ["superadmin", "admin", "manager", "user"];
+const ROLES_LIST = ["superadmin", "admin", "manager", "franquicias"];
 
 export default function RecipientSelector({
   scopeType, onScopeChange,
