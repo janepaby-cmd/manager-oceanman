@@ -255,19 +255,26 @@ Deno.serve(async (req) => {
           senderEmail = fromMatch[2].trim()
         }
 
+        const brevoBody: Record<string, unknown> = {
+          sender: { name: senderName, email: senderEmail },
+          to: [{ email: payload.to }],
+          subject: payload.subject,
+          htmlContent: payload.html,
+          ...(payload.text ? { textContent: payload.text } : {}),
+        }
+
+        // Add reply-to if configured
+        if (payload.reply_to) {
+          brevoBody.replyTo = { email: payload.reply_to }
+        }
+
         const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
           method: 'POST',
           headers: {
             'api-key': brevoApiKey,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            sender: { name: senderName, email: senderEmail },
-            to: [{ email: payload.to }],
-            subject: payload.subject,
-            htmlContent: payload.html,
-            ...(payload.text ? { textContent: payload.text } : {}),
-          }),
+          body: JSON.stringify(brevoBody),
         })
 
         if (!brevoResponse.ok) {
