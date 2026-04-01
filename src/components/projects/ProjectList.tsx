@@ -258,14 +258,18 @@ export default function ProjectList({ onSelectProject }: Props) {
                   <span>{format(new Date(p.start_date), "dd/MM/yyyy", { locale: dateLocale })}</span>
                   <span>{(p as any).completedPhases}/{(p as any).totalPhases} {t("phases", "fases")} · {(p as any).completedItems}/{(p as any).totalItems} items</span>
                 </div>
-                {canManage && (
+                {(canEdit || canDelete) && (
                   <div className="flex justify-end gap-1 pt-1 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditProject(p); setShowForm(true); }}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(p.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
+                    {canEdit && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditProject(p); setShowForm(true); }}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(p.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
