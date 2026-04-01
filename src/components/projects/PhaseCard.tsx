@@ -20,6 +20,7 @@ interface Props {
   canManage: boolean;
   canDelete?: boolean;
   canCreateItems?: boolean;
+  canCompleteItems?: boolean;
   isLocked?: boolean;
   maxFiles?: number;
   allowedExtensions?: string[];
@@ -28,7 +29,7 @@ interface Props {
   onUpdated: () => void;
 }
 
-export default function PhaseCard({ phase, canManage, canDelete = canManage, canCreateItems = canManage, isLocked = false, maxFiles, allowedExtensions, onEdit, onDeleted, onUpdated }: Props) {
+export default function PhaseCard({ phase, canManage, canDelete = canManage, canCreateItems = canManage, canCompleteItems = false, isLocked = false, maxFiles, allowedExtensions, onEdit, onDeleted, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
