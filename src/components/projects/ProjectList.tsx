@@ -44,6 +44,7 @@ interface Props {
 
 export default function ProjectList({ onSelectProject }: Props) {
   const { hasRole } = useAuth();
+  const { can } = usePermissions();
   const { t, i18n } = useTranslation(["projects", "common"]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
@@ -54,7 +55,9 @@ export default function ProjectList({ onSelectProject }: Props) {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>("all");
-  const canManage = hasRole("superadmin") || hasRole("admin") || hasRole("manager");
+  const canCreate = can("create", "projects");
+  const canEdit = can("update", "projects");
+  const canDelete = can("delete", "projects");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProjects = async () => {
