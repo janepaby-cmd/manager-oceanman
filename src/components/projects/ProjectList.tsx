@@ -219,15 +219,15 @@ export default function ProjectList({ onSelectProject }: Props) {
                       <Button variant="ghost" size="icon" onClick={() => onSelectProject(p.id)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      {canManage && (
-                        <>
+                      {canEdit && (
                           <Button variant="ghost" size="icon" onClick={() => { setEditProject(p); setShowForm(true); }}>
                             <Pencil className="h-4 w-4" />
                           </Button>
+                      )}
+                      {canDelete && (
                           <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
-                        </>
                       )}
                     </TableCell>
                   </TableRow>
