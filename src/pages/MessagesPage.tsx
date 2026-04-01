@@ -37,7 +37,7 @@ export default function MessagesPage() {
         <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
 
         <Tabs value={tab} onValueChange={handleTabChange}>
-          <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${isAdmin ? 5 : 4}, 1fr)` }}>
+          <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${(canCompose ? 1 : 0) + (isAdmin ? 1 : 0) + 3}, 1fr)` }}>
             <TabsTrigger value="inbox" className="gap-1.5 text-xs sm:text-sm">
               <Inbox className="h-4 w-4" />
               <span className="hidden sm:inline">{t("inbox")}</span>
