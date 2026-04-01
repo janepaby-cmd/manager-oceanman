@@ -281,14 +281,18 @@ export default function ExpenseList({ projectId, canManage, canEdit = canManage,
                             <FileText className="h-3.5 w-3.5 text-primary" />
                           </a>
                         )}
-                        {canManage && (
+                        {(canEdit || canDelete) && (
                           <>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
-                              <Pencil className="h-3 w-3" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteId(exp.id)}>
-                              <Trash2 className="h-3 w-3 text-destructive" />
-                            </Button>
+                            {canEdit && (
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditExpense(exp); setShowForm(true); }}>
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                            )}
+                            {canDelete && (
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteId(exp.id)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            )}
                           </>
                         )}
                       </div>

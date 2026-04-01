@@ -123,7 +123,7 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
                   allowedExtensions={allowedExtensions}
                 />
               ))}
-              {canManage && (
+              {canCreateItems && (
                 <Button variant="outline" size="sm" className="w-full" onClick={() => { setEditItem(null); setShowItemForm(true); }}>
                   <Plus className="h-3.5 w-3.5 mr-2" /> {t("addItem")}
                 </Button>
