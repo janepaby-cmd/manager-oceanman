@@ -95,5 +95,7 @@
   "fileGroupDocuments": "Documentos",
   "fileGroupImages": "Imágenes",
   "fileGroupGeo": "Geoespacial",
-  "fileGroupOther": "Otros"
+  "fileGroupOther": "Otros",
+  "templateRequired": "Selecciona una plantilla de checklist",
+  "statusRequired": "Selecciona un estado"
 }
