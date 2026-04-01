@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { FolderKanban } from "lucide-react";
 import ProjectList from "@/components/projects/ProjectList";
@@ -6,8 +7,17 @@ import ProjectDetail from "@/components/projects/ProjectDetail";
 import { useTranslation } from "react-i18next";
 
 export default function ProjectsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const { t } = useTranslation("projects");
+
+  useEffect(() => {
+    const openId = searchParams.get("open");
+    if (openId) {
+      setSelectedProjectId(openId);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   return (
     <DashboardLayout>
