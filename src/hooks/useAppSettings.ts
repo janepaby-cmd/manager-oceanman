@@ -4,11 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 export interface AppSettings {
   app_name: string;
   logo_url: string | null;
+  email_sender_name: string;
+  email_sender_address: string;
+  email_reply_to: string | null;
 }
 
 const DEFAULTS: AppSettings = {
   app_name: "OceanMan",
   logo_url: null,
+  email_sender_name: "OceanMan",
+  email_sender_address: "noreply@manager.oceanmanswim.com",
+  email_reply_to: null,
 };
 
 export function useAppSettings() {

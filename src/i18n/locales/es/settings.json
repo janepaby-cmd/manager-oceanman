@@ -30,7 +30,20 @@
     "sendTest": "Enviar prueba",
     "testSent": "Email de prueba enviado correctamente",
     "testError": "Error al enviar email de prueba",
-    "testEmailHint": "Se enviará un correo de prueba desde el dominio configurado."
+    "testEmailHint": "Se enviará un correo de prueba desde el dominio configurado.",
+    "senderConfigTitle": "Configuración del Remitente",
+    "senderConfigDesc": "Configura el nombre, correo de salida y correo de respuestas para todos los emails enviados.",
+    "senderName": "Nombre del Remitente",
+    "senderNamePlaceholder": "ej. OceanMan",
+    "senderNameHint": "El nombre que aparece en el campo 'De' de los correos salientes.",
+    "senderAddress": "Correo del Remitente",
+    "senderAddressPlaceholder": "noreply@tudominio.com",
+    "senderAddressHint": "La dirección de correo usada como remitente en todos los emails.",
+    "replyTo": "Correo de Respuestas",
+    "replyToPlaceholder": "soporte@tudominio.com",
+    "replyToHint": "Si se configura, las respuestas se dirigirán a esta dirección en lugar del remitente.",
+    "emailConfigSaved": "Configuración de email guardada",
+    "emailConfigError": "Error al guardar configuración de email"
   },
   "users": {
     "newUser": "Nuevo usuario",

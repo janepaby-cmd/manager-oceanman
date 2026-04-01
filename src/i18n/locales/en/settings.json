@@ -30,7 +30,20 @@
     "sendTest": "Send test",
     "testSent": "Test email sent successfully",
     "testError": "Error sending test email",
-    "testEmailHint": "A test email will be sent from the configured domain."
+    "testEmailHint": "A test email will be sent from the configured domain.",
+    "senderConfigTitle": "Sender Configuration",
+    "senderConfigDesc": "Configure the sender name, email address, and reply-to address for all outgoing emails.",
+    "senderName": "Sender Name",
+    "senderNamePlaceholder": "e.g. OceanMan",
+    "senderNameHint": "The name shown in the 'From' field of outgoing emails.",
+    "senderAddress": "Sender Email",
+    "senderAddressPlaceholder": "noreply@yourdomain.com",
+    "senderAddressHint": "The email address used as the sender for all outgoing emails.",
+    "replyTo": "Reply-To Email",
+    "replyToPlaceholder": "support@yourdomain.com",
+    "replyToHint": "If set, replies will be directed to this address instead of the sender.",
+    "emailConfigSaved": "Email configuration saved",
+    "emailConfigError": "Error saving email configuration"
   },
   "users": {
     "newUser": "New user",

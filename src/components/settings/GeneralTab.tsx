@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { Loader2, Upload, Trash2, Send, Image } from "lucide-react";
+import { Loader2, Upload, Trash2, Send, Image, Mail, Save } from "lucide-react";
 
 export function GeneralTab() {
   const { settings, isLoading, updateSetting } = useAppSettings();
@@ -19,6 +19,11 @@ export function GeneralTab() {
   const [uploading, setUploading] = useState(false);
   const [savingName, setSavingName] = useState(false);
 
+  const [senderName, setSenderName] = useState("");
+  const [senderAddress, setSenderAddress] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [savingEmail, setSavingEmail] = useState(false);
+
   const [testEmail, setTestEmail] = useState("");
   const [sendingTest, setSendingTest] = useState(false);
 
@@ -26,6 +31,9 @@ export function GeneralTab() {
     if (!isLoading) {
       setAppName(settings.app_name || "");
       setLogoUrl(settings.logo_url);
+      setSenderName(settings.email_sender_name || "");
+      setSenderAddress(settings.email_sender_address || "");
+      setReplyTo(settings.email_reply_to || "");
     }
   }, [isLoading, settings]);
 
@@ -39,6 +47,21 @@ export function GeneralTab() {
       toast({ title: t("general.saveError"), variant: "destructive" });
     }
     setSavingName(false);
+  };
+
+  const handleSaveEmailConfig = async () => {
+    setSavingEmail(true);
+    try {
+      await Promise.all([
+        updateSetting.mutateAsync({ key: "email_sender_name", value: senderName.trim() || null }),
+        updateSetting.mutateAsync({ key: "email_sender_address", value: senderAddress.trim() || null }),
+        updateSetting.mutateAsync({ key: "email_reply_to", value: replyTo.trim() || null }),
+      ]);
+      toast({ title: t("general.emailConfigSaved") });
+    } catch {
+      toast({ title: t("general.emailConfigError"), variant: "destructive" });
+    }
+    setSavingEmail(false);
   };
 
   const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,6 +186,58 @@ export function GeneralTab() {
             </div>
             <p className="text-xs text-muted-foreground">{t("general.appNameHint")}</p>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Email Sender Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            {t("general.senderConfigTitle")}
+          </CardTitle>
+          <CardDescription>{t("general.senderConfigDesc")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="senderName">{t("general.senderName")}</Label>
+            <Input
+              id="senderName"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              placeholder={t("general.senderNamePlaceholder")}
+              className="max-w-md"
+            />
+            <p className="text-xs text-muted-foreground">{t("general.senderNameHint")}</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="senderAddress">{t("general.senderAddress")}</Label>
+            <Input
+              id="senderAddress"
+              type="email"
+              value={senderAddress}
+              onChange={(e) => setSenderAddress(e.target.value)}
+              placeholder={t("general.senderAddressPlaceholder")}
+              className="max-w-md"
+            />
+            <p className="text-xs text-muted-foreground">{t("general.senderAddressHint")}</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="replyTo">{t("general.replyTo")}</Label>
+            <Input
+              id="replyTo"
+              type="email"
+              value={replyTo}
+              onChange={(e) => setReplyTo(e.target.value)}
+              placeholder={t("general.replyToPlaceholder")}
+              className="max-w-md"
+            />
+            <p className="text-xs text-muted-foreground">{t("general.replyToHint")}</p>
+          </div>
+          <Button onClick={handleSaveEmailConfig} disabled={savingEmail} className="mt-2">
+            {savingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {t("general.save")}
+          </Button>
         </CardContent>
       </Card>
 
