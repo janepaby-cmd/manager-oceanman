@@ -19,6 +19,11 @@ export function GeneralTab() {
   const [uploading, setUploading] = useState(false);
   const [savingName, setSavingName] = useState(false);
 
+  const [senderName, setSenderName] = useState("");
+  const [senderAddress, setSenderAddress] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [savingEmail, setSavingEmail] = useState(false);
+
   const [testEmail, setTestEmail] = useState("");
   const [sendingTest, setSendingTest] = useState(false);
 
