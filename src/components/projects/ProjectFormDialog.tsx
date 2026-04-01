@@ -104,7 +104,7 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = t("nameRequired");
     if (!statusId) errs.status = t("statusRequired");
-    if (useTemplate && !selectedTemplateId) errs.template = t("templateRequired");
+    if (!project && templates.length > 0 && !selectedTemplateId) errs.template = t("templateRequired");
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
