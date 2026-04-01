@@ -27,13 +27,13 @@ interface UserOption {
 }
 
 const ALLOWED_SCOPES: Record<string, string[]> = {
-  user: ["user"],
+  franquicias: ["user"],
   manager: ["user", "role"],
   admin: ["user", "role", "project", "global"],
   superadmin: ["user", "role", "project", "global"],
 };
 
-const ROLES_LIST = ["superadmin", "admin", "manager", "user"];
+const ROLES_LIST = ["superadmin", "admin", "manager", "franquicias"];
 
 export default function RecipientSelector({
   scopeType, onScopeChange,
@@ -53,7 +53,7 @@ export default function RecipientSelector({
     ? "admin"
     : hasRole("manager")
     ? "manager"
-    : "user";
+    : "franquicias";
 
   const allowedScopes = ALLOWED_SCOPES[userRole] || ["user"];
 
@@ -82,8 +82,8 @@ export default function RecipientSelector({
   };
 
   const loadAvailableUsers = async () => {
-    if (userRole === "user") {
-      // User can only message managers of their projects
+    if (userRole === "franquicias") {
+      // Franchise user can only message managers of their projects
       const { data: myProjects } = await supabase
         .from("project_users")
         .select("project_id")

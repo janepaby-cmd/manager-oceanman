@@ -39,7 +39,7 @@ export function UsersTab() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
-  const [newRole, setNewRole] = useState<string>("user");
+  const [newRole, setNewRole] = useState<string>("franquicias");
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -92,7 +92,7 @@ export function UsersTab() {
       });
       toast({ title: t("users.userCreated") });
       setCreateOpen(false);
-      setNewEmail(""); setNewPassword(""); setNewName(""); setNewRole("user");
+      setNewEmail(""); setNewPassword(""); setNewName(""); setNewRole("franquicias");
       await fetchUsers();
     } catch (e: any) {
       toast({ title: t("common:error"), description: e.message, variant: "destructive" });
@@ -230,7 +230,7 @@ export function UsersTab() {
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(u)} title={t("common:edit")}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole("user"); setRoleDialog({ user: u, action: "assign" }); }} title={t("users.assignRole")}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedRole("franquicias"); setRoleDialog({ user: u, action: "assign" }); }} title={t("users.assignRole")}>
                         <ShieldPlus className="h-3.5 w-3.5" />
                       </Button>
                       {u.roles.length > 0 && (
@@ -294,7 +294,7 @@ export function UsersTab() {
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(u)}>
                       <Pencil className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedRole("user"); setRoleDialog({ user: u, action: "assign" }); }}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedRole("franquicias"); setRoleDialog({ user: u, action: "assign" }); }}>
                       <ShieldPlus className="h-3 w-3" />
                     </Button>
                     {u.roles.length > 0 && (
