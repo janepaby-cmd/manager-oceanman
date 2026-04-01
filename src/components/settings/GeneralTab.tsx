@@ -31,6 +31,9 @@ export function GeneralTab() {
     if (!isLoading) {
       setAppName(settings.app_name || "");
       setLogoUrl(settings.logo_url);
+      setSenderName(settings.email_sender_name || "");
+      setSenderAddress(settings.email_sender_address || "");
+      setReplyTo(settings.email_reply_to || "");
     }
   }, [isLoading, settings]);
 
