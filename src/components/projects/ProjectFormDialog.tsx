@@ -371,40 +371,28 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
               </div>
             </div>
 
-            {/* Template */}
+            {/* Template - obligatorio solo en creación */}
             {!project && templates.length > 0 && (
               <div className={cn(
                 "rounded-lg border border-dashed p-3 space-y-3 bg-muted/30",
                 errors.template && "border-destructive"
               )}>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="use-template"
-                    checked={useTemplate}
-                    onCheckedChange={(c) => {
-                      setUseTemplate(!!c);
-                      if (!c) { setSelectedTemplateId(""); setErrors(prev => ({ ...prev, template: "" })); }
-                    }}
-                  />
-                  <label htmlFor="use-template" className="text-sm font-medium flex items-center gap-2 cursor-pointer">
-                    <ListChecks className="h-4 w-4 text-primary" />
-                    {t("useTemplate")}
-                  </label>
+                  <ListChecks className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-sm font-medium">{t("useTemplate")} <span className="text-destructive">*</span></span>
                 </div>
-                {useTemplate && (
-                  <Select value={selectedTemplateId} onValueChange={(v) => { setSelectedTemplateId(v); setErrors(prev => ({ ...prev, template: "" })); }}>
-                    <SelectTrigger className={cn(errors.template && "border-destructive")}>
-                      <SelectValue placeholder={t("selectTemplate")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templates.map((tmpl) => (
-                        <SelectItem key={tmpl.id} value={tmpl.id}>{tmpl.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                <Select value={selectedTemplateId} onValueChange={(v) => { setSelectedTemplateId(v); setErrors(prev => ({ ...prev, template: "" })); }}>
+                  <SelectTrigger className={cn(errors.template && "border-destructive")}>
+                    <SelectValue placeholder={t("selectTemplate")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((tmpl) => (
+                      <SelectItem key={tmpl.id} value={tmpl.id}>{tmpl.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.template && <p className="text-xs text-destructive">{errors.template}</p>}
-                {useTemplate && selectedTemplateId && (
+                {selectedTemplateId && (
                   <p className="text-xs text-muted-foreground">
                     {templates.find((t) => t.id === selectedTemplateId)?.description}
                   </p>
