@@ -24,13 +24,14 @@ interface ItemFile {
 interface Props {
   item: any;
   canManage: boolean;
+  canComplete?: boolean;
   onUpdated: () => void;
   onEdit: () => void;
   maxFiles?: number;
   allowedExtensions?: string[];
 }
 
-export default function PhaseItemRow({ item, canManage, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
+export default function PhaseItemRow({ item, canManage, canComplete = false, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
   const { user, profile } = useAuth();
   const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
