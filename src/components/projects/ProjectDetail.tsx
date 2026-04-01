@@ -157,7 +157,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
 
       <ProjectDocuments projectId={projectId} refreshKey={docsRefreshKey} />
 
-      <ExpenseList projectId={projectId} canManage={canManage} />
+      <ExpenseList projectId={projectId} canManage={can("create", "expenses")} canEdit={can("update", "expenses")} canDelete={can("delete", "expenses")} />
 
       <PhaseFormDialog
         open={showPhaseForm}
