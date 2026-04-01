@@ -120,7 +120,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{t("phases")}</h3>
-          {canManage && (
+          {canCreatePhase && (
             <Button size="sm" onClick={() => { setEditPhase(null); setShowPhaseForm(true); }}>
               <Plus className="h-4 w-4 mr-2" /> {t("newPhase")}
             </Button>
