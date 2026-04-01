@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { Loader2, Upload, Trash2, Send, Image } from "lucide-react";
+import { Loader2, Upload, Trash2, Send, Image, Mail, Save } from "lucide-react";
 
 export function GeneralTab() {
   const { settings, isLoading, updateSetting } = useAppSettings();
