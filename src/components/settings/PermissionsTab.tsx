@@ -118,6 +118,9 @@ export function PermissionsTab() {
                       ))}
                     </TableRow>
                   </TableHeader>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
                     {MODULES.map((mod) => {
                       const perm = rolePerms.find((p) => p.module === mod);
