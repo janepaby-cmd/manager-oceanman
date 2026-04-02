@@ -52,12 +52,14 @@ export default function ProjectList({ onSelectProject }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteCascadeInfo, setDeleteCascadeInfo] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>("all");
   const canCreate = can("create", "projects");
   const canEdit = can("update", "projects");
-  const canDelete = can("delete", "projects");
+  const canDelete = hasRole("superadmin"); // Only superadmin can delete projects
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProjects = async () => {
