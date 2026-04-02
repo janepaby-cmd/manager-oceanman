@@ -17,19 +17,14 @@ import {
   Reply,
   Pencil,
   X,
-  AtSign,
   Check,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 
 interface Comment {
   id: string;
@@ -67,9 +62,16 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
-  const [showMentions, setShowMentions] = useState(false);
   const [sending, setSending] = useState(false);
+
+  // Inline mention state
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [mentionIsEdit, setMentionIsEdit] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -111,12 +113,7 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
 
   const getInitials = (userId: string) => {
     const name = getUserName(userId);
-    return name
-      .split(" ")
-      .map((w) => w[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
   };
 
   const extractMentions = (text: string): string[] => {
@@ -128,23 +125,87 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
   };
 
   const renderBody = (text: string) => {
-    // Replace @[Name](id) with styled mention
-    return text.replace(/@\[([^\]]+)\]\(([^)]+)\)/g, (_, name) => {
-      return `<span class="text-primary font-medium">@${name}</span>`;
+    const escaped = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    const withMentions = escaped.replace(
+      /@\[([^\]]+)\]\(([^)]+)\)/g,
+      '<span class="text-primary font-medium">@$1</span>'
+    );
+    return DOMPurify.sanitize(withMentions, { ALLOWED_TAGS: ["span"], ALLOWED_ATTR: ["class"] });
+  };
+
+  // --- Mention logic ---
+  const filteredMentionUsers = mentionQuery !== null
+    ? projectUsers.filter((u) => {
+        if (u.user_id === user?.id) return false;
+        const q = mentionQuery.toLowerCase();
+        if (!q) return true; // show all on empty query
+        return (u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
+      })
+    : [];
+
+  const insertMention = (u: ProjectUser, isEdit: boolean) => {
+    const setter = isEdit ? setEditBody : setBody;
+    const ref = isEdit ? editTextareaRef : textareaRef;
+    const cursorPos = ref.current?.selectionStart ?? 0;
+
+    setter((prev) => {
+      const before = prev.slice(0, cursorPos);
+      const atIdx = before.lastIndexOf("@");
+      if (atIdx === -1) return prev;
+      const after = prev.slice(cursorPos);
+      const mentionText = `@[${u.full_name || u.email}](${u.user_id}) `;
+      return before.slice(0, atIdx) + mentionText + after;
     });
+    closeMentions();
+    setTimeout(() => ref.current?.focus(), 0);
   };
 
-  const insertMention = (u: ProjectUser) => {
-    const mention = `@[${u.full_name || u.email}](${u.user_id}) `;
-    if (editingId) {
-      setEditBody((prev) => prev + mention);
+  const closeMentions = () => {
+    setMentionQuery(null);
+    setMentionIndex(0);
+  };
+
+  const detectMention = (value: string, cursorPos: number) => {
+    const before = value.slice(0, cursorPos);
+    // Match @ preceded by start or whitespace, followed by word chars (the search query)
+    const match = before.match(/(?:^|\s)@(\w{0,20})$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setMentionIndex(0);
     } else {
-      setBody((prev) => prev + mention);
+      closeMentions();
     }
-    setShowMentions(false);
-    textareaRef.current?.focus();
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, isEdit: boolean) => {
+    const value = e.target.value;
+    if (isEdit) setEditBody(value);
+    else setBody(value);
+    setMentionIsEdit(isEdit);
+    const cursorPos = e.target.selectionStart ?? value.length;
+    detectMention(value, cursorPos);
+  };
+
+  const handleMentionKeyDown = (e: React.KeyboardEvent, isEdit: boolean) => {
+    if (mentionQuery === null || filteredMentionUsers.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setMentionIndex((i) => Math.min(i + 1, filteredMentionUsers.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setMentionIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      insertMention(filteredMentionUsers[mentionIndex], isEdit);
+    } else if (e.key === "Escape") {
+      closeMentions();
+    }
+  };
+
+  // --- CRUD ---
   const handleSend = async () => {
     if (!body.trim() || !user) return;
     setSending(true);
@@ -158,6 +219,7 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
     } as any);
     setBody("");
     setReplyTo(null);
+    closeMentions();
     await fetchComments();
     setSending(false);
   };
@@ -171,63 +233,69 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
       .eq("id", id);
     setEditingId(null);
     setEditBody("");
+    closeMentions();
     await fetchComments();
   };
 
+  // --- Helpers ---
   const parentComments = comments.filter((c) => !c.parent_comment_id);
   const getReplies = (parentId: string) =>
-    comments.filter((c) => c.parent_comment_id === parentId).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-
-  const getReferencedComment = (parentId: string | null) => {
-    if (!parentId) return null;
-    return comments.find((c) => c.id === parentId) || null;
-  };
-
+    comments.filter((c) => c.parent_comment_id === parentId).sort((a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  const getReferencedComment = (parentId: string | null) =>
+    parentId ? comments.find((c) => c.id === parentId) || null : null;
   const formatDate = (d: string) => format(new Date(d), "dd MMM yyyy HH:mm", { locale });
-
   const wasEdited = (c: Comment) => c.updated_at !== c.created_at;
 
-  const MentionPopover = () => (
-    <Popover open={showMentions} onOpenChange={setShowMentions}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" type="button">
-          <AtSign className="h-3.5 w-3.5" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-52 p-1" align="start">
-        <div className="max-h-40 overflow-y-auto">
-          {projectUsers
-            .filter((u) => u.user_id !== user?.id)
-            .map((u) => (
-              <button
-                key={u.user_id}
-                className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent truncate"
-                onClick={() => insertMention(u)}
-              >
-                {u.full_name || u.email}
-              </button>
-            ))}
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
+  // --- Mention dropdown ---
+  const MentionDropdown = () => {
+    if (mentionQuery === null || filteredMentionUsers.length === 0) return null;
+    return (
+      <div className="absolute bottom-full left-0 mb-1 z-50 bg-popover border rounded-md shadow-md py-1 w-56 max-h-40 overflow-y-auto">
+        {filteredMentionUsers.map((u, i) => (
+          <button
+            key={u.user_id}
+            className={cn(
+              "w-full text-left px-2 py-1.5 text-xs truncate",
+              i === mentionIndex ? "bg-accent text-accent-foreground" : "hover:bg-accent"
+            )}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              insertMention(u, mentionIsEdit);
+            }}
+          >
+            <span className="font-medium">{u.full_name || u.email}</span>
+            {u.full_name && u.email && (
+              <span className="text-muted-foreground ml-1 text-[10px]">({u.email})</span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  };
 
+  // --- Comment bubble ---
   const CommentBubble = ({ c }: { c: Comment }) => {
     const isOwn = c.user_id === user?.id;
-    const ref = getReferencedComment(c.parent_comment_id);
+    const refComment = getReferencedComment(c.parent_comment_id);
 
     if (editingId === c.id) {
       return (
-        <div className="flex flex-col gap-1 w-full">
-          <Textarea
-            value={editBody}
-            onChange={(e) => setEditBody(e.target.value)}
-            className="min-h-[48px] text-xs resize-none"
-            rows={2}
-          />
+        <div className="flex flex-col gap-1 w-full relative">
+          <div className="relative">
+            <Textarea
+              ref={editTextareaRef}
+              value={editBody}
+              onChange={(e) => handleTextChange(e, true)}
+              onKeyDown={(e) => handleMentionKeyDown(e, true)}
+              className="min-h-[48px] text-xs resize-none"
+              rows={2}
+            />
+            {mentionIsEdit && <MentionDropdown />}
+          </div>
           <div className="flex gap-1 justify-end">
-            <MentionPopover />
-            <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => setEditingId(null)}>
+            <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => { setEditingId(null); closeMentions(); }}>
               <X className="h-3 w-3 mr-1" /> {t("common:cancel")}
             </Button>
             <Button size="sm" className="h-6 text-xs" onClick={() => handleUpdate(c.id)}>
@@ -251,9 +319,9 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
               <span className="text-[10px] text-muted-foreground italic">({t("commentEdited")} {formatDate(c.updated_at)})</span>
             )}
           </div>
-          {ref && (
+          {refComment && (
             <div className="border-l-2 border-primary/30 pl-2 my-1 text-[11px] text-muted-foreground italic truncate">
-              ↩ {getUserName(ref.user_id)}: {ref.body.replace(/@\[([^\]]+)\]\([^)]+\)/g, "@$1").slice(0, 60)}
+              ↩ {getUserName(refComment.user_id)}: {refComment.body.replace(/@\[([^\]]+)\]\([^)]+\)/g, "@$1").slice(0, 60)}
             </div>
           )}
           <p
@@ -265,10 +333,7 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
               variant="ghost"
               size="sm"
               className="h-5 px-1.5 text-[10px]"
-              onClick={() => {
-                setReplyTo(c);
-                textareaRef.current?.focus();
-              }}
+              onClick={() => { setReplyTo(c); textareaRef.current?.focus(); }}
             >
               <Reply className="h-3 w-3 mr-0.5" /> {t("commentReply")}
             </Button>
@@ -277,10 +342,7 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
                 variant="ghost"
                 size="sm"
                 className="h-5 px-1.5 text-[10px]"
-                onClick={() => {
-                  setEditingId(c.id);
-                  setEditBody(c.body);
-                }}
+                onClick={() => { setEditingId(c.id); setEditBody(c.body); }}
               >
                 <Pencil className="h-3 w-3 mr-0.5" /> {t("commentEdit")}
               </Button>
@@ -306,7 +368,7 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
 
       <CollapsibleContent className="mt-2 space-y-3 animate-in slide-in-from-top-1">
         {/* New comment input */}
-        <div className="space-y-1.5">
+        <div className="space-y-1.5" ref={containerRef}>
           {replyTo && (
             <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-muted/50 rounded px-2 py-1">
               <Reply className="h-3 w-3 shrink-0" />
@@ -318,24 +380,25 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
               </Button>
             </div>
           )}
-          <div className="flex gap-1.5 items-end">
-            <Textarea
-              ref={textareaRef}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder={t("commentPlaceholder")}
-              className="min-h-[36px] text-xs resize-none flex-1"
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSend();
-              }}
-            />
-            <div className="flex flex-col gap-0.5">
-              <MentionPopover />
-              <Button size="icon" className="h-7 w-7 shrink-0" onClick={handleSend} disabled={!body.trim() || sending}>
-                <Send className="h-3.5 w-3.5" />
-              </Button>
+          <div className="flex gap-1.5 items-end relative">
+            <div className="relative flex-1">
+              <Textarea
+                ref={textareaRef}
+                value={body}
+                onChange={(e) => handleTextChange(e, false)}
+                onKeyDown={(e) => {
+                  handleMentionKeyDown(e, false);
+                  if (mentionQuery === null && e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSend();
+                }}
+                placeholder={t("commentPlaceholder")}
+                className="min-h-[36px] text-xs resize-none w-full"
+                rows={1}
+              />
+              {!mentionIsEdit && <MentionDropdown />}
             </div>
+            <Button size="icon" className="h-7 w-7 shrink-0" onClick={handleSend} disabled={!body.trim() || sending}>
+              <Send className="h-3.5 w-3.5" />
+            </Button>
           </div>
         </div>
 
