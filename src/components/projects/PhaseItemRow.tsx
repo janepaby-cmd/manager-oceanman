@@ -8,6 +8,7 @@ import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X } from "
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
+import ItemComments from "./ItemComments";
 import { notifyItemCompleted } from "@/lib/notifyItemCompleted";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -23,6 +24,7 @@ interface ItemFile {
 
 interface Props {
   item: any;
+  projectId: string;
   canManage: boolean;
   canComplete?: boolean;
   onUpdated: () => void;
@@ -31,7 +33,7 @@ interface Props {
   allowedExtensions?: string[];
 }
 
-export default function PhaseItemRow({ item, canManage, canComplete = false, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
+export default function PhaseItemRow({ item, projectId, canManage, canComplete = false, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
   const { user, profile } = useAuth();
   const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
@@ -39,6 +41,7 @@ export default function PhaseItemRow({ item, canManage, canComplete = false, onU
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<ItemFile[]>([]);
+  const [commentCount, setCommentCount] = useState(0);
   const typeCode = item.phase_item_types?.code;
 
   const acceptString = allowedExtensions?.length
@@ -56,6 +59,14 @@ export default function PhaseItemRow({ item, canManage, canComplete = false, onU
 
   useEffect(() => {
     fetchFiles();
+    // Fetch initial comment count
+    supabase
+      .from("phase_item_comments")
+      .select("id", { count: "exact", head: true })
+      .eq("item_id", item.id)
+      .then(({ count }) => {
+        if (count !== null) setCommentCount(count);
+      });
   }, [item.id]);
 
   const hasFiles = files.length > 0;
@@ -260,6 +271,16 @@ export default function PhaseItemRow({ item, canManage, canComplete = false, onU
             ))}
           </div>
         )}
+
+        {/* Row 4: Comments */}
+        <div className="ml-6">
+          <ItemComments
+            itemId={item.id}
+            projectId={projectId}
+            commentCount={commentCount}
+            onCountChange={setCommentCount}
+          />
+        </div>
       </div>
 
       <SignatureDialog open={showSignature} onOpenChange={setShowSignature} onSave={handleSignatureSaved} />

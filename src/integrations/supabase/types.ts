@@ -483,6 +483,54 @@ export type Database = {
           },
         ]
       }
+      phase_item_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          item_id: string
+          mentioned_user_ids: string[] | null
+          parent_comment_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          item_id: string
+          mentioned_user_ids?: string[] | null
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          mentioned_user_ids?: string[] | null
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phase_item_comments_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "phase_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phase_item_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "phase_item_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phase_item_files: {
         Row: {
           created_at: string

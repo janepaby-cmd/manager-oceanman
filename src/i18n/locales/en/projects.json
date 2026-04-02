@@ -97,5 +97,12 @@
   "fileGroupGeo": "Geospatial",
   "fileGroupOther": "Other",
   "templateRequired": "Please select a checklist template",
-  "statusRequired": "Please select a status"
+  "statusRequired": "Please select a status",
+  "comments": "Comments",
+  "noComments": "No comments yet",
+  "commentPlaceholder": "Write a comment...",
+  "commentReply": "Reply",
+  "commentEdit": "Edit",
+  "commentEdited": "edited",
+  "commentReplyingTo": "Replying to"
 }
