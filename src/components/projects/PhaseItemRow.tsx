@@ -41,6 +41,7 @@ export default function PhaseItemRow({ item, projectId, canManage, canComplete =
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<ItemFile[]>([]);
+  const [commentCount, setCommentCount] = useState(0);
   const typeCode = item.phase_item_types?.code;
 
   const acceptString = allowedExtensions?.length
