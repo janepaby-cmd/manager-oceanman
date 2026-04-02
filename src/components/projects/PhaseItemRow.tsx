@@ -271,6 +271,16 @@ export default function PhaseItemRow({ item, projectId, canManage, canComplete =
             ))}
           </div>
         )}
+
+        {/* Row 4: Comments */}
+        <div className="ml-6">
+          <ItemComments
+            itemId={item.id}
+            projectId={projectId}
+            commentCount={commentCount}
+            onCountChange={setCommentCount}
+          />
+        </div>
       </div>
 
       <SignatureDialog open={showSignature} onOpenChange={setShowSignature} onSave={handleSignatureSaved} />
