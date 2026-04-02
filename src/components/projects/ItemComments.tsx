@@ -138,83 +138,104 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
     });
   };
 
-  const insertMention = (u: ProjectUser) => {
-    const mention = `@[${u.full_name || u.email}](${u.user_id}) `;
-    if (editingId) {
-      setEditBody((prev) => prev + mention);
+  const insertMention = (u: ProjectUser, isEdit = false) => {
+    const setter = isEdit ? setEditBody : setBody;
+    const ref = isEdit ? editTextareaRef : textareaRef;
+    setter((prev) => {
+      // Find the @ trigger position by looking backwards from cursor
+      const cursorPos = ref.current?.selectionStart ?? prev.length;
+      const before = prev.slice(0, cursorPos);
+      const atIdx = before.lastIndexOf("@");
+      if (atIdx === -1) return prev + `@[${u.full_name || u.email}](${u.user_id}) `;
+      const after = prev.slice(cursorPos);
+      return before.slice(0, atIdx) + `@[${u.full_name || u.email}](${u.user_id}) ` + after;
+    });
+    setMentionQuery(null);
+    setMentionPos(null);
+    setTimeout(() => ref.current?.focus(), 0);
+  };
+
+  const filteredMentionUsers = mentionQuery !== null
+    ? projectUsers.filter((u) => {
+        if (u.user_id === user?.id) return false;
+        const q = mentionQuery.toLowerCase();
+        return (u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
+      })
+    : [];
+
+  const handleTextChange = (value: string, isEdit = false) => {
+    if (isEdit) setEditBody(value);
+    else setBody(value);
+
+    const ref = isEdit ? editTextareaRef : textareaRef;
+    const cursorPos = ref.current?.selectionStart ?? value.length;
+    const before = value.slice(0, cursorPos);
+
+    // Check if there's a @ trigger: @ preceded by start-of-string or whitespace, followed by non-space chars
+    const match = before.match(/(?:^|\s)@(\w*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setMentionIndex(0);
+      // Position the dropdown near the textarea
+      if (ref.current && containerRef.current) {
+        const rect = ref.current.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
+        setMentionPos({
+          top: rect.bottom - containerRect.top + 4,
+          left: rect.left - containerRect.left,
+        });
+      }
     } else {
-      setBody((prev) => prev + mention);
+      setMentionQuery(null);
+      setMentionPos(null);
     }
-    setShowMentions(false);
-    textareaRef.current?.focus();
   };
 
-  const handleSend = async () => {
-    if (!body.trim() || !user) return;
-    setSending(true);
-    const mentions = extractMentions(body);
-    await supabase.from("phase_item_comments").insert({
-      item_id: itemId,
-      user_id: user.id,
-      body: body.trim(),
-      parent_comment_id: replyTo?.id || null,
-      mentioned_user_ids: mentions,
-    } as any);
-    setBody("");
-    setReplyTo(null);
-    await fetchComments();
-    setSending(false);
+  const handleMentionKeyDown = (e: React.KeyboardEvent, isEdit = false) => {
+    if (mentionQuery === null || filteredMentionUsers.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setMentionIndex((i) => Math.min(i + 1, filteredMentionUsers.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setMentionIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      insertMention(filteredMentionUsers[mentionIndex], isEdit);
+    } else if (e.key === "Escape") {
+      setMentionQuery(null);
+      setMentionPos(null);
+    }
   };
 
-  const handleUpdate = async (id: string) => {
-    if (!editBody.trim()) return;
-    const mentions = extractMentions(editBody);
-    await supabase
-      .from("phase_item_comments")
-      .update({ body: editBody.trim(), mentioned_user_ids: mentions, updated_at: new Date().toISOString() } as any)
-      .eq("id", id);
-    setEditingId(null);
-    setEditBody("");
-    await fetchComments();
+  const MentionDropdown = ({ isEdit = false }: { isEdit?: boolean }) => {
+    if (mentionQuery === null || filteredMentionUsers.length === 0 || !mentionPos) return null;
+    return (
+      <div
+        className="absolute z-50 bg-popover border rounded-md shadow-md py-1 w-52 max-h-40 overflow-y-auto"
+        style={{ top: mentionPos.top, left: mentionPos.left }}
+      >
+        {filteredMentionUsers.map((u, i) => (
+          <button
+            key={u.user_id}
+            className={cn(
+              "w-full text-left px-2 py-1.5 text-xs truncate",
+              i === mentionIndex ? "bg-accent text-accent-foreground" : "hover:bg-accent"
+            )}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              insertMention(u, isEdit);
+            }}
+          >
+            <span className="font-medium">{u.full_name || u.email}</span>
+            {u.full_name && u.email && (
+              <span className="text-muted-foreground ml-1">({u.email})</span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
   };
-
-  const parentComments = comments.filter((c) => !c.parent_comment_id);
-  const getReplies = (parentId: string) =>
-    comments.filter((c) => c.parent_comment_id === parentId).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-
-  const getReferencedComment = (parentId: string | null) => {
-    if (!parentId) return null;
-    return comments.find((c) => c.id === parentId) || null;
-  };
-
-  const formatDate = (d: string) => format(new Date(d), "dd MMM yyyy HH:mm", { locale });
-
-  const wasEdited = (c: Comment) => c.updated_at !== c.created_at;
-
-  const MentionPopover = () => (
-    <Popover open={showMentions} onOpenChange={setShowMentions}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" type="button">
-          <AtSign className="h-3.5 w-3.5" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-52 p-1" align="start">
-        <div className="max-h-40 overflow-y-auto">
-          {projectUsers
-            .filter((u) => u.user_id !== user?.id)
-            .map((u) => (
-              <button
-                key={u.user_id}
-                className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent truncate"
-                onClick={() => insertMention(u)}
-              >
-                {u.full_name || u.email}
-              </button>
-            ))}
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
 
   const CommentBubble = ({ c }: { c: Comment }) => {
     const isOwn = c.user_id === user?.id;
