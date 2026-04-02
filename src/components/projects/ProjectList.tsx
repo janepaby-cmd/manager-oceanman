@@ -325,8 +325,6 @@ export default function ProjectList({ onSelectProject }: Props) {
             ))}
           </div>
         </>
-      )}
-
       <ProjectFormDialog
         open={showForm}
         onOpenChange={setShowForm}
