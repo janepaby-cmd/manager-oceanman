@@ -59,6 +59,14 @@ export default function PhaseItemRow({ item, projectId, canManage, canComplete =
 
   useEffect(() => {
     fetchFiles();
+    // Fetch initial comment count
+    supabase
+      .from("phase_item_comments")
+      .select("id", { count: "exact", head: true })
+      .eq("item_id", item.id)
+      .then(({ count }) => {
+        if (count !== null) setCommentCount(count);
+      });
   }, [item.id]);
 
   const hasFiles = files.length > 0;
