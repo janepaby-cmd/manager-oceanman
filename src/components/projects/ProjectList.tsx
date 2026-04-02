@@ -273,9 +273,10 @@ export default function ProjectList({ onSelectProject }: Props) {
                           </Button>
                       )}
                       {canDelete && (
-                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleRequestDelete(p.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
+                      )}
                       )}
                     </TableCell>
                   </TableRow>
