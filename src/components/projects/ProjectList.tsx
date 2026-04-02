@@ -102,12 +102,58 @@ export default function ProjectList({ onSelectProject }: Props) {
 
   useEffect(() => { fetchProjects(); }, []);
 
+  const fetchDeleteCascadeInfo = async (projectId: string) => {
+    const [phasesRes, expensesRes, usersRes] = await Promise.all([
+      supabase.from("project_phases").select("id").eq("project_id", projectId),
+      supabase.from("project_expenses").select("id").eq("project_id", projectId),
+      supabase.from("project_users").select("id").eq("project_id", projectId),
+    ]);
+
+    const phaseIds = (phasesRes.data || []).map((p: any) => p.id);
+    let totalItems = 0, totalComments = 0, totalFiles = 0;
+
+    if (phaseIds.length > 0) {
+      const [itemsRes] = await Promise.all([
+        supabase.from("phase_items").select("id").in("phase_id", phaseIds),
+      ]);
+      const itemIds = (itemsRes.data || []).map((i: any) => i.id);
+      totalItems = itemIds.length;
+
+      if (itemIds.length > 0) {
+        const [commentsRes, filesRes] = await Promise.all([
+          supabase.from("phase_item_comments").select("id").in("item_id", itemIds),
+          supabase.from("phase_item_files").select("id").in("item_id", itemIds),
+        ]);
+        totalComments = (commentsRes.data || []).length;
+        totalFiles = (filesRes.data || []).length;
+      }
+    }
+
+    return {
+      phases: phaseIds.length,
+      items: totalItems,
+      comments: totalComments,
+      files: totalFiles,
+      expenses: (expensesRes.data || []).length,
+      users: (usersRes.data || []).length,
+    };
+  };
+
+  const handleRequestDelete = async (projectId: string) => {
+    setDeleteId(projectId);
+    const info = await fetchDeleteCascadeInfo(projectId);
+    setDeleteCascadeInfo(info);
+  };
+
   const handleDelete = async () => {
     if (!deleteId) return;
+    setDeleting(true);
     const { error } = await supabase.from("projects").delete().eq("id", deleteId);
     if (error) toast.error(t("errorDeleting"));
     else { toast.success(t("projectDeleted")); fetchProjects(); }
     setDeleteId(null);
+    setDeleteCascadeInfo(null);
+    setDeleting(false);
   };
 
   const years = [...new Set(projects.map((p) => p.fiscal_year))].sort((a, b) => b - a);
