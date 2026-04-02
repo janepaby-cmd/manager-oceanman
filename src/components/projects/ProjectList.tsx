@@ -52,12 +52,14 @@ export default function ProjectList({ onSelectProject }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteCascadeInfo, setDeleteCascadeInfo] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>("all");
   const canCreate = can("create", "projects");
   const canEdit = can("update", "projects");
-  const canDelete = can("delete", "projects");
+  const canDelete = hasRole("superadmin"); // Only superadmin can delete projects
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProjects = async () => {
@@ -100,12 +102,58 @@ export default function ProjectList({ onSelectProject }: Props) {
 
   useEffect(() => { fetchProjects(); }, []);
 
+  const fetchDeleteCascadeInfo = async (projectId: string) => {
+    const [phasesRes, expensesRes, usersRes] = await Promise.all([
+      supabase.from("project_phases").select("id").eq("project_id", projectId),
+      supabase.from("project_expenses").select("id").eq("project_id", projectId),
+      supabase.from("project_users").select("id").eq("project_id", projectId),
+    ]);
+
+    const phaseIds = (phasesRes.data || []).map((p: any) => p.id);
+    let totalItems = 0, totalComments = 0, totalFiles = 0;
+
+    if (phaseIds.length > 0) {
+      const [itemsRes] = await Promise.all([
+        supabase.from("phase_items").select("id").in("phase_id", phaseIds),
+      ]);
+      const itemIds = (itemsRes.data || []).map((i: any) => i.id);
+      totalItems = itemIds.length;
+
+      if (itemIds.length > 0) {
+        const [commentsRes, filesRes] = await Promise.all([
+          supabase.from("phase_item_comments").select("id").in("item_id", itemIds),
+          supabase.from("phase_item_files").select("id").in("item_id", itemIds),
+        ]);
+        totalComments = (commentsRes.data || []).length;
+        totalFiles = (filesRes.data || []).length;
+      }
+    }
+
+    return {
+      phases: phaseIds.length,
+      items: totalItems,
+      comments: totalComments,
+      files: totalFiles,
+      expenses: (expensesRes.data || []).length,
+      users: (usersRes.data || []).length,
+    };
+  };
+
+  const handleRequestDelete = async (projectId: string) => {
+    setDeleteId(projectId);
+    const info = await fetchDeleteCascadeInfo(projectId);
+    setDeleteCascadeInfo(info);
+  };
+
   const handleDelete = async () => {
     if (!deleteId) return;
+    setDeleting(true);
     const { error } = await supabase.from("projects").delete().eq("id", deleteId);
     if (error) toast.error(t("errorDeleting"));
     else { toast.success(t("projectDeleted")); fetchProjects(); }
     setDeleteId(null);
+    setDeleteCascadeInfo(null);
+    setDeleting(false);
   };
 
   const years = [...new Set(projects.map((p) => p.fiscal_year))].sort((a, b) => b - a);
@@ -225,7 +273,7 @@ export default function ProjectList({ onSelectProject }: Props) {
                           </Button>
                       )}
                       {canDelete && (
-                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleRequestDelete(p.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                       )}
@@ -266,7 +314,7 @@ export default function ProjectList({ onSelectProject }: Props) {
                       </Button>
                     )}
                     {canDelete && (
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(p.id)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRequestDelete(p.id)}>
                         <Trash2 className="h-3.5 w-3.5 text-destructive" />
                       </Button>
                     )}
@@ -286,26 +334,41 @@ export default function ProjectList({ onSelectProject }: Props) {
         onSaved={fetchProjects}
       />
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) { setDeleteId(null); setDeleteCascadeInfo(null); } }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteProject")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteProject && ((deleteProject as any).totalPhases > 0 || (deleteProject as any).totalItems > 0) ? (
-                <span>
-                  {t("deleteProjectCascadeWarning", {
-                    phases: (deleteProject as any).totalPhases || 0,
-                    items: (deleteProject as any).totalItems || 0,
-                  })}
-                  <br /><br />
-                </span>
-              ) : null}
-              {t("deleteProjectConfirm")}
+            <AlertDialogTitle className="text-destructive">{t("deleteProject")}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p className="font-medium">{deleteProject?.name}</p>
+                {deleteCascadeInfo && (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-1">
+                    <p className="text-sm font-medium text-destructive">{t("deleteProjectCascadeWarning")}</p>
+                    <pre className="text-xs text-muted-foreground whitespace-pre-wrap">
+                      {t("deleteProjectCascadeDetail", {
+                        phases: deleteCascadeInfo.phases,
+                        items: deleteCascadeInfo.items,
+                        comments: deleteCascadeInfo.comments,
+                        files: deleteCascadeInfo.files,
+                        expenses: deleteCascadeInfo.expenses,
+                        users: deleteCascadeInfo.users,
+                      })}
+                    </pre>
+                  </div>
+                )}
+                <p className="text-sm">{t("deleteProjectConfirm")}</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>{t("common:delete")}</AlertDialogAction>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? t("deletingProject") : t("common:delete")}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
