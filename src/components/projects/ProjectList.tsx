@@ -333,26 +333,41 @@ export default function ProjectList({ onSelectProject }: Props) {
         onSaved={fetchProjects}
       />
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) { setDeleteId(null); setDeleteCascadeInfo(null); } }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteProject")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteProject && ((deleteProject as any).totalPhases > 0 || (deleteProject as any).totalItems > 0) ? (
-                <span>
-                  {t("deleteProjectCascadeWarning", {
-                    phases: (deleteProject as any).totalPhases || 0,
-                    items: (deleteProject as any).totalItems || 0,
-                  })}
-                  <br /><br />
-                </span>
-              ) : null}
-              {t("deleteProjectConfirm")}
+            <AlertDialogTitle className="text-destructive">{t("deleteProject")}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p className="font-medium">{deleteProject?.name}</p>
+                {deleteCascadeInfo && (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-1">
+                    <p className="text-sm font-medium text-destructive">{t("deleteProjectCascadeWarning")}</p>
+                    <pre className="text-xs text-muted-foreground whitespace-pre-wrap">
+                      {t("deleteProjectCascadeDetail", {
+                        phases: deleteCascadeInfo.phases,
+                        items: deleteCascadeInfo.items,
+                        comments: deleteCascadeInfo.comments,
+                        files: deleteCascadeInfo.files,
+                        expenses: deleteCascadeInfo.expenses,
+                        users: deleteCascadeInfo.users,
+                      })}
+                    </pre>
+                  </div>
+                )}
+                <p className="text-sm">{t("deleteProjectConfirm")}</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>{t("common:delete")}</AlertDialogAction>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? t("deletingProject") : t("common:delete")}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
