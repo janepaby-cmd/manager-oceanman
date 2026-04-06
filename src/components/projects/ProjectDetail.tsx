@@ -4,8 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Users, CheckCircle2, Circle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Plus, Users, CheckCircle2, Circle, Layers, FileText, Receipt, PiggyBank, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -24,7 +24,7 @@ interface Props {
 export default function ProjectDetail({ projectId, onBack }: Props) {
   const { hasRole } = useAuth();
   const { can } = usePermissions();
-  const { t, i18n } = useTranslation(["projects", "common"]);
+  const { t, i18n } = useTranslation(["projects", "common", "budget", "expenses"]);
   const [project, setProject] = useState<any>(null);
   const [phases, setPhases] = useState<any[]>([]);
   const [status, setStatus] = useState<any>(null);
@@ -71,6 +71,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-2 sm:gap-3">
         <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
           <ArrowLeft className="h-5 w-5" />
@@ -94,6 +95,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         )}
       </div>
 
+      {/* Summary cards */}
       <div className="grid grid-cols-4 gap-2">
         <div className="rounded-md border bg-card px-2 py-1.5">
           <p className="text-[10px] text-muted-foreground leading-none">{t("fiscalYear")}</p>
@@ -108,7 +110,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
           <p className="text-sm font-semibold">{project.estimated_end_date ? format(new Date(project.estimated_end_date), "dd/MM/yy", { locale: dateLocale }) : "—"}</p>
         </div>
         <div className="rounded-md border bg-card px-2 py-1.5">
-          <p className="text-[10px] text-muted-foreground leading-none">{t("phases")}</p>
+          <p className="text-[10px] text-muted-foreground leading-none">{t("tab_phases")}</p>
           <div className="flex items-center gap-1">
             <p className="text-sm font-semibold">{phases.filter(p => p.is_completed).length}/{phases.length}</p>
             {phases.length > 0 && phases.every(p => p.is_completed) ? (
@@ -120,55 +122,104 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">{t("phases")}</h3>
-          {canCreatePhase && (
-            <Button size="sm" onClick={() => { setEditPhase(null); setShowPhaseForm(true); }}>
-              <Plus className="h-4 w-4 mr-2" /> {t("newPhase")}
-            </Button>
+      {/* Tabs */}
+      <Tabs defaultValue="phases" className="w-full">
+        <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
+          <TabsTrigger value="phases" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <Layers className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t("tab_phases")}</span>
+            <span className="sm:hidden">{t("tab_phases")}</span>
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <FileText className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t("tab_documents")}</span>
+            <span className="sm:hidden">{t("tab_documents_short")}</span>
+          </TabsTrigger>
+          <TabsTrigger value="expenses" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <Receipt className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t("tab_expenses")}</span>
+            <span className="sm:hidden">{t("tab_expenses_short")}</span>
+          </TabsTrigger>
+          {canReadBudget && (
+            <TabsTrigger value="budget" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <PiggyBank className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t("budget:module_name")}</span>
+              <span className="sm:hidden">{t("budget:module_name")}</span>
+            </TabsTrigger>
           )}
-        </div>
+          <TabsTrigger value="invoices" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <FileSpreadsheet className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t("tab_invoices")}</span>
+            <span className="sm:hidden">{t("tab_invoices_short")}</span>
+          </TabsTrigger>
+        </TabsList>
 
-        {phases.length === 0 ? (
-          <div className="border rounded-lg p-8 text-center text-muted-foreground">
-            {t("noPhases")}
+        {/* Phases */}
+        <TabsContent value="phases">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{t("tab_phases")}</h3>
+              {canCreatePhase && (
+                <Button size="sm" onClick={() => { setEditPhase(null); setShowPhaseForm(true); }}>
+                  <Plus className="h-4 w-4 mr-2" /> {t("newPhase")}
+                </Button>
+              )}
+            </div>
+            {phases.length === 0 ? (
+              <div className="border rounded-lg p-8 text-center text-muted-foreground">
+                {t("noPhases")}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {phases.map((phase, index) => {
+                  const isLocked = project.is_restrictive && index > 0 && !phases[index - 1].is_completed;
+                  return (
+                    <PhaseCard
+                      key={phase.id}
+                      phase={phase}
+                      canManage={canEditPhase}
+                      canDelete={canDeletePhase}
+                      canCreateItems={canCreatePhase}
+                      canCompleteItems={canCompleteItems}
+                      isLocked={isLocked}
+                      maxFiles={project.max_files_per_item || 5}
+                      allowedExtensions={project.allowed_file_extensions || undefined}
+                      onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
+                      onDeleted={fetchPhases}
+                      onUpdated={fetchPhases}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="space-y-3">
-            {phases.map((phase, index) => {
-              const isLocked = project.is_restrictive && index > 0 && !phases[index - 1].is_completed;
-              return (
-                <PhaseCard
-                  key={phase.id}
-                  phase={phase}
-                  canManage={canEditPhase}
-                  canDelete={canDeletePhase}
-                  canCreateItems={canCreatePhase}
-                  canCompleteItems={canCompleteItems}
-                  isLocked={isLocked}
-                  maxFiles={project.max_files_per_item || 5}
-                  allowedExtensions={project.allowed_file_extensions || undefined}
-                  onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
-                  onDeleted={fetchPhases}
-                  onUpdated={fetchPhases}
-                />
-              );
-            })}
-          </div>
+        </TabsContent>
+
+        {/* Documents */}
+        <TabsContent value="documents">
+          <ProjectDocuments projectId={projectId} refreshKey={docsRefreshKey} />
+        </TabsContent>
+
+        {/* Expenses */}
+        <TabsContent value="expenses">
+          <ExpenseList projectId={projectId} canManage={can("create", "expenses")} canEdit={can("update", "expenses")} canDelete={can("delete", "expenses")} />
+        </TabsContent>
+
+        {/* Budget */}
+        {canReadBudget && (
+          <TabsContent value="budget">
+            <BudgetModule projectId={projectId} />
+          </TabsContent>
         )}
-      </div>
 
-      <ProjectDocuments projectId={projectId} refreshKey={docsRefreshKey} />
-
-      <ExpenseList projectId={projectId} canManage={can("create", "expenses")} canEdit={can("update", "expenses")} canDelete={can("delete", "expenses")} />
-
-      {canReadBudget && (
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">{t("budget:module_name")}</h3>
-          <BudgetModule projectId={projectId} />
-        </div>
-      )}
+        {/* Invoices (empty) */}
+        <TabsContent value="invoices">
+          <div className="border rounded-lg p-12 text-center text-muted-foreground">
+            <FileSpreadsheet className="h-10 w-10 mx-auto mb-3 opacity-40" />
+            <p className="text-sm">{t("tab_invoices_empty")}</p>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <PhaseFormDialog
         open={showPhaseForm}
