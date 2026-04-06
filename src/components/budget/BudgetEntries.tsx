@@ -95,6 +95,40 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
         )}
       </div>
 
+      {/* Totals */}
+      <div className="grid grid-cols-3 gap-3">
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-green-500" />
+            <div>
+              <p className="text-xs text-muted-foreground">{t("entries.total_income")}</p>
+              <p className="text-sm font-bold text-green-600 dark:text-green-400">+{totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <TrendingDown className="h-4 w-4 text-red-500" />
+            <div>
+              <p className="text-xs text-muted-foreground">{t("entries.total_expenses")}</p>
+              <p className="text-sm font-bold text-red-600 dark:text-red-400">-{totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <Minus className="h-4 w-4 text-primary" />
+            <div>
+              <p className="text-xs text-muted-foreground">{t("entries.net_result")}</p>
+              <p className={`text-sm font-bold ${netResult >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                {netResult >= 0 ? "+" : ""}{netResult.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
       <div className="flex flex-wrap gap-2">
         <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-[160px] h-8 text-xs"><SelectValue /></SelectTrigger>
@@ -167,39 +201,6 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
           </Table>
         </div>
       )}
-
-      {/* Footer totals */}
-      <div className="grid grid-cols-3 gap-3">
-        <Card>
-          <CardContent className="p-3 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-green-500" />
-            <div>
-              <p className="text-xs text-muted-foreground">{t("entries.total_income")}</p>
-              <p className="text-sm font-bold text-green-600 dark:text-green-400">+{totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 flex items-center gap-2">
-            <TrendingDown className="h-4 w-4 text-red-500" />
-            <div>
-              <p className="text-xs text-muted-foreground">{t("entries.total_expenses")}</p>
-              <p className="text-sm font-bold text-red-600 dark:text-red-400">-{totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 flex items-center gap-2">
-            <Minus className="h-4 w-4 text-primary" />
-            <div>
-              <p className="text-xs text-muted-foreground">{t("entries.net_result")}</p>
-              <p className={`text-sm font-bold ${netResult >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                {netResult >= 0 ? "+" : ""}{netResult.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       <BudgetEntryFormDialog
         open={showForm}
