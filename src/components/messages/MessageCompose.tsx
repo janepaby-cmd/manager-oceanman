@@ -337,7 +337,19 @@ export default function MessageCompose({ replyTo, onSent }: Props) {
           )}
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleTranslate}
+            disabled={translating || (!subject.trim() && !body.trim())}
+          >
+            {translating ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("translating")}</>
+            ) : (
+              <><Languages className="h-4 w-4 mr-2" /> {t("translate")}</>
+            )}
+          </Button>
           <Button
             onClick={handleSend}
             disabled={sending || !subject.trim() || !body.trim() || selectedUserIds.length === 0}
