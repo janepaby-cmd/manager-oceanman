@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-export type AppModule = "projects" | "phases" | "expenses" | "messages" | "budget";
+export type AppModule = "projects" | "phases" | "expenses" | "messages" | "budget" | "invoices" | "contacts" | "taxes";
 
 interface ModulePermissions {
   can_create: boolean;
