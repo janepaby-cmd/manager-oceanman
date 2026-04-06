@@ -115,5 +115,6 @@
   "tab_expenses_short": "Expenses",
   "tab_invoices": "Invoices",
   "tab_invoices_short": "Inv.",
-  "tab_invoices_empty": "Invoices module coming soon."
+  "tab_invoices_empty": "Invoices module coming soon.",
+  "searchPhasesItems": "Search phases or items..."
 }

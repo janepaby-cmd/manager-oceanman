@@ -115,5 +115,6 @@
   "tab_expenses_short": "Gastos",
   "tab_invoices": "Facturas",
   "tab_invoices_short": "Fact.",
-  "tab_invoices_empty": "Módulo de facturas próximamente."
+  "tab_invoices_empty": "Módulo de facturas próximamente.",
+  "searchPhasesItems": "Buscar fases o ítems..."
 }

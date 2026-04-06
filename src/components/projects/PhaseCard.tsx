@@ -24,12 +24,13 @@ interface Props {
   isLocked?: boolean;
   maxFiles?: number;
   allowedExtensions?: string[];
+  searchTerm?: string;
   onEdit: () => void;
   onDeleted: () => void;
   onUpdated: () => void;
 }
 
-export default function PhaseCard({ phase, canManage, canDelete = canManage, canCreateItems = canManage, canCompleteItems = false, isLocked = false, maxFiles, allowedExtensions, onEdit, onDeleted, onUpdated }: Props) {
+export default function PhaseCard({ phase, canManage, canDelete = canManage, canCreateItems = canManage, canCompleteItems = false, isLocked = false, maxFiles, allowedExtensions, searchTerm = "", onEdit, onDeleted, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
@@ -54,8 +55,8 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
   };
 
   useEffect(() => {
-    if (open) fetchItems();
-  }, [open, phase.id]);
+    if (open || searchTerm) fetchItems();
+  }, [open, phase.id, searchTerm]);
 
   const handleDelete = async () => {
     const { error } = await supabase.from("project_phases").delete().eq("id", phase.id);
@@ -64,8 +65,24 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
     setShowDelete(false);
   };
 
-  const completedCount = items.filter(i => i.is_completed).length;
+  const needle = searchTerm.toLowerCase();
+  const phaseNameMatches = needle && phase.name.toLowerCase().includes(needle);
+  const filteredItems = needle
+    ? items.filter(i => i.title.toLowerCase().includes(needle))
+    : items;
+  const hasMatch = !needle || phaseNameMatches || filteredItems.length > 0;
 
+  // Auto-expand when search matches items inside
+  useEffect(() => {
+    if (needle && filteredItems.length > 0 && !phaseNameMatches) {
+      setOpen(true);
+    }
+  }, [needle, filteredItems.length, phaseNameMatches]);
+
+  if (!hasMatch) return null;
+
+  const displayItems = phaseNameMatches ? items : filteredItems;
+  const completedCount = items.filter(i => i.is_completed).length;
   return (
     <>
       <Card className={cn(
@@ -113,7 +130,7 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
           </CardHeader>
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-2">
-              {items.map((item) => (
+              {displayItems.map((item) => (
                 <PhaseItemRow
                   key={item.id}
                   item={item}

@@ -5,7 +5,8 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Users, CheckCircle2, Circle, Layers, FileText, Receipt, PiggyBank, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Plus, Users, CheckCircle2, Circle, Layers, FileText, Receipt, PiggyBank, FileSpreadsheet, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import InvoiceModule from "@/components/invoices/InvoiceModule";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -33,6 +34,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [editPhase, setEditPhase] = useState<any>(null);
   const [docsRefreshKey, setDocsRefreshKey] = useState(0);
   const [showUsers, setShowUsers] = useState(false);
+  const [phaseSearch, setPhaseSearch] = useState("");
 
   const canManageProject = can("update", "projects");
   const canCreatePhase = can("create", "phases");
@@ -161,13 +163,24 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
         {/* Phases */}
         <TabsContent value="phases">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <h3 className="text-lg font-semibold">{t("tab_phases")}</h3>
-              {canCreatePhase && (
-                <Button size="sm" onClick={() => { setEditPhase(null); setShowPhaseForm(true); }}>
-                  <Plus className="h-4 w-4 mr-2" /> {t("newPhase")}
-                </Button>
-              )}
+              <div className="flex items-center gap-2 flex-1 justify-end">
+                <div className="relative max-w-xs w-full">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t("searchPhasesItems")}
+                    value={phaseSearch}
+                    onChange={(e) => setPhaseSearch(e.target.value)}
+                    className="pl-9 h-9 text-sm"
+                  />
+                </div>
+                {canCreatePhase && (
+                  <Button size="sm" onClick={() => { setEditPhase(null); setShowPhaseForm(true); }}>
+                    <Plus className="h-4 w-4 mr-2" /> {t("newPhase")}
+                  </Button>
+                )}
+              </div>
             </div>
             {phases.length === 0 ? (
               <div className="border rounded-lg p-8 text-center text-muted-foreground">
@@ -191,6 +204,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                       onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
                       onDeleted={fetchPhases}
                       onUpdated={fetchPhases}
+                      searchTerm={phaseSearch}
                     />
                   );
                 })}
