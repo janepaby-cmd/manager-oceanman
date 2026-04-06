@@ -10,10 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft, Reply, Archive, Download, Paperclip,
-  Mail, MailOpen, Clock, AlertTriangle, AlertCircle, Loader2,
+  Mail, MailOpen, Clock, AlertTriangle, AlertCircle, Loader2, Languages,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
+import { toast } from "sonner";
 import MessageCompose from "./MessageCompose";
 
 interface Props {
@@ -29,6 +30,10 @@ export default function MessageDetail({ messageId }: Props) {
   const archiveMsg = useArchiveMessage();
   const dateLocale = i18n.language === "es" ? es : enUS;
   const [showReply, setShowReply] = useState(false);
+  const [translatedSubject, setTranslatedSubject] = useState<string | null>(null);
+  const [translatedBody, setTranslatedBody] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [isTranslated, setIsTranslated] = useState(false);
 
   const isAdmin = hasRole("superadmin") || hasRole("admin");
   const isManager = hasRole("manager");
@@ -70,6 +75,30 @@ export default function MessageDetail({ messageId }: Props) {
     });
   };
 
+  const handleTranslate = async () => {
+    if (isTranslated) {
+      setTranslatedSubject(null);
+      setTranslatedBody(null);
+      setIsTranslated(false);
+      return;
+    }
+    setIsTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-message", {
+        body: { subject: message.subject, body: message.body },
+      });
+      if (error) throw error;
+      setTranslatedSubject(data.subject);
+      setTranslatedBody(data.body);
+      setIsTranslated(true);
+      toast.success(t("translateSuccess"));
+    } catch {
+      toast.error(t("translateError"));
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const priorityIcon =
     message.priority === "urgent" ? <AlertTriangle className="h-4 w-4 text-destructive" /> :
     message.priority === "important" ? <AlertCircle className="h-4 w-4 text-warning" /> : null;
@@ -86,7 +115,7 @@ export default function MessageDetail({ messageId }: Props) {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 {priorityIcon}
-                <CardTitle className="text-xl">{message.subject}</CardTitle>
+                <CardTitle className="text-xl">{translatedSubject ?? message.subject}</CardTitle>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span>{t("from")}: <strong>{message.sender_name}</strong></span>
@@ -109,8 +138,24 @@ export default function MessageDetail({ messageId }: Props) {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="prose prose-sm max-w-none whitespace-pre-wrap text-foreground">
-            {message.body}
+          <div className="flex items-start justify-between gap-2">
+            <div className="prose prose-sm max-w-none whitespace-pre-wrap text-foreground flex-1">
+              {translatedBody ?? message.body}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              disabled={isTranslating}
+              onClick={handleTranslate}
+            >
+              {isTranslating ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Languages className="h-4 w-4 mr-1" />
+              )}
+              {isTranslating ? t("translating") : isTranslated ? t("showOriginal") : t("translate")}
+            </Button>
           </div>
 
           {/* Attachments */}

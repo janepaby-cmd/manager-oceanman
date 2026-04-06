@@ -99,5 +99,6 @@
   "translating": "Translating...",
   "translateSuccess": "Text translated successfully",
   "translateError": "Error translating text",
-  "translateEmpty": "Write a subject or message before translating"
+  "translateEmpty": "Write a subject or message before translating",
+  "showOriginal": "Show original"
 }
