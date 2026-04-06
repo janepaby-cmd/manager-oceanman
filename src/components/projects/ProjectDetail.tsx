@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Plus, Users, CheckCircle2, Circle, Layers, FileText, Receipt, PiggyBank, FileSpreadsheet } from "lucide-react";
+import InvoiceModule from "@/components/invoices/InvoiceModule";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const canDeletePhase = can("delete", "phases");
   const canCompleteItems = can("complete", "phases");
   const canReadBudget = can("read", "budget");
+  const canReadInvoices = can("read", "invoices");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProject = useCallback(async () => {
@@ -147,11 +149,13 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
               <span className="sm:hidden">{t("budget:module_name")}</span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="invoices" className="flex items-center gap-1.5 text-xs sm:text-sm">
-            <FileSpreadsheet className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{t("tab_invoices")}</span>
-            <span className="sm:hidden">{t("tab_invoices_short")}</span>
-          </TabsTrigger>
+          {canReadInvoices && (
+            <TabsTrigger value="invoices" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t("tab_invoices")}</span>
+              <span className="sm:hidden">{t("tab_invoices_short")}</span>
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Phases */}
@@ -212,13 +216,12 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
           </TabsContent>
         )}
 
-        {/* Invoices (empty) */}
-        <TabsContent value="invoices">
-          <div className="border rounded-lg p-12 text-center text-muted-foreground">
-            <FileSpreadsheet className="h-10 w-10 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">{t("tab_invoices_empty")}</p>
-          </div>
-        </TabsContent>
+        {/* Invoices */}
+        {canReadInvoices && (
+          <TabsContent value="invoices">
+            <InvoiceModule projectId={projectId} />
+          </TabsContent>
+        )}
       </Tabs>
 
       <PhaseFormDialog

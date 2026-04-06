@@ -218,6 +218,54 @@ export type Database = {
         }
         Relationships: []
       }
+      clients: {
+        Row: {
+          address: string | null
+          bank_account: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          payment_terms: number | null
+          phone: string | null
+          tax_id: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          bank_account?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          payment_terms?: number | null
+          phone?: string | null
+          tax_id?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          bank_account?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          payment_terms?: number | null
+          phone?: string | null
+          tax_id?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -328,6 +376,304 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      invoice_config: {
+        Row: {
+          company_address: string | null
+          company_email: string | null
+          company_name: string | null
+          company_tax_id: string | null
+          created_at: string
+          fiscal_year: number
+          id: string
+          next_number: number | null
+          number_digits: number | null
+          project_id: string
+          series_prefix: string | null
+        }
+        Insert: {
+          company_address?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          company_tax_id?: string | null
+          created_at?: string
+          fiscal_year?: number
+          id?: string
+          next_number?: number | null
+          number_digits?: number | null
+          project_id: string
+          series_prefix?: string | null
+        }
+        Update: {
+          company_address?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          company_tax_id?: string | null
+          created_at?: string
+          fiscal_year?: number
+          id?: string
+          next_number?: number | null
+          number_digits?: number | null
+          project_id?: string
+          series_prefix?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_config_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_issued_lines: {
+        Row: {
+          concept: string
+          id: string
+          invoice_id: string
+          line_total: number | null
+          quantity: number | null
+          tax_id: string | null
+          unit_price: number | null
+        }
+        Insert: {
+          concept: string
+          id?: string
+          invoice_id: string
+          line_total?: number | null
+          quantity?: number | null
+          tax_id?: string | null
+          unit_price?: number | null
+        }
+        Update: {
+          concept?: string
+          id?: string
+          invoice_id?: string
+          line_total?: number | null
+          quantity?: number | null
+          tax_id?: string | null
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_issued_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices_issued"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_issued_lines_tax_id_fkey"
+            columns: ["tax_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_taxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_received_lines: {
+        Row: {
+          concept: string
+          id: string
+          invoice_id: string
+          line_total: number | null
+          quantity: number | null
+          tax_id: string | null
+          unit_price: number | null
+        }
+        Insert: {
+          concept: string
+          id?: string
+          invoice_id: string
+          line_total?: number | null
+          quantity?: number | null
+          tax_id?: string | null
+          unit_price?: number | null
+        }
+        Update: {
+          concept?: string
+          id?: string
+          invoice_id?: string
+          line_total?: number | null
+          quantity?: number | null
+          tax_id?: string | null
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_received_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices_received"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_received_lines_tax_id_fkey"
+            columns: ["tax_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_taxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_taxes: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          rate: number
+          type: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          rate: number
+          type: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          rate?: number
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_taxes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices_issued: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          issue_date: string
+          notes: string | null
+          number: string
+          project_id: string
+          status: string | null
+          subtotal: number | null
+          tax_total: number | null
+          total: number | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          issue_date: string
+          notes?: string | null
+          number: string
+          project_id: string
+          status?: string | null
+          subtotal?: number | null
+          tax_total?: number | null
+          total?: number | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          number?: string
+          project_id?: string
+          status?: string | null
+          subtotal?: number | null
+          tax_total?: number | null
+          total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_issued_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_issued_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices_received: {
+        Row: {
+          created_at: string
+          due_date: string | null
+          ext_number: string
+          id: string
+          notes: string | null
+          project_id: string
+          receipt_date: string
+          status: string | null
+          subtotal: number | null
+          supplier_id: string | null
+          tax_total: number | null
+          total: number | null
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string | null
+          ext_number: string
+          id?: string
+          notes?: string | null
+          project_id: string
+          receipt_date: string
+          status?: string | null
+          subtotal?: number | null
+          supplier_id?: string | null
+          tax_total?: number | null
+          total?: number | null
+        }
+        Update: {
+          created_at?: string
+          due_date?: string | null
+          ext_number?: string
+          id?: string
+          notes?: string | null
+          project_id?: string
+          receipt_date?: string
+          status?: string | null
+          subtotal?: number | null
+          supplier_id?: string | null
+          tax_total?: number | null
+          total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_received_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_received_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_attachments: {
         Row: {
@@ -1063,6 +1409,57 @@ export type Database = {
         }
         Relationships: []
       }
+      suppliers: {
+        Row: {
+          address: string | null
+          bank_account: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          payment_terms: number | null
+          phone: string | null
+          supplier_type: string | null
+          tax_id: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          bank_account?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          payment_terms?: number | null
+          phone?: string | null
+          supplier_type?: string | null
+          tax_id?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          bank_account?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          payment_terms?: number | null
+          phone?: string | null
+          supplier_type?: string | null
+          tax_id?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -1120,6 +1517,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_next_invoice_number: {
+        Args: { p_fiscal_year?: number; p_project_id: string }
+        Returns: string
       }
       has_role: {
         Args: {

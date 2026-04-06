@@ -9,6 +9,10 @@ import projectsES from "./locales/es/projects.json";
 import settingsES from "./locales/es/settings.json";
 import expensesES from "./locales/es/expenses.json";
 import messagesES from "./locales/es/messages.json";
+import budgetES from "./locales/es/budget.json";
+import invoicesES from "./locales/es/invoices.json";
+import contactsES from "./locales/es/contacts.json";
+import taxesES from "./locales/es/taxes.json";
 
 import commonEN from "./locales/en/common.json";
 import authEN from "./locales/en/auth.json";
@@ -17,8 +21,10 @@ import projectsEN from "./locales/en/projects.json";
 import settingsEN from "./locales/en/settings.json";
 import expensesEN from "./locales/en/expenses.json";
 import messagesEN from "./locales/en/messages.json";
-import budgetES from "./locales/es/budget.json";
 import budgetEN from "./locales/en/budget.json";
+import invoicesEN from "./locales/en/invoices.json";
+import contactsEN from "./locales/en/contacts.json";
+import taxesEN from "./locales/en/taxes.json";
 
 const resources = {
   es: {
@@ -30,6 +36,9 @@ const resources = {
     expenses: expensesES,
     messages: messagesES,
     budget: budgetES,
+    invoices: invoicesES,
+    contacts: contactsES,
+    taxes: taxesES,
   },
   en: {
     common: commonEN,
@@ -40,6 +49,9 @@ const resources = {
     expenses: expensesEN,
     messages: messagesEN,
     budget: budgetEN,
+    invoices: invoicesEN,
+    contacts: contactsEN,
+    taxes: taxesEN,
   },
 };
 
@@ -50,7 +62,7 @@ i18n
     resources,
     fallbackLng: "es",
     defaultNS: "common",
-    ns: ["common", "auth", "dashboard", "projects", "settings", "expenses", "messages", "budget"],
+    ns: ["common", "auth", "dashboard", "projects", "settings", "expenses", "messages", "budget", "invoices", "contacts", "taxes"],
     interpolation: {
       escapeValue: false,
     },
