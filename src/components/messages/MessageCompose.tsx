@@ -76,6 +76,28 @@ export default function MessageCompose({ replyTo, onSent }: Props) {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleTranslate = async () => {
+    if (!subject.trim() && !body.trim()) {
+      toast.error(t("translateEmpty"));
+      return;
+    }
+    setTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-message", {
+        body: { subject: subject.trim(), body: body.trim() },
+      });
+      if (error) throw error;
+      if (data?.subject) setSubject(data.subject);
+      if (data?.body) setBody(data.body);
+      toast.success(t("translateSuccess"));
+    } catch (err) {
+      console.error("Translate error:", err);
+      toast.error(t("translateError"));
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   const handleSend = async () => {
     if (!subject.trim() || !body.trim() || selectedUserIds.length === 0) {
       toast.error(t("messageError"));
