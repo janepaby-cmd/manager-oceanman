@@ -20,7 +20,7 @@ interface Permission {
   can_complete: boolean;
 }
 
-const MODULES = ["projects", "phases", "expenses", "messages"];
+const MODULES = ["projects", "phases", "expenses", "messages", "budget"];
 
 export function PermissionsTab() {
   const { t, i18n } = useTranslation("settings");
@@ -32,6 +32,7 @@ export function PermissionsTab() {
     phases: t("permissions.modules.phases", "Fases e ítems"),
     expenses: t("permissions.modules.expenses", "Gastos"),
     messages: t("permissions.modules.messages", "Mensajes"),
+    budget: t("permissions.modules.budget", "Presupuesto"),
   };
 
   const actionLabels: Record<string, string> = {
