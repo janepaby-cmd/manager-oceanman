@@ -14,6 +14,7 @@ import PhaseFormDialog from "./PhaseFormDialog";
 import ProjectUsersDialog from "./ProjectUsersDialog";
 import ExpenseList from "./ExpenseList";
 import ProjectDocuments from "./ProjectDocuments";
+import BudgetModule from "@/components/budget/BudgetModule";
 
 interface Props {
   projectId: string;
@@ -37,6 +38,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const canEditPhase = can("update", "phases");
   const canDeletePhase = can("delete", "phases");
   const canCompleteItems = can("complete", "phases");
+  const canReadBudget = can("read", "budget");
   const dateLocale = i18n.language === "es" ? es : undefined;
 
   const fetchProject = useCallback(async () => {
@@ -160,6 +162,13 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
       <ProjectDocuments projectId={projectId} refreshKey={docsRefreshKey} />
 
       <ExpenseList projectId={projectId} canManage={can("create", "expenses")} canEdit={can("update", "expenses")} canDelete={can("delete", "expenses")} />
+
+      {canReadBudget && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">{t("budget:module_name")}</h3>
+          <BudgetModule projectId={projectId} />
+        </div>
+      )}
 
       <PhaseFormDialog
         open={showPhaseForm}
