@@ -107,5 +107,13 @@
   "commentReply": "Responder",
   "commentEdit": "Editar",
   "commentEdited": "editado",
-  "commentReplyingTo": "Respondiendo a"
+  "commentReplyingTo": "Respondiendo a",
+  "tab_phases": "Fases",
+  "tab_documents": "Biblioteca",
+  "tab_documents_short": "Docs",
+  "tab_expenses": "Gastos varios",
+  "tab_expenses_short": "Gastos",
+  "tab_invoices": "Facturas",
+  "tab_invoices_short": "Fact.",
+  "tab_invoices_empty": "Módulo de facturas próximamente."
 }

@@ -107,5 +107,13 @@
   "commentReply": "Reply",
   "commentEdit": "Edit",
   "commentEdited": "edited",
-  "commentReplyingTo": "Replying to"
+  "commentReplyingTo": "Replying to",
+  "tab_phases": "Phases",
+  "tab_documents": "Library",
+  "tab_documents_short": "Docs",
+  "tab_expenses": "Miscellaneous Expenses",
+  "tab_expenses_short": "Expenses",
+  "tab_invoices": "Invoices",
+  "tab_invoices_short": "Inv.",
+  "tab_invoices_empty": "Invoices module coming soon."
 }
