@@ -17,6 +17,8 @@ import projectsEN from "./locales/en/projects.json";
 import settingsEN from "./locales/en/settings.json";
 import expensesEN from "./locales/en/expenses.json";
 import messagesEN from "./locales/en/messages.json";
+import budgetES from "./locales/es/budget.json";
+import budgetEN from "./locales/en/budget.json";
 
 const resources = {
   es: {
@@ -27,6 +29,7 @@ const resources = {
     settings: settingsES,
     expenses: expensesES,
     messages: messagesES,
+    budget: budgetES,
   },
   en: {
     common: commonEN,
@@ -36,6 +39,7 @@ const resources = {
     settings: settingsEN,
     expenses: expensesEN,
     messages: messagesEN,
+    budget: budgetEN,
   },
 };
 
@@ -46,7 +50,7 @@ i18n
     resources,
     fallbackLng: "es",
     defaultNS: "common",
-    ns: ["common", "auth", "dashboard", "projects", "settings", "expenses", "messages"],
+    ns: ["common", "auth", "dashboard", "projects", "settings", "expenses", "messages", "budget"],
     interpolation: {
       escapeValue: false,
     },
