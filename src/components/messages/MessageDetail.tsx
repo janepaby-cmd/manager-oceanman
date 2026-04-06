@@ -115,7 +115,7 @@ export default function MessageDetail({ messageId }: Props) {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 {priorityIcon}
-                <CardTitle className="text-xl">{message.subject}</CardTitle>
+                <CardTitle className="text-xl">{translatedSubject ?? message.subject}</CardTitle>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span>{t("from")}: <strong>{message.sender_name}</strong></span>
