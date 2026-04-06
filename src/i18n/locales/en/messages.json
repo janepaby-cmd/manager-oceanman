@@ -94,5 +94,10 @@
   "recipientList": "Recipient list",
   "deliveryStatus": "Delivery status",
   "readAt": "Read at",
-  "sentAt": "Sent at"
+  "sentAt": "Sent at",
+  "translate": "Translate",
+  "translating": "Translating...",
+  "translateSuccess": "Text translated successfully",
+  "translateError": "Error translating text",
+  "translateEmpty": "Write a subject or message before translating"
 }

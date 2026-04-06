@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Paperclip, X, Send, Loader2 } from "lucide-react";
+import { Paperclip, X, Send, Loader2, Languages } from "lucide-react";
 import { toast } from "sonner";
 import RecipientSelector from "./RecipientSelector";
 import { notifyNewMessage } from "@/lib/notifyNewMessage";
@@ -46,6 +46,7 @@ export default function MessageCompose({ replyTo, onSent }: Props) {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   const isAdmin = hasRole("superadmin") || hasRole("admin");
   const isManager = hasRole("manager");
@@ -73,6 +74,28 @@ export default function MessageCompose({ replyTo, onSent }: Props) {
 
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleTranslate = async () => {
+    if (!subject.trim() && !body.trim()) {
+      toast.error(t("translateEmpty"));
+      return;
+    }
+    setTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-message", {
+        body: { subject: subject.trim(), body: body.trim() },
+      });
+      if (error) throw error;
+      if (data?.subject) setSubject(data.subject);
+      if (data?.body) setBody(data.body);
+      toast.success(t("translateSuccess"));
+    } catch (err) {
+      console.error("Translate error:", err);
+      toast.error(t("translateError"));
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const handleSend = async () => {
@@ -314,7 +337,19 @@ export default function MessageCompose({ replyTo, onSent }: Props) {
           )}
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleTranslate}
+            disabled={translating || (!subject.trim() && !body.trim())}
+          >
+            {translating ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("translating")}</>
+            ) : (
+              <><Languages className="h-4 w-4 mr-2" /> {t("translate")}</>
+            )}
+          </Button>
           <Button
             onClick={handleSend}
             disabled={sending || !subject.trim() || !body.trim() || selectedUserIds.length === 0}
