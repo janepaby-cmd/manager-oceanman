@@ -13,13 +13,15 @@
       "projects": "Proyectos",
       "phases": "Fases e ítems",
       "expenses": "Gastos",
-      "messages": "Mensajes"
+      "messages": "Mensajes",
+      "budget": "Presupuesto"
     },
     "actions": {
       "create": "Crear",
       "read": "Consultar",
       "update": "Editar",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "complete": "Completar"
     },
     "description": "Configura los permisos CRUD para cada rol y módulo de la aplicación. El superadmin siempre tiene acceso completo.",
     "superadminProtected": "Los permisos de superadmin no se pueden modificar",

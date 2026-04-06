@@ -13,13 +13,15 @@
       "projects": "Projects",
       "phases": "Phases & Items",
       "expenses": "Expenses",
-      "messages": "Messages"
+      "messages": "Messages",
+      "budget": "Budget"
     },
     "actions": {
       "create": "Create",
       "read": "Read",
       "update": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "complete": "Complete"
     },
     "description": "Configure CRUD permissions for each role and application module. Superadmin always has full access.",
     "superadminProtected": "Superadmin permissions cannot be modified",

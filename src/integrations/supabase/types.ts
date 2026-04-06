@@ -32,6 +32,92 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_categories: {
+        Row: {
+          budgeted_amount: number | null
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          type: string
+        }
+        Insert: {
+          budgeted_amount?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          type: string
+        }
+        Update: {
+          budgeted_amount?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_categories_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_entries: {
+        Row: {
+          amount: number
+          category_id: string | null
+          concept: string
+          created_at: string
+          date: string
+          id: string
+          project_id: string
+          status: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          concept: string
+          created_at?: string
+          date: string
+          id?: string
+          project_id: string
+          status?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          concept?: string
+          created_at?: string
+          date?: string
+          id?: string
+          project_id?: string
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_entries_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "budget_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       checklist_template_items: {
         Row: {
           created_at: string
