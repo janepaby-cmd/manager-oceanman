@@ -138,8 +138,24 @@ export default function MessageDetail({ messageId }: Props) {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="prose prose-sm max-w-none whitespace-pre-wrap text-foreground">
-            {message.body}
+          <div className="flex items-start justify-between gap-2">
+            <div className="prose prose-sm max-w-none whitespace-pre-wrap text-foreground flex-1">
+              {translatedBody ?? message.body}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              disabled={isTranslating}
+              onClick={handleTranslate}
+            >
+              {isTranslating ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Languages className="h-4 w-4 mr-1" />
+              )}
+              {isTranslating ? t("translating") : isTranslated ? t("showOriginal") : t("translate")}
+            </Button>
           </div>
 
           {/* Attachments */}
