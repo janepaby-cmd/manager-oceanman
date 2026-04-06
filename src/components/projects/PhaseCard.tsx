@@ -104,6 +104,11 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
                 <Circle className="h-5 w-5 text-muted-foreground" />
               )}
               <CardTitle className="text-sm flex-1">{phase.name}</CardTitle>
+              {needle && filteredItems.length > 0 && (
+                <Badge variant="default" className="text-xs">
+                  {filteredItems.length} {filteredItems.length === 1 ? "resultado" : "resultados"}
+                </Badge>
+              )}
               {items.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
                   {completedCount}/{items.length} items
