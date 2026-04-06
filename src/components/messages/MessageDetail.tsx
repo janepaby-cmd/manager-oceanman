@@ -10,10 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft, Reply, Archive, Download, Paperclip,
-  Mail, MailOpen, Clock, AlertTriangle, AlertCircle, Loader2,
+  Mail, MailOpen, Clock, AlertTriangle, AlertCircle, Loader2, Languages,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
+import { toast } from "sonner";
 import MessageCompose from "./MessageCompose";
 
 interface Props {
@@ -29,6 +30,10 @@ export default function MessageDetail({ messageId }: Props) {
   const archiveMsg = useArchiveMessage();
   const dateLocale = i18n.language === "es" ? es : enUS;
   const [showReply, setShowReply] = useState(false);
+  const [translatedSubject, setTranslatedSubject] = useState<string | null>(null);
+  const [translatedBody, setTranslatedBody] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [isTranslated, setIsTranslated] = useState(false);
 
   const isAdmin = hasRole("superadmin") || hasRole("admin");
   const isManager = hasRole("manager");
