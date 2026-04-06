@@ -66,22 +66,21 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
   };
 
   const needle = searchTerm.toLowerCase();
-  const phaseNameMatches = needle && phase.name.toLowerCase().includes(needle);
   const filteredItems = needle
-    ? items.filter(i => i.title.toLowerCase().includes(needle))
+    ? items.filter(i => i.title.toLowerCase().includes(needle) || (i.description && i.description.toLowerCase().includes(needle)))
     : items;
-  const hasMatch = !needle || phaseNameMatches || filteredItems.length > 0;
+  const hasMatch = !needle || filteredItems.length > 0;
 
-  // Auto-expand when search matches items inside
+  // Auto-expand when search matches items inside, collapse when no match
   useEffect(() => {
-    if (needle && filteredItems.length > 0 && !phaseNameMatches) {
-      setOpen(true);
+    if (needle) {
+      setOpen(filteredItems.length > 0);
     }
-  }, [needle, filteredItems.length, phaseNameMatches]);
+  }, [needle, filteredItems.length]);
 
   if (!hasMatch) return null;
 
-  const displayItems = phaseNameMatches ? items : filteredItems;
+  const displayItems = needle ? filteredItems : items;
   const completedCount = items.filter(i => i.is_completed).length;
   return (
     <>
@@ -105,6 +104,11 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
                 <Circle className="h-5 w-5 text-muted-foreground" />
               )}
               <CardTitle className="text-sm flex-1">{phase.name}</CardTitle>
+              {needle && filteredItems.length > 0 && (
+                <Badge variant="default" className="text-xs">
+                  {filteredItems.length} {filteredItems.length === 1 ? "resultado" : "resultados"}
+                </Badge>
+              )}
               {items.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
                   {completedCount}/{items.length} items
