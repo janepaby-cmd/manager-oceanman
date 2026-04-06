@@ -75,6 +75,30 @@ export default function MessageDetail({ messageId }: Props) {
     });
   };
 
+  const handleTranslate = async () => {
+    if (isTranslated) {
+      setTranslatedSubject(null);
+      setTranslatedBody(null);
+      setIsTranslated(false);
+      return;
+    }
+    setIsTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-message", {
+        body: { subject: message.subject, body: message.body },
+      });
+      if (error) throw error;
+      setTranslatedSubject(data.subject);
+      setTranslatedBody(data.body);
+      setIsTranslated(true);
+      toast.success(t("translateSuccess"));
+    } catch {
+      toast.error(t("translateError"));
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const priorityIcon =
     message.priority === "urgent" ? <AlertTriangle className="h-4 w-4 text-destructive" /> :
     message.priority === "important" ? <AlertCircle className="h-4 w-4 text-warning" /> : null;
