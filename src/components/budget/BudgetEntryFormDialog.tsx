@@ -100,10 +100,10 @@ export default function BudgetEntryFormDialog({ open, onOpenChange, projectId, c
           </div>
           <div>
             <Label>{t("entries.category")}</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
+            <Select value={categoryId || "none"} onValueChange={v => setCategoryId(v === "none" ? "" : v)}>
               <SelectTrigger><SelectValue placeholder={t("entries.all_categories")} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t("entries.no_category")}</SelectItem>
+                <SelectItem value="none">{t("entries.no_category")}</SelectItem>
                 {filteredCats.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
