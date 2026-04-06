@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Paperclip, X, Send, Loader2 } from "lucide-react";
+import { Paperclip, X, Send, Loader2, Languages } from "lucide-react";
 import { toast } from "sonner";
 import RecipientSelector from "./RecipientSelector";
 import { notifyNewMessage } from "@/lib/notifyNewMessage";
@@ -46,6 +46,7 @@ export default function MessageCompose({ replyTo, onSent }: Props) {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   const isAdmin = hasRole("superadmin") || hasRole("admin");
   const isManager = hasRole("manager");
