@@ -29,7 +29,7 @@ export default function ItemFormDialog({ open, onOpenChange, phaseId, item, next
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    supabase.from("phase_item_types").select("*").order("name").then(({ data }) => {
+    supabase.from("phase_item_types").select("*").neq("code", "signature").order("name").then(({ data }) => {
       if (data) setItemTypes(data);
     });
   }, []);
