@@ -55,8 +55,8 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
   };
 
   useEffect(() => {
-    if (open) fetchItems();
-  }, [open, phase.id]);
+    if (open || searchTerm) fetchItems();
+  }, [open, phase.id, searchTerm]);
 
   const handleDelete = async () => {
     const { error } = await supabase.from("project_phases").delete().eq("id", phase.id);
