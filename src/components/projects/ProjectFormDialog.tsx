@@ -199,9 +199,6 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       return;
     }
 
-    if (!project && newProjectId && user) {
-      await supabase.from("project_users").insert({ project_id: newProjectId, user_id: user.id });
-    }
 
     if (!project && selectedTemplateId && newProjectId) {
       try {
