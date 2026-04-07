@@ -181,16 +181,16 @@ export default function ProjectFormDialog({ open, onOpenChange, project, statuse
       allowed_file_extensions: allowedExtensions,
     };
 
-    let error;
+    let error: any = null;
     let newProjectId: string | null = null;
 
     if (project) {
       ({ error } = await supabase.from("projects").update(data).eq("id", project.id));
     } else {
+      newProjectId = crypto.randomUUID();
+      data.id = newProjectId;
       data.created_by = user!.id;
-      const res = await supabase.from("projects").insert(data).select("id").single();
-      error = res.error;
-      newProjectId = res.data?.id || null;
+      ({ error } = await supabase.from("projects").insert(data));
     }
 
     if (error) {
