@@ -64,9 +64,11 @@ export function PermissionsTab() {
     }
 
     const newValue = !perm[field];
+    const updateData: Record<string, boolean> = {};
+    updateData[field] = newValue;
     const { error } = await supabase
       .from("role_permissions")
-      .update({ [field]: newValue })
+      .update(updateData as any)
       .eq("id", perm.id);
 
     if (error) {
