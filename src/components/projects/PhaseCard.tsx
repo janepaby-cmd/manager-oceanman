@@ -155,19 +155,24 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
           </CardHeader>
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-2">
-              {displayItems.map((item) => (
-                <PhaseItemRow
-                  key={item.id}
-                  item={item}
-                  projectId={phase.project_id}
-                  canManage={canManage}
-                  canComplete={canCompleteItems}
-                  onUpdated={fetchItems}
-                  onEdit={() => { setEditItem(item); setShowItemForm(true); }}
-                  maxFiles={maxFiles}
-                  allowedExtensions={allowedExtensions}
-                />
-              ))}
+              <DndContext sensors={itemSensors} collisionDetection={closestCenter} onDragEnd={handleItemDragEnd}>
+                <SortableContext items={displayItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                  {displayItems.map((item) => (
+                    <SortableItemWrapper key={item.id} id={item.id} disabled={!canManage || !!needle}>
+                      <PhaseItemRow
+                        item={item}
+                        projectId={phase.project_id}
+                        canManage={canManage}
+                        canComplete={canCompleteItems}
+                        onUpdated={fetchItems}
+                        onEdit={() => { setEditItem(item); setShowItemForm(true); }}
+                        maxFiles={maxFiles}
+                        allowedExtensions={allowedExtensions}
+                      />
+                    </SortableItemWrapper>
+                  ))}
+                </SortableContext>
+              </DndContext>
               {canCreateItems && (
                 <Button variant="outline" size="sm" className="w-full" onClick={() => { setEditItem(null); setShowItemForm(true); }}>
                   <Plus className="h-3.5 w-3.5 mr-2" /> {t("addItem")}
