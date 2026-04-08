@@ -17,6 +17,11 @@ import ProjectUsersDialog from "./ProjectUsersDialog";
 import ExpenseList from "./ExpenseList";
 import ProjectDocuments from "./ProjectDocuments";
 import BudgetModule from "@/components/budget/BudgetModule";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers" as any;
 
 interface Props {
   projectId: string;
