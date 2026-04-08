@@ -40,6 +40,24 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [showUsers, setShowUsers] = useState(false);
   const [phaseSearch, setPhaseSearch] = useState("");
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handlePhaseDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = phases.findIndex(p => p.id === active.id);
+    const newIndex = phases.findIndex(p => p.id === over.id);
+    const reordered = arrayMove(phases, oldIndex, newIndex);
+    setPhases(reordered);
+    // Persist new positions
+    await Promise.all(reordered.map((p, i) =>
+      supabase.from("project_phases").update({ position: i }).eq("id", p.id)
+    ));
+  };
+
   const canManageProject = can("update", "projects");
   const canCreatePhase = can("create", "phases");
   const canEditPhase = can("update", "phases");
