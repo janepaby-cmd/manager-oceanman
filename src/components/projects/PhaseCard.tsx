@@ -10,6 +10,11 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import PhaseItemRow from "./PhaseItemRow";
 import ItemFormDialog from "./ItemFormDialog";
+import SortableItemWrapper from "./SortableItemWrapper";
+import {
+  DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors, DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -37,6 +42,22 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
   const [editItem, setEditItem] = useState<any>(null);
   const [showDelete, setShowDelete] = useState(false);
   const { t } = useTranslation(["projects", "common"]);
+  const itemSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleItemDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex(i => i.id === active.id);
+    const newIndex = items.findIndex(i => i.id === over.id);
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    setItems(reordered);
+    await Promise.all(reordered.map((item, i) =>
+      supabase.from("phase_items").update({ position: i }).eq("id", item.id)
+    ));
+  };
 
   const fetchItems = async () => {
     const { data } = await supabase
@@ -134,19 +155,24 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
           </CardHeader>
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-2">
-              {displayItems.map((item) => (
-                <PhaseItemRow
-                  key={item.id}
-                  item={item}
-                  projectId={phase.project_id}
-                  canManage={canManage}
-                  canComplete={canCompleteItems}
-                  onUpdated={fetchItems}
-                  onEdit={() => { setEditItem(item); setShowItemForm(true); }}
-                  maxFiles={maxFiles}
-                  allowedExtensions={allowedExtensions}
-                />
-              ))}
+              <DndContext sensors={itemSensors} collisionDetection={closestCenter} onDragEnd={handleItemDragEnd}>
+                <SortableContext items={displayItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                  {displayItems.map((item) => (
+                    <SortableItemWrapper key={item.id} id={item.id} disabled={!canManage || !!needle}>
+                      <PhaseItemRow
+                        item={item}
+                        projectId={phase.project_id}
+                        canManage={canManage}
+                        canComplete={canCompleteItems}
+                        onUpdated={fetchItems}
+                        onEdit={() => { setEditItem(item); setShowItemForm(true); }}
+                        maxFiles={maxFiles}
+                        allowedExtensions={allowedExtensions}
+                      />
+                    </SortableItemWrapper>
+                  ))}
+                </SortableContext>
+              </DndContext>
               {canCreateItems && (
                 <Button variant="outline" size="sm" className="w-full" onClick={() => { setEditItem(null); setShowItemForm(true); }}>
                   <Plus className="h-3.5 w-3.5 mr-2" /> {t("addItem")}

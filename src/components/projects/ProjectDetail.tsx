@@ -11,12 +11,16 @@ import InvoiceModule from "@/components/invoices/InvoiceModule";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import PhaseCard from "./PhaseCard";
+import SortablePhaseCard from "./SortablePhaseCard";
 import PhaseFormDialog from "./PhaseFormDialog";
 import ProjectUsersDialog from "./ProjectUsersDialog";
 import ExpenseList from "./ExpenseList";
 import ProjectDocuments from "./ProjectDocuments";
 import BudgetModule from "@/components/budget/BudgetModule";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 
 interface Props {
   projectId: string;
@@ -35,6 +39,24 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
   const [docsRefreshKey, setDocsRefreshKey] = useState(0);
   const [showUsers, setShowUsers] = useState(false);
   const [phaseSearch, setPhaseSearch] = useState("");
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handlePhaseDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = phases.findIndex(p => p.id === active.id);
+    const newIndex = phases.findIndex(p => p.id === over.id);
+    const reordered = arrayMove(phases, oldIndex, newIndex);
+    setPhases(reordered);
+    // Persist new positions
+    await Promise.all(reordered.map((p, i) =>
+      supabase.from("project_phases").update({ position: i }).eq("id", p.id)
+    ));
+  };
 
   const canManageProject = can("update", "projects");
   const canCreatePhase = can("create", "phases");
@@ -187,28 +209,34 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                 {t("noPhases")}
               </div>
             ) : (
-              <div className="space-y-3">
-                {phases.map((phase, index) => {
-                  const isLocked = project.is_restrictive && index > 0 && !phases[index - 1].is_completed;
-                  return (
-                    <PhaseCard
-                      key={phase.id}
-                      phase={phase}
-                      canManage={canEditPhase}
-                      canDelete={canDeletePhase}
-                      canCreateItems={canCreatePhase}
-                      canCompleteItems={canCompleteItems}
-                      isLocked={isLocked}
-                      maxFiles={project.max_files_per_item || 5}
-                      allowedExtensions={project.allowed_file_extensions || undefined}
-                      onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
-                      onDeleted={fetchPhases}
-                      onUpdated={fetchPhases}
-                      searchTerm={phaseSearch}
-                    />
-                  );
-                })}
-              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhaseDragEnd}>
+                <SortableContext items={phases.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-3">
+                    {phases.map((phase, index) => {
+                      const isLocked = project.is_restrictive && index > 0 && !phases[index - 1].is_completed;
+                      return (
+                        <SortablePhaseCard
+                          key={phase.id}
+                          id={phase.id}
+                          phase={phase}
+                          canManage={canEditPhase}
+                          canDelete={canDeletePhase}
+                          canCreateItems={canCreatePhase}
+                          canCompleteItems={canCompleteItems}
+                          isLocked={isLocked}
+                          maxFiles={project.max_files_per_item || 5}
+                          allowedExtensions={project.allowed_file_extensions || undefined}
+                          onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
+                          onDeleted={fetchPhases}
+                          onUpdated={fetchPhases}
+                          searchTerm={phaseSearch}
+                          isDragDisabled={!canEditPhase || !!phaseSearch}
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
         </TabsContent>
