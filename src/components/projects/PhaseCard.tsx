@@ -10,6 +10,12 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import PhaseItemRow from "./PhaseItemRow";
 import ItemFormDialog from "./ItemFormDialog";
+import SortableItemWrapper from "./SortableItemWrapper";
+import {
+  DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors, DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import ItemFormDialog from "./ItemFormDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
