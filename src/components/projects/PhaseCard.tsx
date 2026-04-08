@@ -42,6 +42,22 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
   const [editItem, setEditItem] = useState<any>(null);
   const [showDelete, setShowDelete] = useState(false);
   const { t } = useTranslation(["projects", "common"]);
+  const itemSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleItemDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex(i => i.id === active.id);
+    const newIndex = items.findIndex(i => i.id === over.id);
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    setItems(reordered);
+    await Promise.all(reordered.map((item, i) =>
+      supabase.from("phase_items").update({ position: i }).eq("id", item.id)
+    ));
+  };
 
   const fetchItems = async () => {
     const { data } = await supabase
