@@ -11,7 +11,7 @@ import InvoiceModule from "@/components/invoices/InvoiceModule";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import PhaseCard from "./PhaseCard";
+import SortablePhaseCard from "./SortablePhaseCard";
 import PhaseFormDialog from "./PhaseFormDialog";
 import ProjectUsersDialog from "./ProjectUsersDialog";
 import ExpenseList from "./ExpenseList";
