@@ -209,28 +209,34 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                 {t("noPhases")}
               </div>
             ) : (
-              <div className="space-y-3">
-                {phases.map((phase, index) => {
-                  const isLocked = project.is_restrictive && index > 0 && !phases[index - 1].is_completed;
-                  return (
-                    <PhaseCard
-                      key={phase.id}
-                      phase={phase}
-                      canManage={canEditPhase}
-                      canDelete={canDeletePhase}
-                      canCreateItems={canCreatePhase}
-                      canCompleteItems={canCompleteItems}
-                      isLocked={isLocked}
-                      maxFiles={project.max_files_per_item || 5}
-                      allowedExtensions={project.allowed_file_extensions || undefined}
-                      onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
-                      onDeleted={fetchPhases}
-                      onUpdated={fetchPhases}
-                      searchTerm={phaseSearch}
-                    />
-                  );
-                })}
-              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhaseDragEnd}>
+                <SortableContext items={phases.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-3">
+                    {phases.map((phase, index) => {
+                      const isLocked = project.is_restrictive && index > 0 && !phases[index - 1].is_completed;
+                      return (
+                        <SortablePhaseCard
+                          key={phase.id}
+                          id={phase.id}
+                          phase={phase}
+                          canManage={canEditPhase}
+                          canDelete={canDeletePhase}
+                          canCreateItems={canCreatePhase}
+                          canCompleteItems={canCompleteItems}
+                          isLocked={isLocked}
+                          maxFiles={project.max_files_per_item || 5}
+                          allowedExtensions={project.allowed_file_extensions || undefined}
+                          onEdit={() => { setEditPhase(phase); setShowPhaseForm(true); }}
+                          onDeleted={fetchPhases}
+                          onUpdated={fetchPhases}
+                          searchTerm={phaseSearch}
+                          isDragDisabled={!canEditPhase || !!phaseSearch}
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
         </TabsContent>
