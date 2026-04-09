@@ -44,5 +44,10 @@
   "language": "Idioma",
   "back": "Atrás",
   "next": "Siguiente",
-  "results": "registros"
+  "results": "registros",
+  "profile": {
+    "notifications": "Notificaciones",
+    "emailNotifications": "Recibir notificaciones por email",
+    "emailNotificationsDesc": "Recibe alertas por correo cuando se completan ítems de fases o recibes nuevos mensajes."
+  }
 }
