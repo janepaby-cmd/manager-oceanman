@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import DOMPurify from "dompurify";
+import { notifyCommentPosted } from "@/lib/notifyCommentPosted";
 
 interface Comment {
   id: string;
@@ -210,13 +211,33 @@ export default function ItemComments({ itemId, projectId, commentCount, onCountC
     if (!body.trim() || !user) return;
     setSending(true);
     const mentions = extractMentions(body);
+    const commentId = crypto.randomUUID();
     await supabase.from("phase_item_comments").insert({
+      id: commentId,
       item_id: itemId,
       user_id: user.id,
       body: body.trim(),
       parent_comment_id: replyTo?.id || null,
       mentioned_user_ids: mentions,
     } as any);
+
+    // Get author name for notification
+    const { data: authorProfile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", user.id)
+      .single();
+
+    notifyCommentPosted({
+      commentId,
+      itemId,
+      projectId,
+      commentBody: body.trim(),
+      commentAuthorName: authorProfile?.full_name || user.email || "",
+      commentAuthorId: user.id,
+      parentCommentId: replyTo?.id || null,
+    }).catch((err) => console.error("Comment notification error:", err));
+
     setBody("");
     setReplyTo(null);
     closeMentions();
