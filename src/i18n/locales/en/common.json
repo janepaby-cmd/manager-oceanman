@@ -50,6 +50,8 @@
     "emailNotifications": "Receive email notifications",
     "emailNotificationsDesc": "Get email alerts when phase items are completed or you receive new messages.",
     "commentNotifications": "Notify comments by email",
-    "commentNotificationsDesc": "Get email alerts when comments or replies are posted on items in your projects."
+    "commentNotificationsDesc": "Get email alerts when comments or replies are posted on items in your projects.",
+    "changeAvatar": "Change photo",
+    "removeAvatar": "Remove photo"
   }
 }
