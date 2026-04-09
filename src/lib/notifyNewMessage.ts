@@ -22,7 +22,7 @@ export async function notifyNewMessage({
     // Get profiles for all recipients
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("user_id, email, full_name")
+      .select("user_id, email, full_name, email_notifications_enabled")
       .in("user_id", recipientUserIds);
     if (!profiles?.length) return;
 
@@ -42,7 +42,7 @@ export async function notifyNewMessage({
     const lang = i18n.language?.startsWith("es") ? "es" : "en";
 
     for (const profile of profiles) {
-      if (!profile.email) continue;
+      if (!profile.email || !profile.email_notifications_enabled) continue;
 
       supabase.functions
         .invoke("send-transactional-email", {

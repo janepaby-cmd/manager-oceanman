@@ -44,5 +44,10 @@
   "language": "Language",
   "back": "Back",
   "next": "Next",
-  "results": "results"
+  "results": "results",
+  "profile": {
+    "notifications": "Notifications",
+    "emailNotifications": "Receive email notifications",
+    "emailNotificationsDesc": "Get email alerts when phase items are completed or you receive new messages."
+  }
 }

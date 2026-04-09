@@ -53,7 +53,7 @@ export async function notifyItemCompleted({
     const userIds = projectUsers.map((pu) => pu.user_id);
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("email, user_id")
+      .select("email, user_id, email_notifications_enabled")
       .in("user_id", userIds);
     if (!profiles?.length) return;
 
@@ -65,7 +65,7 @@ export async function notifyItemCompleted({
 
     // Send one email per user
     for (const profile of profiles) {
-      if (!profile.email) continue;
+      if (!profile.email || !profile.email_notifications_enabled) continue;
       supabase.functions.invoke("send-transactional-email", {
         body: {
           templateName: "item-completed",
