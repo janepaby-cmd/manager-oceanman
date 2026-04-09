@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User, KeyRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -21,6 +22,7 @@ import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDialog";
 export function DashboardHeader() {
   const [changePwdOpen, setChangePwdOpen] = useState(false);
   const { profile, roles, signOut } = useAuth();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation(["common", "auth"]);
   const { settings } = useAppSettings();
 
@@ -62,7 +64,7 @@ export function DashboardHeader() {
                 <p className="text-xs text-muted-foreground">{profile?.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem onClick={() => navigate("/dashboard/profile")} className="cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
                 {t("common:nav.myProfile")}
               </DropdownMenuItem>
