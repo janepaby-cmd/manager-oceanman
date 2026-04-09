@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const { t, i18n } = useTranslation(["common", "auth"]);
   const [changePwdOpen, setChangePwdOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [commentNotifications, setCommentNotifications] = useState(true);
   const [loadingNotif, setLoadingNotif] = useState(false);
   const { toast } = useToast();
 
@@ -26,25 +27,50 @@ export default function ProfilePage() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("email_notifications_enabled")
+      .select("email_notifications_enabled, email_comment_notifications_enabled")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
-        if (data) setEmailNotifications(data.email_notifications_enabled);
+        if (data) {
+          setEmailNotifications(data.email_notifications_enabled);
+          setCommentNotifications(data.email_comment_notifications_enabled);
+        }
       });
   }, [user]);
 
   const handleToggleNotifications = async (checked: boolean) => {
     if (!user) return;
     setLoadingNotif(true);
+    const updates: Record<string, boolean> = { email_notifications_enabled: checked };
+    // If disabling main notifications, also disable comment notifications
+    if (!checked) {
+      updates.email_comment_notifications_enabled = false;
+    }
     const { error } = await supabase
       .from("profiles")
-      .update({ email_notifications_enabled: checked })
+      .update(updates)
       .eq("user_id", user.id);
     if (error) {
       toast({ title: t("common:error"), description: error.message, variant: "destructive" });
     } else {
       setEmailNotifications(checked);
+      if (!checked) setCommentNotifications(false);
+      toast({ title: t("common:success") });
+    }
+    setLoadingNotif(false);
+  };
+
+  const handleToggleCommentNotifications = async (checked: boolean) => {
+    if (!user) return;
+    setLoadingNotif(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ email_comment_notifications_enabled: checked })
+      .eq("user_id", user.id);
+    if (error) {
+      toast({ title: t("common:error"), description: error.message, variant: "destructive" });
+    } else {
+      setCommentNotifications(checked);
       toast({ title: t("common:success") });
     }
     setLoadingNotif(false);
@@ -96,7 +122,7 @@ export default function ProfilePage() {
               {t("common:profile.notifications")}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="email-notif" className="text-sm">
                 {t("common:profile.emailNotifications")}
@@ -108,9 +134,26 @@ export default function ProfilePage() {
                 disabled={loadingNotif}
               />
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground">
               {t("common:profile.emailNotificationsDesc")}
             </p>
+
+            <div className="ml-6 border-l-2 border-border pl-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="comment-notif" className="text-sm">
+                  {t("common:profile.commentNotifications")}
+                </Label>
+                <Switch
+                  id="comment-notif"
+                  checked={commentNotifications}
+                  onCheckedChange={handleToggleCommentNotifications}
+                  disabled={loadingNotif || !emailNotifications}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t("common:profile.commentNotificationsDesc")}
+              </p>
+            </div>
           </CardContent>
         </Card>
 
