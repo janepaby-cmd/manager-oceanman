@@ -41,7 +41,9 @@ export default function ProfilePage() {
   const handleToggleNotifications = async (checked: boolean) => {
     if (!user) return;
     setLoadingNotif(true);
-    const updates: Record<string, boolean> = { email_notifications_enabled: checked };
+    const updates: { email_notifications_enabled: boolean; email_comment_notifications_enabled?: boolean } = {
+      email_notifications_enabled: checked,
+    };
     // If disabling main notifications, also disable comment notifications
     if (!checked) {
       updates.email_comment_notifications_enabled = false;
