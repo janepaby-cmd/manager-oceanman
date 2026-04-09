@@ -12,9 +12,11 @@ export interface TemplateEntry {
 import { template as itemCompleted } from './item-completed.tsx'
 import { template as testEmail } from './test-email.tsx'
 import { template as newMessage } from './new-message.tsx'
+import { template as commentNotification } from './comment-notification.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'item-completed': itemCompleted,
   'test-email': testEmail,
   'new-message': newMessage,
+  'comment-notification': commentNotification,
 }
