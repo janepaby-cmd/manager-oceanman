@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +53,9 @@ export function DashboardHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none">
               <Avatar className="h-8 w-8 border border-border">
+                {profile?.avatar_url ? (
+                  <AvatarImage src={profile.avatar_url} alt={profile.full_name || ""} />
+                ) : null}
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                   {initials}
                 </AvatarFallback>
