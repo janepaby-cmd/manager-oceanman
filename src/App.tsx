@@ -14,6 +14,7 @@ import SettingsPage from "./pages/SettingsPage";
 import MessagesPage from "./pages/MessagesPage";
 import MessageDetailPage from "./pages/MessageDetailPage";
 import Unsubscribe from "./pages/Unsubscribe";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ function AppInner() {
           <Route path="/dashboard/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
           <Route path="/dashboard/messages/:id" element={<ProtectedRoute><MessageDetailPage /></ProtectedRoute>} />
           <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="/dashboard/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
