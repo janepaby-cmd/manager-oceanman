@@ -209,15 +209,21 @@ export default function PhaseItemRow({ item, projectId, projectName = "", phaseN
             {item.description && <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
           </div>
 
-          {canManage && (
-            <div className="flex gap-1 shrink-0">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
-                <Pencil className="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
-                <Trash2 className="h-3 w-3 text-destructive" />
-              </Button>
-            </div>
+          <div className="flex gap-1 shrink-0">
+            <Button variant="ghost" size="icon" className="h-7 w-7" title={t("extSendToExternal")} onClick={() => setShowSendExternal(true)}>
+              <Send className="h-3 w-3" />
+            </Button>
+            {canManage && (
+              <>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
+                  <Trash2 className="h-3 w-3 text-destructive" />
+                </Button>
+              </>
+            )}
+          </div>
           )}
         </div>
 
@@ -288,6 +294,15 @@ export default function PhaseItemRow({ item, projectId, projectName = "", phaseN
       </div>
 
       <SignatureDialog open={showSignature} onOpenChange={setShowSignature} onSave={handleSignatureSaved} />
+
+      <SendToExternalDialog
+        open={showSendExternal}
+        onOpenChange={setShowSendExternal}
+        item={item}
+        projectId={projectId}
+        phaseName={phaseName}
+        projectName={projectName}
+      />
 
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
         <AlertDialogContent>
