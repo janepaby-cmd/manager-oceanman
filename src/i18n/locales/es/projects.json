@@ -171,6 +171,7 @@
   "extSentSuccess": "Correctos",
   "extSentErrors": "Con error",
   "extSentUniqueUsers": "Usuarios",
+  "extSentResends": "Reenvíos",
   "extSentSearchPlaceholder": "Buscar por usuario, email o tarea...",
   "extSentFilterUser": "Usuario externo",
   "extSentFilterAllUsers": "Todos los usuarios",
