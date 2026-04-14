@@ -5,7 +5,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Users, CheckCircle2, Circle, Layers, FileText, Receipt, PiggyBank, FileSpreadsheet, Search } from "lucide-react";
+import { ArrowLeft, Plus, Users, CheckCircle2, Circle, Layers, FileText, Receipt, PiggyBank, FileSpreadsheet, Search, UserPlus, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import InvoiceModule from "@/components/invoices/InvoiceModule";
 import { format } from "date-fns";
@@ -17,6 +17,8 @@ import ProjectUsersDialog from "./ProjectUsersDialog";
 import ExpenseList from "./ExpenseList";
 import ProjectDocuments from "./ProjectDocuments";
 import BudgetModule from "@/components/budget/BudgetModule";
+import ExternalUsersList from "./external-users/ExternalUsersList";
+import ExternalSentItemsTab from "./external-users/ExternalSentItemsTab";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
 } from "@dnd-kit/core";
@@ -180,6 +182,16 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
               <span className="sm:hidden">{t("tab_invoices_short")}</span>
             </TabsTrigger>
           )}
+          <TabsTrigger value="external-users" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <UserPlus className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t("tab_external_users")}</span>
+            <span className="sm:hidden">{t("tab_external_users_short")}</span>
+          </TabsTrigger>
+          <TabsTrigger value="external-sent" className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <Send className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{t("tab_sent_external")}</span>
+            <span className="sm:hidden">{t("tab_sent_external_short")}</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Phases */}
@@ -264,6 +276,16 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
             <InvoiceModule projectId={projectId} />
           </TabsContent>
         )}
+
+        {/* External Users */}
+        <TabsContent value="external-users">
+          <ExternalUsersList projectId={projectId} canManage={canManageProject} />
+        </TabsContent>
+
+        {/* External Sent Items */}
+        <TabsContent value="external-sent">
+          <ExternalSentItemsTab projectId={projectId} />
+        </TabsContent>
       </Tabs>
 
       <PhaseFormDialog
