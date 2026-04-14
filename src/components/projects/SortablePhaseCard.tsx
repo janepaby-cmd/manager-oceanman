@@ -6,6 +6,7 @@ import PhaseCard from "./PhaseCard";
 interface Props {
   id: string;
   phase: any;
+  projectName?: string;
   canManage: boolean;
   canDelete?: boolean;
   canCreateItems?: boolean;
