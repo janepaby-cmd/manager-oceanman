@@ -4,12 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X } from "lucide-react";
+import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
 import ItemComments from "./ItemComments";
 import { notifyItemCompleted } from "@/lib/notifyItemCompleted";
+import SendToExternalDialog from "./external-users/SendToExternalDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
