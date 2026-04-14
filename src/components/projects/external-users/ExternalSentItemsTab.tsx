@@ -171,6 +171,14 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
   const totalError = logs.filter(l => l.status === "error").length;
   const uniqueExtUsers = new Set(logs.map(l => l.external_user_id)).size;
 
+  // Count resends: logs where the same item+external_user combo appears more than once
+  const sendCounts = logs.reduce<Record<string, number>>((acc, l) => {
+    const key = `${l.item_id}::${l.external_user_id}`;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+  const totalResends = Object.values(sendCounts).reduce((sum, c) => sum + Math.max(0, c - 1), 0);
+
   const byExtUser = logs.reduce<Record<string, number>>((acc, l) => {
     acc[l.external_user_id] = (acc[l.external_user_id] || 0) + 1;
     return acc;
@@ -181,7 +189,7 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
       <h3 className="text-lg font-semibold">{t("extSentTitle")}</h3>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
         <Card>
           <CardContent className="p-3 flex items-center gap-2">
             <Send className="h-4 w-4 text-primary" />
@@ -206,6 +214,15 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
             <div>
               <p className="text-[10px] text-muted-foreground leading-none">{t("extSentErrors")}</p>
               <p className="text-lg font-bold">{totalError}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <RefreshCw className="h-4 w-4 text-amber-500" />
+            <div>
+              <p className="text-[10px] text-muted-foreground leading-none">{t("extSentResends")}</p>
+              <p className="text-lg font-bold">{totalResends}</p>
             </div>
           </CardContent>
         </Card>
