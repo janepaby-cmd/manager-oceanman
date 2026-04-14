@@ -49,31 +49,31 @@ const ExternalItemNotificationEmail = ({
         <Section style={detailsCard}>
           <Text style={detailRow}>
             <span style={detailLabel}>{t(lang, 'Project', 'Proyecto')}:</span>{' '}
-            {projectName || '—'}
+            <span style={detailValue}>{projectName || '—'}</span>
           </Text>
           <Text style={detailRow}>
             <span style={detailLabel}>{t(lang, 'Phase', 'Fase')}:</span>{' '}
-            {phaseName || '—'}
+            <span style={detailValue}>{phaseName || '—'}</span>
           </Text>
           <Text style={detailRow}>
             <span style={detailLabel}>{t(lang, 'Item', 'Ítem')}:</span>{' '}
-            {itemTitle || '—'}
+            <span style={detailValue}>{itemTitle || '—'}</span>
           </Text>
           <Hr style={divider} />
           <Text style={detailRow}>
             <span style={detailLabel}>{t(lang, 'Status', 'Estado')}:</span>{' '}
-            <span style={{ color: itemStatus === 'Completed' || itemStatus === 'Completado' ? '#16a34a' : '#ea580c', fontWeight: 600 }}>
+            <span style={{ fontSize: '16px', fontWeight: 700, color: itemStatus === 'Completed' || itemStatus === 'Completado' ? '#16a34a' : '#ea580c' }}>
               {itemStatus || '—'}
             </span>
           </Text>
         </Section>
 
         {itemDescription && (
-          <Section style={{ marginBottom: '24px' }}>
-            <Text style={{ ...detailLabel, fontSize: '14px', margin: '0 0 8px' }}>
+          <Section style={descriptionSection}>
+            <Text style={sectionTitle}>
               {t(lang, 'Description', 'Descripción')}
             </Text>
-            <Text style={text}>{itemDescription}</Text>
+            <Text style={descriptionText}>{itemDescription}</Text>
           </Section>
         )}
 
@@ -82,12 +82,12 @@ const ExternalItemNotificationEmail = ({
             <Text style={messageSectionTitle}>
               {t(lang, 'Additional Message', 'Mensaje Adicional')}
             </Text>
-            <Text style={text}>{additionalMessage}</Text>
+            <Text style={messageText}>{additionalMessage}</Text>
           </Section>
         )}
 
         {senderName && (
-          <Text style={text}>
+          <Text style={senderText}>
             {t(lang, `Sent by ${senderName}`, `Enviado por ${senderName}`)}
           </Text>
         )}
@@ -124,26 +124,31 @@ export const template = {
   },
 } satisfies TemplateEntry
 
-const main = { backgroundColor: '#ffffff', fontFamily: "'Inter', Arial, sans-serif" }
-const container = { padding: '32px 24px', maxWidth: '520px', margin: '0 auto' }
-const headerSection = { marginBottom: '24px' }
+const main = { backgroundColor: '#f4f4f5', fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif" }
+const container = { backgroundColor: '#ffffff', padding: '40px 32px', maxWidth: '680px', margin: '24px auto', borderRadius: '12px', border: '1px solid #e5e7eb' }
+const headerSection = { marginBottom: '28px', borderBottom: '2px solid #e5e7eb', paddingBottom: '16px' }
 const headerLabel = {
-  fontSize: '11px', fontWeight: '600' as const, textTransform: 'uppercase' as const,
-  letterSpacing: '1.5px', color: '#0066cc', margin: '0',
+  fontSize: '13px', fontWeight: '700' as const, textTransform: 'uppercase' as const,
+  letterSpacing: '2px', color: '#0066cc', margin: '0',
 }
-const greeting = { fontSize: '14px', color: '#374151', lineHeight: '1.6', margin: '0 0 16px' }
-const h1 = { fontSize: '20px', fontWeight: '600' as const, color: '#111827', margin: '0 0 12px', lineHeight: '1.3' }
-const text = { fontSize: '14px', color: '#6b7280', lineHeight: '1.6', margin: '0 0 24px' }
+const greeting = { fontSize: '16px', color: '#374151', lineHeight: '1.6', margin: '0 0 20px' }
+const h1 = { fontSize: '26px', fontWeight: '700' as const, color: '#111827', margin: '0 0 20px', lineHeight: '1.3' }
 const detailsCard = {
-  backgroundColor: '#f9fafb', borderRadius: '8px', padding: '20px',
-  marginBottom: '24px', border: '1px solid #e5e7eb',
+  backgroundColor: '#f9fafb', borderRadius: '10px', padding: '24px 28px',
+  marginBottom: '28px', border: '1px solid #e5e7eb',
 }
-const detailRow = { fontSize: '13px', color: '#374151', margin: '0 0 8px', lineHeight: '1.5' }
-const detailLabel = { fontWeight: '600' as const, color: '#111827' }
-const divider = { borderColor: '#e5e7eb', margin: '12px 0' }
+const detailRow = { fontSize: '15px', color: '#374151', margin: '0 0 12px', lineHeight: '1.6' }
+const detailLabel = { fontWeight: '700' as const, color: '#111827', fontSize: '15px' }
+const detailValue = { fontSize: '15px', color: '#374151' }
+const divider = { borderColor: '#e5e7eb', margin: '16px 0' }
+const descriptionSection = { marginBottom: '28px' }
+const sectionTitle = { fontSize: '16px', fontWeight: '700' as const, color: '#111827', margin: '0 0 10px' }
+const descriptionText = { fontSize: '15px', color: '#4b5563', lineHeight: '1.7', margin: '0' }
 const messageSection = {
-  backgroundColor: '#f0f9ff', borderRadius: '8px', padding: '16px 20px',
-  marginBottom: '24px', border: '1px solid #bae6fd',
+  backgroundColor: '#eff6ff', borderRadius: '10px', padding: '20px 24px',
+  marginBottom: '28px', borderLeft: '4px solid #3b82f6',
 }
-const messageSectionTitle = { fontSize: '13px', fontWeight: '600' as const, color: '#0369a1', margin: '0 0 8px' }
-const footer = { fontSize: '11px', color: '#9ca3af', margin: '0', fontStyle: 'italic' as const }
+const messageSectionTitle = { fontSize: '15px', fontWeight: '700' as const, color: '#1d4ed8', margin: '0 0 10px' }
+const messageText = { fontSize: '15px', color: '#1e40af', lineHeight: '1.7', margin: '0' }
+const senderText = { fontSize: '14px', color: '#6b7280', lineHeight: '1.6', margin: '0 0 28px' }
+const footer = { fontSize: '12px', color: '#9ca3af', margin: '0', fontStyle: 'italic' as const, borderTop: '1px solid #e5e7eb', paddingTop: '16px' }
