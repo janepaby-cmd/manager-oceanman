@@ -186,5 +186,10 @@
   "extSentColSender": "Sender",
   "extSentColDate": "Date",
   "extSentColStatus": "Status",
-  "extSentPreviewTitle": "Send detail"
+  "extSentPreviewTitle": "Send detail",
+  "extResend": "Resend",
+  "extResending": "Resending...",
+  "extResendSuccess": "Resend completed successfully",
+  "extResendError": "Error resending",
+  "extResendConfirm": "Resend this item to {{name}} ({{email}})?"
 }

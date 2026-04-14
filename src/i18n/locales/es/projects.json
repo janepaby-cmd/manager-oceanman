@@ -186,5 +186,10 @@
   "extSentColSender": "Remitente",
   "extSentColDate": "Fecha",
   "extSentColStatus": "Estado",
-  "extSentPreviewTitle": "Detalle del envío"
+  "extSentPreviewTitle": "Detalle del envío",
+  "extResend": "Reenviar",
+  "extResending": "Reenviando...",
+  "extResendSuccess": "Reenvío realizado correctamente",
+  "extResendError": "Error al reenviar",
+  "extResendConfirm": "¿Reenviar este ítem a {{name}} ({{email}})?"
 }
