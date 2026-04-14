@@ -163,6 +163,8 @@ export default function PhaseCard({ phase, projectName = "", canManage, canDelet
                       <PhaseItemRow
                         item={item}
                         projectId={phase.project_id}
+                        projectName={projectName}
+                        phaseName={phase.name}
                         canManage={canManage}
                         canComplete={canCompleteItems}
                         onUpdated={fetchItems}
