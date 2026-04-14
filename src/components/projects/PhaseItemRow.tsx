@@ -26,6 +26,8 @@ interface ItemFile {
 interface Props {
   item: any;
   projectId: string;
+  projectName?: string;
+  phaseName?: string;
   canManage: boolean;
   canComplete?: boolean;
   onUpdated: () => void;
@@ -34,11 +36,12 @@ interface Props {
   allowedExtensions?: string[];
 }
 
-export default function PhaseItemRow({ item, projectId, canManage, canComplete = false, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
+export default function PhaseItemRow({ item, projectId, projectName = "", phaseName = "", canManage, canComplete = false, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
   const { user, profile } = useAuth();
   const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
+  const [showSendExternal, setShowSendExternal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<ItemFile[]>([]);
