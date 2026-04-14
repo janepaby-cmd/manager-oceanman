@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -7,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Send, CheckCircle, XCircle, Eye, Mail, AlertTriangle } from "lucide-react";
+import { Search, Send, CheckCircle, XCircle, Eye, Mail, AlertTriangle, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 interface LogEntry {
   id: string;
@@ -34,12 +35,13 @@ interface Props {
 
 export default function ExternalSentItemsTab({ projectId }: Props) {
   const { t, i18n } = useTranslation(["projects", "common"]);
+  const { user, profile } = useAuth();
   const dateLocale = i18n.language === "es" ? es : undefined;
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [phases, setPhases] = useState<{ id: string; name: string }[]>([]);
   const [extUsers, setExtUsers] = useState<{ id: string; first_name: string; last_name: string | null; email: string }[]>([]);
   const [profiles, setProfiles] = useState<{ user_id: string; full_name: string | null }[]>([]);
-  const [items, setItems] = useState<{ id: string; title: string }[]>([]);
+  const [items, setItems] = useState<{ id: string; title: string; description: string | null; is_completed: boolean; phase_id: string }[]>([]);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -47,6 +49,7 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
   const [filterPhase, setFilterPhase] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [previewLog, setPreviewLog] = useState<LogEntry | null>(null);
+  const [resending, setResending] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const [logsRes, phasesRes, extUsersRes] = await Promise.all([
@@ -59,14 +62,13 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
     if (phasesRes.data) setPhases(phasesRes.data);
     if (extUsersRes.data) setExtUsers(extUsersRes.data);
 
-    // Fetch unique sender profiles and items
     if (logsRes.data && logsRes.data.length > 0) {
       const senderIds = [...new Set(logsRes.data.map((l: any) => l.sender_user_id))];
       const itemIds = [...new Set(logsRes.data.map((l: any) => l.item_id))];
 
       const [profilesRes, itemsRes] = await Promise.all([
         supabase.from("profiles").select("user_id, full_name").in("user_id", senderIds),
-        supabase.from("phase_items").select("id, title").in("id", itemIds),
+        supabase.from("phase_items").select("id, title, description, is_completed, phase_id").in("id", itemIds),
       ]);
       if (profilesRes.data) setProfiles(profilesRes.data);
       if (itemsRes.data) setItems(itemsRes.data);
@@ -75,7 +77,6 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Lookup helpers
   const getPhaseName = (id: string) => phases.find(p => p.id === id)?.name || "—";
   const getExtUserName = (id: string) => {
     const u = extUsers.find(e => e.id === id);
@@ -83,6 +84,72 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
   };
   const getSenderName = (id: string) => profiles.find(p => p.user_id === id)?.full_name || "—";
   const getItemTitle = (id: string) => items.find(i => i.id === id)?.title || "—";
+
+  const handleResend = async (log: LogEntry) => {
+    const extUser = extUsers.find(u => u.id === log.external_user_id);
+    const recipientName = extUser ? `${extUser.first_name} ${extUser.last_name || ""}`.trim() : log.email;
+
+    if (!confirm(t("extResendConfirm", { name: recipientName, email: log.email }))) return;
+
+    setResending(log.id);
+
+    try {
+      // Get current item data for fresh content
+      const item = items.find(i => i.id === log.item_id);
+      const phaseName = getPhaseName(log.phase_id);
+      const projectRes = await supabase.from("projects").select("name").eq("id", projectId).single();
+      const projectName = projectRes.data?.name || "";
+
+      const { error: fnError } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "external-item-notification",
+          recipientEmail: log.email,
+          idempotencyKey: `ext-resend-${log.item_id}-${log.external_user_id}-${Date.now()}`,
+          templateData: {
+            projectName,
+            phaseName,
+            itemTitle: item?.title || log.subject,
+            itemDescription: item?.description || "",
+            itemStatus: item?.is_completed
+              ? (i18n.language === "es" ? "Completado" : "Completed")
+              : (i18n.language === "es" ? "Pendiente" : "Pending"),
+            recipientName,
+            additionalMessage: log.additional_message || undefined,
+            senderName: profile?.full_name || user?.email || "",
+            lang: i18n.language,
+          },
+        },
+      });
+
+      const status = fnError ? "error" : "sent";
+
+      await supabase.from("external_notification_logs").insert({
+        project_id: projectId,
+        item_id: log.item_id,
+        phase_id: log.phase_id,
+        sender_user_id: user!.id,
+        external_user_id: log.external_user_id,
+        email: log.email,
+        subject: log.subject,
+        html_content_snapshot: log.html_content_snapshot,
+        status,
+        error_message: fnError?.message || null,
+        additional_message: log.additional_message || null,
+      });
+
+      if (fnError) {
+        toast.error(t("extResendError"));
+      } else {
+        toast.success(t("extResendSuccess"));
+      }
+
+      fetchData();
+    } catch {
+      toast.error(t("extResendError"));
+    } finally {
+      setResending(null);
+    }
+  };
 
   // Filter
   const filtered = logs.filter(l => {
@@ -104,7 +171,6 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
   const totalError = logs.filter(l => l.status === "error").length;
   const uniqueExtUsers = new Set(logs.map(l => l.external_user_id)).size;
 
-  // Group by ext user for summary
   const byExtUser = logs.reduce<Record<string, number>>((acc, l) => {
     acc[l.external_user_id] = (acc[l.external_user_id] || 0) + 1;
     return acc;
@@ -210,7 +276,7 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
                 <TableHead className="hidden lg:table-cell">{t("extSentColSender")}</TableHead>
                 <TableHead>{t("extSentColDate")}</TableHead>
                 <TableHead>{t("extSentColStatus")}</TableHead>
-                <TableHead className="w-[50px]" />
+                <TableHead className="w-[80px]" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -234,9 +300,21 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPreviewLog(l)}>
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPreviewLog(l)}>
+                        <Eye className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={resending === l.id}
+                        onClick={() => handleResend(l)}
+                        title={t("extResend")}
+                      >
+                        <RefreshCw className={`h-3.5 w-3.5 ${resending === l.id ? "animate-spin" : ""}`} />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -259,6 +337,17 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
               {previewLog.error_message && <p className="text-destructive"><strong>Error:</strong> {previewLog.error_message}</p>}
               <div className="border rounded-md flex-1 overflow-y-auto">
                 <div className="p-4" dangerouslySetInnerHTML={{ __html: previewLog.html_content_snapshot }} />
+              </div>
+              <div className="pt-2 flex justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={resending === previewLog.id}
+                  onClick={() => handleResend(previewLog)}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${resending === previewLog.id ? "animate-spin" : ""}`} />
+                  {resending === previewLog.id ? t("extResending") : t("extResend")}
+                </Button>
               </div>
             </div>
           )}
