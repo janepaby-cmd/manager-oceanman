@@ -231,6 +231,7 @@ export default function ProjectDetail({ projectId, onBack }: Props) {
                           key={phase.id}
                           id={phase.id}
                           phase={phase}
+                          projectName={project.name}
                           canManage={canEditPhase}
                           canDelete={canDeletePhase}
                           canCreateItems={canCreatePhase}
