@@ -207,15 +207,15 @@ export default function SendToExternalDialog({ open, onOpenChange, item, project
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="preview" className="flex-1 overflow-hidden mt-2">
-            <div className="space-y-2">
+          <TabsContent value="preview" className="flex-1 overflow-hidden mt-2 flex flex-col">
+            <div className="space-y-2 flex-1 flex flex-col overflow-hidden">
               <div className="text-sm">
                 <span className="font-medium">{t("extSendSubject")}:</span>{" "}
                 <span className="text-muted-foreground">{subject}</span>
               </div>
-              <ScrollArea className="border rounded-md max-h-[350px]">
+              <div className="border rounded-md flex-1 overflow-y-auto">
                 <div className="p-4" dangerouslySetInnerHTML={{ __html: htmlContent }} />
-              </ScrollArea>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

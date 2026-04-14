@@ -252,14 +252,14 @@ export default function ExternalSentItemsTab({ projectId }: Props) {
             <DialogTitle>{t("extSentPreviewTitle")}</DialogTitle>
           </DialogHeader>
           {previewLog && (
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-sm overflow-hidden flex-1 flex flex-col">
               <p><strong>{t("extSendSubject")}:</strong> {previewLog.subject}</p>
               <p><strong>{t("extUserEmail")}:</strong> {previewLog.email}</p>
               <p><strong>{t("extSentColDate")}:</strong> {format(new Date(previewLog.sent_at), "dd/MM/yyyy HH:mm:ss", { locale: dateLocale })}</p>
               {previewLog.error_message && <p className="text-destructive"><strong>Error:</strong> {previewLog.error_message}</p>}
-              <ScrollArea className="border rounded-md max-h-[350px]">
+              <div className="border rounded-md flex-1 overflow-y-auto">
                 <div className="p-4" dangerouslySetInnerHTML={{ __html: previewLog.html_content_snapshot }} />
-              </ScrollArea>
+              </div>
             </div>
           )}
         </DialogContent>
