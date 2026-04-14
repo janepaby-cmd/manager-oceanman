@@ -22,6 +22,7 @@ import {
 
 interface Props {
   phase: any;
+  projectName?: string;
   canManage: boolean;
   canDelete?: boolean;
   canCreateItems?: boolean;
@@ -35,7 +36,7 @@ interface Props {
   onUpdated: () => void;
 }
 
-export default function PhaseCard({ phase, canManage, canDelete = canManage, canCreateItems = canManage, canCompleteItems = false, isLocked = false, maxFiles, allowedExtensions, searchTerm = "", onEdit, onDeleted, onUpdated }: Props) {
+export default function PhaseCard({ phase, projectName = "", canManage, canDelete = canManage, canCreateItems = canManage, canCompleteItems = false, isLocked = false, maxFiles, allowedExtensions, searchTerm = "", onEdit, onDeleted, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
@@ -162,6 +163,8 @@ export default function PhaseCard({ phase, canManage, canDelete = canManage, can
                       <PhaseItemRow
                         item={item}
                         projectId={phase.project_id}
+                        projectName={projectName}
+                        phaseName={phase.name}
                         canManage={canManage}
                         canComplete={canCompleteItems}
                         onUpdated={fetchItems}

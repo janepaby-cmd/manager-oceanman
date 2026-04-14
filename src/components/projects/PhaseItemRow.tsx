@@ -4,12 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X } from "lucide-react";
+import { Pencil, Trash2, Upload, FileText, PenTool, Check, Paperclip, X, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SignatureDialog from "./SignatureDialog";
 import ItemComments from "./ItemComments";
 import { notifyItemCompleted } from "@/lib/notifyItemCompleted";
+import SendToExternalDialog from "./external-users/SendToExternalDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -25,6 +26,8 @@ interface ItemFile {
 interface Props {
   item: any;
   projectId: string;
+  projectName?: string;
+  phaseName?: string;
   canManage: boolean;
   canComplete?: boolean;
   onUpdated: () => void;
@@ -33,11 +36,12 @@ interface Props {
   allowedExtensions?: string[];
 }
 
-export default function PhaseItemRow({ item, projectId, canManage, canComplete = false, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
+export default function PhaseItemRow({ item, projectId, projectName = "", phaseName = "", canManage, canComplete = false, onUpdated, onEdit, maxFiles = 5, allowedExtensions }: Props) {
   const { user, profile } = useAuth();
   const { t } = useTranslation(["projects", "common"]);
   const [showDelete, setShowDelete] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
+  const [showSendExternal, setShowSendExternal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<ItemFile[]>([]);
@@ -205,16 +209,21 @@ export default function PhaseItemRow({ item, projectId, canManage, canComplete =
             {item.description && <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
           </div>
 
-          {canManage && (
-            <div className="flex gap-1 shrink-0">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
-                <Pencil className="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
-                <Trash2 className="h-3 w-3 text-destructive" />
-              </Button>
-            </div>
-          )}
+          <div className="flex gap-1 shrink-0">
+            <Button variant="ghost" size="icon" className="h-7 w-7" title={t("extSendToExternal")} onClick={() => setShowSendExternal(true)}>
+              <Send className="h-3 w-3" />
+            </Button>
+            {canManage && (
+              <>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowDelete(true)}>
+                  <Trash2 className="h-3 w-3 text-destructive" />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Row 2: badges + action buttons */}
@@ -284,6 +293,15 @@ export default function PhaseItemRow({ item, projectId, canManage, canComplete =
       </div>
 
       <SignatureDialog open={showSignature} onOpenChange={setShowSignature} onSave={handleSignatureSaved} />
+
+      <SendToExternalDialog
+        open={showSendExternal}
+        onOpenChange={setShowSendExternal}
+        item={item}
+        projectId={projectId}
+        phaseName={phaseName}
+        projectName={projectName}
+      />
 
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
         <AlertDialogContent>

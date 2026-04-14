@@ -377,6 +377,139 @@ export type Database = {
         }
         Relationships: []
       }
+      external_notification_logs: {
+        Row: {
+          additional_message: string | null
+          created_at: string
+          email: string
+          error_message: string | null
+          external_user_id: string
+          html_content_snapshot: string
+          id: string
+          item_id: string
+          phase_id: string
+          project_id: string
+          sender_user_id: string
+          sent_at: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          additional_message?: string | null
+          created_at?: string
+          email: string
+          error_message?: string | null
+          external_user_id: string
+          html_content_snapshot: string
+          id?: string
+          item_id: string
+          phase_id: string
+          project_id: string
+          sender_user_id: string
+          sent_at?: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          additional_message?: string | null
+          created_at?: string
+          email?: string
+          error_message?: string | null
+          external_user_id?: string
+          html_content_snapshot?: string
+          id?: string
+          item_id?: string
+          phase_id?: string
+          project_id?: string
+          sender_user_id?: string
+          sent_at?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_notification_logs_external_user_id_fkey"
+            columns: ["external_user_id"]
+            isOneToOne: false
+            referencedRelation: "external_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_notification_logs_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "phase_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_notification_logs_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "project_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_notification_logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_users: {
+        Row: {
+          company: string | null
+          created_at: string
+          deleted_at: string | null
+          email: string
+          first_name: string
+          id: string
+          is_active: boolean
+          last_name: string | null
+          notes: string | null
+          phone: string | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email: string
+          first_name: string
+          id?: string
+          is_active?: boolean
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          is_active?: boolean
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_users_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_config: {
         Row: {
           company_address: string | null
