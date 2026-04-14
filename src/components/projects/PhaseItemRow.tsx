@@ -224,7 +224,6 @@ export default function PhaseItemRow({ item, projectId, projectName = "", phaseN
               </>
             )}
           </div>
-          )}
         </div>
 
         {/* Row 2: badges + action buttons */}
