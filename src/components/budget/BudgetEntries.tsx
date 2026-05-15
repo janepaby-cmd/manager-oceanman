@@ -9,7 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Plus, Pencil, Trash2, TrendingUp, TrendingDown, Minus, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import BudgetEntryFormDialog from "./BudgetEntryFormDialog";
 
 interface Category { id: string; name: string; type: string; }
@@ -33,6 +34,7 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [searchConcept, setSearchConcept] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editEntry, setEditEntry] = useState<Entry | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -52,13 +54,16 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c.name])), [categories]);
 
   const filtered = useMemo(() => {
+    const term = searchConcept.trim().toLowerCase();
+    const applySearch = term.length >= 3;
     return entries.filter(e => {
       if (filterType !== "all" && e.type !== filterType) return false;
       if (filterCategory !== "all" && e.category_id !== filterCategory) return false;
       if (filterStatus !== "all" && e.status !== filterStatus) return false;
+      if (applySearch && !e.concept.toLowerCase().includes(term)) return false;
       return true;
     });
-  }, [entries, filterType, filterCategory, filterStatus]);
+  }, [entries, filterType, filterCategory, filterStatus, searchConcept]);
 
   const totalIncome = filtered.filter(e => e.type === "income").reduce((s, e) => s + Number(e.amount), 0);
   const totalExpenses = filtered.filter(e => e.type === "expense").reduce((s, e) => s + Number(e.amount), 0);
@@ -154,6 +159,15 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
             <SelectItem value="paid">{t("entries.status_paid")}</SelectItem>
           </SelectContent>
         </Select>
+        <div className="relative flex-1 min-w-[200px] max-w-[280px]">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            value={searchConcept}
+            onChange={e => setSearchConcept(e.target.value)}
+            placeholder={t("entries.search_concept")}
+            className="h-8 pl-7 text-xs"
+          />
+        </div>
       </div>
 
       {filtered.length === 0 ? (

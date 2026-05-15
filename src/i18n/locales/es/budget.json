@@ -55,6 +55,7 @@
     "all_types": "Todos los tipos",
     "all_categories": "Todas las partidas",
     "all_statuses": "Todos los estados",
+    "search_concept": "Buscar por concepto...",
     "concept_required": "El concepto es requerido",
     "amount_required": "El importe es requerido"
   },
