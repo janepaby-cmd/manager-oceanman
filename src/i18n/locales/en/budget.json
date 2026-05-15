@@ -55,6 +55,7 @@
     "all_types": "All types",
     "all_categories": "All categories",
     "all_statuses": "All statuses",
+    "search_concept": "Search by concept...",
     "concept_required": "Concept is required",
     "amount_required": "Amount is required"
   },
