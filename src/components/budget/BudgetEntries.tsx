@@ -33,6 +33,7 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [searchConcept, setSearchConcept] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editEntry, setEditEntry] = useState<Entry | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
