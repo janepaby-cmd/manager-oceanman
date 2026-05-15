@@ -53,13 +53,16 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c.name])), [categories]);
 
   const filtered = useMemo(() => {
+    const term = searchConcept.trim().toLowerCase();
+    const applySearch = term.length >= 3;
     return entries.filter(e => {
       if (filterType !== "all" && e.type !== filterType) return false;
       if (filterCategory !== "all" && e.category_id !== filterCategory) return false;
       if (filterStatus !== "all" && e.status !== filterStatus) return false;
+      if (applySearch && !e.concept.toLowerCase().includes(term)) return false;
       return true;
     });
-  }, [entries, filterType, filterCategory, filterStatus]);
+  }, [entries, filterType, filterCategory, filterStatus, searchConcept]);
 
   const totalIncome = filtered.filter(e => e.type === "income").reduce((s, e) => s + Number(e.amount), 0);
   const totalExpenses = filtered.filter(e => e.type === "expense").reduce((s, e) => s + Number(e.amount), 0);
