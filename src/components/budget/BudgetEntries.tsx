@@ -88,18 +88,47 @@ export default function BudgetEntries({ projectId, canCreate, canEdit, canDelete
     return <Badge className={`${variants[status] || ""} text-xs`}>{t(`entries.status_${status}`)}</Badge>;
   };
 
+  const handleExport = () => {
+    exportBudgetExcel(entries, categories, {
+      date: t("entries.date"),
+      category: t("entries.category"),
+      concept: t("entries.concept"),
+      amount: t("entries.amount"),
+      status: t("entries.status"),
+      income: t("entries.total_income"),
+      expenses: t("entries.total_expenses"),
+      netResult: t("entries.net_result"),
+      noCategory: t("entries.no_category"),
+      statusLabel: (s: string) => t(`entries.status_${s}`),
+      sheetBudget: t("entries.export_sheet_budget"),
+      sheetAnalysis: t("entries.export_sheet_analysis"),
+      kpiIncome: t("analysis.kpi_income"),
+      kpiExpenses: t("analysis.kpi_expenses"),
+      kpiResult: t("analysis.kpi_result"),
+      byCategory: t("entries.export_by_category"),
+      month: t("entries.export_month"),
+      total: t("entries.amount"),
+    }, `${t("module_name")}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   if (loading) return <p className="text-center py-8 text-muted-foreground">{t("common:loading", "Cargando...")}</p>;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-semibold">{t("entries.title")}</h3>
-        {canCreate && (
-          <Button size="sm" onClick={() => { setEditEntry(null); setShowForm(true); }}>
-            <Plus className="h-4 w-4 mr-1" /> {t("entries.add_entry")}
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={handleExport} disabled={entries.length === 0}>
+            <FileSpreadsheet className="h-4 w-4 mr-1" /> {t("entries.export_excel")}
           </Button>
-        )}
+          {canCreate && (
+            <Button size="sm" onClick={() => { setEditEntry(null); setShowForm(true); }}>
+              <Plus className="h-4 w-4 mr-1" /> {t("entries.add_entry")}
+            </Button>
+          )}
+        </div>
       </div>
+
 
       {/* Totals */}
       <div className="grid grid-cols-3 gap-3">
