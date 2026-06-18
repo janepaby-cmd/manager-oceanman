@@ -15,6 +15,7 @@ import MessagesPage from "./pages/MessagesPage";
 import MessageDetailPage from "./pages/MessageDetailPage";
 import Unsubscribe from "./pages/Unsubscribe";
 import ProfilePage from "./pages/ProfilePage";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
