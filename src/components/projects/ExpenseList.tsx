@@ -11,6 +11,7 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import ExpenseFormDialog from "./ExpenseFormDialog";
+import { openProjectFile } from "@/lib/projectFiles";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
