@@ -235,9 +235,9 @@ export default function ExpenseList({ projectId, canManage, canEdit = canManage,
                         <TableCell className="text-right font-medium">€{parseFloat(exp.amount).toFixed(2)}</TableCell>
                         <TableCell>
                           {exp.ticket_url ? (
-                            <a href={exp.ticket_url} target="_blank" rel="noopener noreferrer">
+                            <button type="button" onClick={() => openProjectFile(exp.ticket_url)}>
                               <FileText className="h-4 w-4 text-primary" />
-                            </a>
+                            </button>
                           ) : "—"}
                         </TableCell>
                         {(canEdit || canDelete) && (
