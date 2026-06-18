@@ -56,6 +56,11 @@
     "all_categories": "All categories",
     "all_statuses": "All statuses",
     "search_concept": "Search by concept...",
+    "export_excel": "Export Excel",
+    "export_sheet_budget": "Budget",
+    "export_sheet_analysis": "Analysis",
+    "export_by_category": "By category",
+    "export_month": "Month",
     "concept_required": "Concept is required",
     "amount_required": "Amount is required"
   },
