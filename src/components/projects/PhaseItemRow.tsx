@@ -11,6 +11,7 @@ import SignatureDialog from "./SignatureDialog";
 import ItemComments from "./ItemComments";
 import { notifyItemCompleted } from "@/lib/notifyItemCompleted";
 import SendToExternalDialog from "./external-users/SendToExternalDialog";
+import { openProjectFile } from "@/lib/projectFiles";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
