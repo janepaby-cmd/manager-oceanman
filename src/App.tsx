@@ -15,6 +15,7 @@ import MessagesPage from "./pages/MessagesPage";
 import MessageDetailPage from "./pages/MessageDetailPage";
 import Unsubscribe from "./pages/Unsubscribe";
 import ProfilePage from "./pages/ProfilePage";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ function AppInner() {
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
           <Route path="/dashboard/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
