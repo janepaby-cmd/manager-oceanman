@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, FolderOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { openProjectFile } from "@/lib/projectFiles";
 
 interface Props {
   projectId: string;
