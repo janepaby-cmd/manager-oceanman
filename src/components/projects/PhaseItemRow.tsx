@@ -265,13 +265,13 @@ export default function PhaseItemRow({ item, projectId, projectName = "", phaseN
           <div className="flex flex-col gap-1 ml-6">
             {files.map((f) => (
               <div key={f.id} className="flex items-center gap-1.5 bg-muted/50 rounded px-2 py-1 text-xs">
-                <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:underline text-foreground min-w-0 flex-1">
+                <button type="button" onClick={() => openProjectFile(f.file_url)} className="flex items-center gap-1.5 hover:underline text-foreground min-w-0 flex-1 text-left">
                   <FileText className="h-3 w-3 shrink-0" />
                   <span className="truncate">{f.file_name}</span>
                   {f.file_extension && (
                     <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 uppercase shrink-0">{f.file_extension}</Badge>
                   )}
-                </a>
+                </button>
                 <Button variant="ghost" size="icon" className="h-5 w-5 p-0 shrink-0" onClick={() => handleRemoveFile(f.id)}>
                   <X className="h-3 w-3 text-destructive" />
                 </Button>
