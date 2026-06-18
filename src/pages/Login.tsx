@@ -151,6 +151,10 @@ export default function Login() {
 
         <p className="text-center text-xs text-slate-500">
           © {new Date().getFullYear()} {settings.app_name}
+          {" · "}
+          <a href="/privacy" className="hover:text-white transition-colors underline">
+            Privacidad y seguridad
+          </a>
         </p>
       </div>
     </div>
