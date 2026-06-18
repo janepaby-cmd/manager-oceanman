@@ -56,6 +56,11 @@
     "all_categories": "Todas las partidas",
     "all_statuses": "Todos los estados",
     "search_concept": "Buscar por concepto...",
+    "export_excel": "Exportar Excel",
+    "export_sheet_budget": "Presupuesto",
+    "export_sheet_analysis": "Análisis",
+    "export_by_category": "Por partida",
+    "export_month": "Mes",
     "concept_required": "El concepto es requerido",
     "amount_required": "El importe es requerido"
   },
