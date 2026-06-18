@@ -277,9 +277,9 @@ export default function ExpenseList({ projectId, canManage, canEdit = canManage,
                       <span>{format(new Date(exp.expense_date), "dd/MM/yyyy", { locale: dateLocale })}</span>
                       <div className="flex items-center gap-2">
                         {exp.ticket_url && (
-                          <a href={exp.ticket_url} target="_blank" rel="noopener noreferrer">
+                          <button type="button" onClick={() => openProjectFile(exp.ticket_url)}>
                             <FileText className="h-3.5 w-3.5 text-primary" />
-                          </a>
+                          </button>
                         )}
                         {(canEdit || canDelete) && (
                           <>
