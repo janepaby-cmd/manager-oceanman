@@ -142,11 +142,10 @@ export default function ExpenseFormDialog({ open, onOpenChange, projectId, expen
 
       if (file) {
         const ext = file.name.split(".").pop();
-        const path = `expenses/${projectId}/${Date.now()}.${ext}`;
+        const path = `${projectId}/expenses/${Date.now()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("project-files").upload(path, file);
         if (upErr) throw upErr;
-        const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
-        ticketUrl = urlData.publicUrl;
+        ticketUrl = path;
       }
 
       const payload = {

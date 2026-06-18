@@ -11,6 +11,7 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import ExpenseFormDialog from "./ExpenseFormDialog";
+import { openProjectFile } from "@/lib/projectFiles";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -235,9 +236,9 @@ export default function ExpenseList({ projectId, canManage, canEdit = canManage,
                         <TableCell className="text-right font-medium">€{parseFloat(exp.amount).toFixed(2)}</TableCell>
                         <TableCell>
                           {exp.ticket_url ? (
-                            <a href={exp.ticket_url} target="_blank" rel="noopener noreferrer">
+                            <button type="button" onClick={() => openProjectFile(exp.ticket_url)}>
                               <FileText className="h-4 w-4 text-primary" />
-                            </a>
+                            </button>
                           ) : "—"}
                         </TableCell>
                         {(canEdit || canDelete) && (
@@ -277,9 +278,9 @@ export default function ExpenseList({ projectId, canManage, canEdit = canManage,
                       <span>{format(new Date(exp.expense_date), "dd/MM/yyyy", { locale: dateLocale })}</span>
                       <div className="flex items-center gap-2">
                         {exp.ticket_url && (
-                          <a href={exp.ticket_url} target="_blank" rel="noopener noreferrer">
+                          <button type="button" onClick={() => openProjectFile(exp.ticket_url)}>
                             <FileText className="h-3.5 w-3.5 text-primary" />
-                          </a>
+                          </button>
                         )}
                         {(canEdit || canDelete) && (
                           <>

@@ -1649,6 +1649,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_project_file: {
+        Args: { _path: string; _user_id: string }
+        Returns: boolean
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, FolderOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { openProjectFile } from "@/lib/projectFiles";
 
 interface Props {
   projectId: string;
@@ -119,10 +120,8 @@ export default function ProjectDocuments({ projectId, refreshKey }: Props) {
                     {doc.file_extension}
                   </Badge>
                 )}
-                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" asChild>
-                  <a href={doc.file_url} target="_blank" rel="noopener noreferrer" download>
-                    <Download className="h-3.5 w-3.5" />
-                  </a>
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => openProjectFile(doc.file_url)}>
+                  <Download className="h-3.5 w-3.5" />
                 </Button>
               </div>
             ))}
