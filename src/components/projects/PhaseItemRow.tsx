@@ -114,14 +114,13 @@ export default function PhaseItemRow({ item, projectId, projectName = "", phaseN
         continue;
       }
 
-      const path = `${item.phase_id}/${item.id}/${Date.now()}_${file.name}`;
+      const path = `${projectId}/${item.phase_id}/${item.id}/${Date.now()}_${file.name}`;
       const { error: upErr } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
       if (upErr) { toast.error(t("fileUploadError")); continue; }
-      const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
 
       await supabase.from("phase_item_files").insert({
         item_id: item.id,
-        file_url: urlData.publicUrl,
+        file_url: path,
         file_name: file.name,
         file_extension: ext,
         file_size: file.size,
